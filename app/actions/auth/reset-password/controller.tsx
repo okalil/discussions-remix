@@ -1,15 +1,9 @@
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
-import { type Handle } from 'remix/ui';
 
 import { routes } from '../../../routes.ts';
-import { AuthLayout } from '../../../ui/auth/layout.tsx';
-import {
-  ResetPasswordForm,
-  resetPasswordValidator,
-  type ResetPasswordFormProps,
-} from '../../../ui/auth/reset-password.browser.tsx';
-import { Document } from '../../../ui/document.tsx';
+import { resetPasswordValidator } from '../../../ui/auth/reset-password-form.browser.tsx';
+import { ResetPasswordPage } from '../../../ui/auth/reset-password-page.tsx';
 
 export default createController(routes.auth.resetPassword, {
   actions: {
@@ -53,13 +47,3 @@ export default createController(routes.auth.resetPassword, {
     },
   },
 });
-
-function ResetPasswordPage(handle: Handle<ResetPasswordFormProps>) {
-  return () => (
-    <Document title="Reset Password">
-      <AuthLayout title="Reset Password">
-        <ResetPasswordForm {...handle.props} />
-      </AuthLayout>
-    </Document>
-  );
-}

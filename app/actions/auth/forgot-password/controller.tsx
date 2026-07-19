@@ -1,15 +1,9 @@
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
-import { type Handle } from 'remix/ui';
 
 import { routes } from '../../../routes.ts';
-import {
-  ForgotPasswordForm,
-  forgotPasswordValidator,
-  type ForgotPasswordFormProps,
-} from '../../../ui/auth/forgot-password.browser.tsx';
-import { AuthLayout } from '../../../ui/auth/layout.tsx';
-import { Document } from '../../../ui/document.tsx';
+import { forgotPasswordValidator } from '../../../ui/auth/forgot-password-form.browser.tsx';
+import { ForgotPasswordPage } from '../../../ui/auth/forgot-password-page.tsx';
 
 export default createController(routes.auth.forgotPassword, {
   actions: {
@@ -44,13 +38,3 @@ export default createController(routes.auth.forgotPassword, {
     },
   },
 });
-
-function ForgotPasswordPage(handle: Handle<ForgotPasswordFormProps>) {
-  return () => (
-    <Document title="Forgot Password">
-      <AuthLayout title="Forgot Password">
-        <ForgotPasswordForm {...handle.props} />
-      </AuthLayout>
-    </Document>
-  );
-}

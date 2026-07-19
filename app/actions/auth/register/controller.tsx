@@ -1,16 +1,10 @@
 import { completeAuth } from 'remix/auth';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
-import { type Handle } from 'remix/ui';
 
 import { routes } from '../../../routes.ts';
-import { AuthLayout } from '../../../ui/auth/layout.tsx';
-import {
-  RegisterForm,
-  registerValidator,
-  type RegisterFormProps,
-} from '../../../ui/auth/register.browser.tsx';
-import { Document } from '../../../ui/document.tsx';
+import { registerValidator } from '../../../ui/auth/register-form.browser.tsx';
+import { RegisterPage } from '../../../ui/auth/register-page.tsx';
 
 export default createController(routes.auth.register, {
   actions: {
@@ -57,13 +51,3 @@ export default createController(routes.auth.register, {
     },
   },
 });
-
-function RegisterPage(handle: Handle<RegisterFormProps>) {
-  return () => (
-    <Document title="Register">
-      <AuthLayout title="Register">
-        <RegisterForm {...handle.props} />
-      </AuthLayout>
-    </Document>
-  );
-}
