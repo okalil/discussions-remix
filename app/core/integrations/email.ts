@@ -2,13 +2,9 @@ import type { ReactElement } from 'react';
 import { render } from 'react-email';
 import { Resend } from 'resend';
 
-export type EmailClient = Mailer;
+import { env } from '../../env.ts';
 
-export function createEmailClient(resendKey: string): EmailClient {
-  const resend = new Resend(resendKey);
-  const mailer = new ResendMailer(resend);
-  return mailer;
-}
+export type EmailClient = Mailer;
 
 interface Mailer {
   send(message: MailerMessage): Promise<void>;
@@ -41,3 +37,7 @@ class ResendMailer implements Mailer {
     }
   }
 }
+
+const resend = new Resend(env.RESEND_API_KEY);
+
+export const mailer = new ResendMailer(resend);
