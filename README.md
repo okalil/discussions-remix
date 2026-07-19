@@ -24,20 +24,20 @@ The `.browser` suffix marks **browser-loadable** modules, not “browser-only”
 
 One shared `FormValidator` over a `remix/data-schema` form schema is the contract between the form UI and the route action. `validate(formData)` returns either parsed `data` or an `errors` map and `getDraft()` to provide a serializable draft of partial form state.
 
-**Client**: The component renders a native `<form method="post">`.
+**Client**: the component renders a native `<form method="post">`.
 
 - `Form` manages form state and runs the shared validator client-side.
 - `field` mixin binds controls, setting up initial state and live validation after first attempt.
 - `submit` mixin coordinates progressively-enhanced submission handling.
 
-**Server**: The route action reuses the same validator server-side. On failure it re-renders with the `errors` and `draft`, which is used to restore the `Form` state after a full page reload.
+**Server**: the route action reuses the same validator server-side. On failure it re-renders with the `errors` and `draft`, which is used to restore the `Form` state after a full page reload.
 
 **Errors**: server errors are applied with `mergeState` on every render (either document or fetch responses), including failures only the server can determine (e.g. invalid credentials).
 
-See `app/ui/auth/login.browser.tsx` and `app/actions/auth/login/controller.tsx`.
+See `app/ui/auth/login-form.browser.tsx` and `app/actions/auth/login/controller.tsx`.
 
 ```tsx
-// login.browser.tsx
+// login-form.browser.tsx
 export const loginValidator = new FormValidator(
   f.object({
     email: f.field(s.string().pipe(email())),
@@ -83,10 +83,12 @@ export const LoginForm = clientEntry<LoginFormProps>(
 const validation = loginValidator.validate(context.formData);
 if (validation.errors) {
   return context.render(
-    <LoginPage
-      draft={validation.getDraft({ omit: ['password'] })}
-      errors={validation.errors}
-    />,
+    <LoginLayout>
+      <LoginForm
+        draft={validation.getDraft({ omit: ['password'] })}
+        errors={validation.errors}
+      />
+    </LoginLayout>,
     { status: 422 },
   );
 }

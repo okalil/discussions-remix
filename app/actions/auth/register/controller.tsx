@@ -3,25 +3,34 @@ import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
-import { registerValidator } from '../../../ui/auth/register-form.browser.tsx';
-import { RegisterPage } from '../../../ui/auth/register-page.tsx';
+import {
+  RegisterForm,
+  registerValidator,
+} from '../../../ui/auth/register-form.browser.tsx';
+import { RegisterLayout } from '../../../ui/auth/register-layout.tsx';
 
 export default createController(routes.auth.register, {
   actions: {
     async index({ render }) {
-      return render(<RegisterPage />);
+      return render(
+        <RegisterLayout>
+          <RegisterForm />
+        </RegisterLayout>,
+      );
     },
     async action(context) {
       const validation = registerValidator.validate(context.formData);
 
       if (validation.errors) {
         return context.render(
-          <RegisterPage
-            draft={validation.getDraft({
-              omit: ['password', 'passwordConfirmation'],
-            })}
-            errors={validation.errors}
-          />,
+          <RegisterLayout>
+            <RegisterForm
+              draft={validation.getDraft({
+                omit: ['password', 'passwordConfirmation'],
+              })}
+              errors={validation.errors}
+            />
+          </RegisterLayout>,
           { status: 422 },
         );
       }
@@ -30,12 +39,14 @@ export default createController(routes.auth.register, {
 
       if (await context.userService.getUserByEmail(data.email)) {
         return context.render(
-          <RegisterPage
-            draft={validation.getDraft({
-              omit: ['password', 'passwordConfirmation'],
-            })}
-            errors={{ email: 'Email already taken' }}
-          />,
+          <RegisterLayout>
+            <RegisterForm
+              draft={validation.getDraft({
+                omit: ['password', 'passwordConfirmation'],
+              })}
+              errors={{ email: 'Email already taken' }}
+            />
+          </RegisterLayout>,
           { status: 400 },
         );
       }

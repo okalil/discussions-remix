@@ -1,13 +1,16 @@
-import { css, type Handle } from 'remix/ui';
+import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Document } from '../document.tsx';
 import { Button } from '../shared/button.browser.tsx';
 import { Icon } from '../shared/icon.browser.tsx';
 import { AuthLayout } from './auth-layout.tsx';
-import { LoginForm, type LoginFormProps } from './login-form.browser.tsx';
 
-export function LoginPage(handle: Handle<LoginFormProps>) {
+type LoginLayoutProps = {
+  children?: RemixNode;
+};
+
+export function LoginLayout(handle: Handle<LoginLayoutProps>) {
   return () => (
     <Document title="Login">
       <AuthLayout title="Login">
@@ -27,7 +30,7 @@ export function LoginPage(handle: Handle<LoginFormProps>) {
             <span mix={styles.dividerLabel}>or</span>
           </div>
 
-          <LoginForm {...handle.props} />
+          {handle.props.children}
         </div>
       </AuthLayout>
     </Document>

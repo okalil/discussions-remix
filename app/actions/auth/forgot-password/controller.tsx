@@ -2,23 +2,32 @@ import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
-import { forgotPasswordValidator } from '../../../ui/auth/forgot-password-form.browser.tsx';
-import { ForgotPasswordPage } from '../../../ui/auth/forgot-password-page.tsx';
+import {
+  ForgotPasswordForm,
+  forgotPasswordValidator,
+} from '../../../ui/auth/forgot-password-form.browser.tsx';
+import { ForgotPasswordLayout } from '../../../ui/auth/forgot-password-layout.tsx';
 
 export default createController(routes.auth.forgotPassword, {
   actions: {
     async index({ render }) {
-      return render(<ForgotPasswordPage />);
+      return render(
+        <ForgotPasswordLayout>
+          <ForgotPasswordForm />
+        </ForgotPasswordLayout>,
+      );
     },
     async action(context) {
       const validation = forgotPasswordValidator.validate(context.formData);
 
       if (validation.errors) {
         return context.render(
-          <ForgotPasswordPage
-            draft={validation.getDraft()}
-            errors={validation.errors}
-          />,
+          <ForgotPasswordLayout>
+            <ForgotPasswordForm
+              draft={validation.getDraft()}
+              errors={validation.errors}
+            />
+          </ForgotPasswordLayout>,
           { status: 422 },
         );
       }
