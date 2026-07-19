@@ -1,9 +1,14 @@
 import {
   auth as authMiddleware,
+  requireAuth as requireAuthMiddleware,
   createSessionAuthScheme,
-} from 'remix/middleware/auth';
+} from 'remix/auth-middleware';
+import { redirect } from 'remix/response/redirect';
+import { Session } from 'remix/session';
 
 import { SessionService } from '../core/session.ts';
+import type { User } from '../core/user.types.ts';
+import { routes } from '../routes.ts';
 
 export function auth() {
   return authMiddleware({
@@ -25,5 +30,17 @@ export function auth() {
         },
       }),
     ],
+  });
+}
+
+export function requireAuth() {
+  return requireAuthMiddleware<User>({
+    onFailure(context) {
+      const session = context.get(Session)!;
+      session.flash('error', 'Hold on! You need to log in first.');
+      return redirect(
+        routes.auth.login.index.href(null, { returnTo: context.request.url }),
+      );
+    },
   });
 }

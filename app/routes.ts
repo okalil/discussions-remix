@@ -18,10 +18,14 @@ export const routes = route({
 
   discussions: {
     index: '/(categories/:category)',
-    show: '/discussions/:id',
     new: form('/discussions/new'),
     vote: post('/discussions/:id/vote'),
     hovercard: get('/discussions/:id/hovercard'),
+    show: {
+      index: '/discussions/:id',
+      comments: get('/discussions/:id/comments'),
+      participants: get('/discussions/:id/participants'),
+    },
   },
 
   comments: {

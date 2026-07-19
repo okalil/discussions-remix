@@ -16,7 +16,7 @@ export const submit = createMixin<HTMLFormElement, [Form<unknown>]>(
               e.preventDefault();
 
               const formElement = e.currentTarget;
-              form.setFormData(new FormData(formElement));
+              form.formData = new FormData(formElement);
 
               form.submit({
                 async handler() {

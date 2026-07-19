@@ -5,7 +5,7 @@ import type {
   FormDraft,
   FormInternalState,
   FormStateOverrides,
-  FormSubmitHandlers,
+  FormSubmitOptions,
   TypedFormData,
 } from './types.ts';
 
@@ -33,6 +33,7 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     submission: null,
   };
   #formData: TypedFormData<Output> = new FormData();
+  #submissionId = 0;
 
   get state() {
     return {
@@ -45,7 +46,7 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     return this.#formData;
   }
 
-  setFormData(formData: FormData) {
+  set formData(formData: FormData) {
     this.#formData = formData;
   }
 
@@ -63,28 +64,33 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     return validation;
   }
 
-  async submit(handlers: FormSubmitHandlers<Output>) {
+  async submit(options: FormSubmitOptions<Output>) {
+    const submissionId = ++this.#submissionId;
+
     this.#state.attempts++;
 
     const validation = this.validate();
     if (!validation.valid) {
-      handlers.onInvalid?.(validation.errors);
+      options.onInvalid?.(validation.errors);
       return;
     }
 
     try {
       this.#state.submission = { data: validation.data };
       this.dispatchEvent(new Event('statechange'));
-      await handlers.handler(validation.data);
+      await options.handler(validation.data);
     } finally {
-      this.#state.submission = null;
-      this.dispatchEvent(new Event('statechange'));
+      // A newer submit may have replaced this one; don't clear its pending state.
+      if (submissionId === this.#submissionId) {
+        this.#state.submission = null;
+        this.dispatchEvent(new Event('statechange'));
+      }
     }
   }
 }
 
 /** Recover FormData from a serialized draft after a page reload. */
-function restoreFormData<Output>(draft: FormDraft): TypedFormData<Output> {
+function restoreFormData(draft: FormDraft) {
   const formData = new FormData();
   for (const [key, value] of draft) {
     formData.append(key, value);

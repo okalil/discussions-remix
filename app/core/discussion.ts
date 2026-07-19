@@ -1,31 +1,34 @@
 import { sql } from 'remix/data-table';
 
-import type { GetDiscussionsInput } from './discussion.types.ts';
+import type {
+  CreateDiscussionsDto,
+  GetDiscussionsDto,
+} from './discussion.types.ts';
 import type { DatabaseClient } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 
 export class DiscussionService {
   constructor(private db: DatabaseClient) {}
 
-  async createDiscussion(
-    title: string,
-    body: string,
-    categoryId: number,
-    userId: number,
-  ) {
+  async createDiscussion({
+    title,
+    body,
+    categoryId,
+    authorId,
+  }: CreateDiscussionsDto) {
     return this.db.create(
       schema.discussions,
       {
         title,
         body,
         category_id: categoryId,
-        author_id: userId,
+        author_id: authorId,
       },
       { returnRow: true },
     );
   }
 
-  async getDiscussions(filters: GetDiscussionsInput, userId = 0) {
+  async getDiscussions({ currentUserId, ...filters }: GetDiscussionsDto) {
     const { category, page, limit, q } = filters;
     const offset = (page - 1) * limit;
     const categoryFilter = category ? sql`AND c.slug = ${category}` : sql``;
@@ -51,7 +54,7 @@ export class DiscussionService {
           u.image AS authorImage,
           COUNT(DISTINCT cm.id) AS commentsCount,
           COUNT(DISTINCT dv.user_id) AS votesCount,
-          COUNT(CASE WHEN dv.user_id = ${userId} THEN 1 END) > 0 AS voted
+          COUNT(CASE WHEN dv.user_id = ${currentUserId ?? 0} THEN 1 END) > 0 AS voted
         FROM discussions d
         LEFT JOIN users u ON u.id = d.author_id
         LEFT JOIN categories c ON c.id = d.category_id
@@ -177,7 +180,7 @@ export class DiscussionService {
     };
   }
 
-  async getDiscussionWithReply(id: number) {
+  async getDiscussionSummary(id: number) {
     const [discussionResult, replyResult] = await Promise.all([
       this.db.exec(sql`
         SELECT id, title, body

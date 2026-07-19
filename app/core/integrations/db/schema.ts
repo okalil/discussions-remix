@@ -1,4 +1,4 @@
-import { column as c, table } from 'remix/data-table';
+import { column as c, table, timestamps } from 'remix/data-table';
 
 export const users = table({
   name: 'users',
@@ -81,9 +81,10 @@ export const discussions = table({
       .notNull()
       .references('users', 'id')
       .onDelete('cascade'),
-    created_at: c.varchar(255).notNull(),
+    ...timestamps(),
   },
   primaryKey: 'id',
+  timestamps: true,
 });
 
 export const comments = table({
@@ -101,9 +102,10 @@ export const comments = table({
       .notNull()
       .references('discussions', 'id')
       .onDelete('cascade'),
-    created_at: c.varchar(255).notNull(),
+    ...timestamps(),
   },
   primaryKey: 'id',
+  timestamps: true,
 });
 
 export const discussionVotes = table({

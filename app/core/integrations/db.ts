@@ -9,4 +9,7 @@ export type DatabaseClient = Database;
 const sqlite = new DatabaseSync('./data.db');
 await setup(sqlite);
 
-export const db = createDatabase(createSqliteDatabaseAdapter(sqlite));
+export const db = createDatabase(createSqliteDatabaseAdapter(sqlite), {
+  // Store timestamps as ISO strings so raw SQL reads stay compatible with `new Date(...)`.
+  now: () => new Date().toISOString(),
+});

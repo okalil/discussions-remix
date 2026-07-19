@@ -18,66 +18,70 @@ class FieldChangeEvent extends Event {
   }
 }
 
-const fieldMixin = createMixin<
-  HTMLInputElement | HTMLSelectElement,
-  [Form<unknown>, string]
->((handle) => {
-  return (form, name, { key, ...props }) => {
-    const hasError = !!Reflect.get(form.state.errors, name);
+type FormControlElement =
+  | HTMLInputElement
+  | HTMLSelectElement
+  | HTMLTextAreaElement;
 
-    function getControlProps() {
-      if (props.type === 'checkbox') {
-        const values = form.formData.getAll(name);
-        return {
-          defaultChecked: values.includes(props.value ?? 'on'),
-        };
+const fieldMixin = createMixin<FormControlElement, [Form<unknown>, string]>(
+  (handle) => {
+    return (form, name, { key, ...props }) => {
+      const hasError = !!Reflect.get(form.state.errors, name);
+
+      function getControlProps() {
+        if (props.type === 'checkbox') {
+          const values = form.formData.getAll(name);
+          return {
+            defaultChecked: values.includes(props.value ?? 'on'),
+          };
+        }
+
+        if (props.type === 'radio') {
+          const value = form.formData.get(name);
+          return {
+            defaultChecked: value === props.value,
+          };
+        }
+
+        return { defaultValue: form.formData.get(name) ?? undefined };
       }
 
-      if (props.type === 'radio') {
-        const value = form.formData.get(name);
-        return {
-          defaultChecked: value === props.value,
-        };
-      }
+      return jsx(
+        handle.element,
+        {
+          ...props,
+          name,
+          autoFocus: hasError ? true : undefined,
+          'aria-invalid': hasError ? true : undefined,
+          ...getControlProps(),
+          mix: [
+            on<FormControlElement>('change', (e) => {
+              const node = e.currentTarget;
 
-      return { defaultValue: form.formData.get(name) ?? undefined };
-    }
+              form.formData = new FormData(node.form!);
+              if (form.state.attempts) {
+                form.validate();
+              }
 
-    return jsx(
-      handle.element,
-      {
-        ...props,
-        name,
-        autoFocus: hasError ? true : undefined,
-        'aria-invalid': hasError ? true : undefined,
-        ...getControlProps(),
-        mix: [
-          on<HTMLInputElement>('change', (e) => {
-            const node = e.currentTarget;
+              node.dispatchEvent(new FieldChangeEvent());
+            }),
+            on<FormControlElement>('input', (e) => {
+              const node = e.currentTarget;
 
-            form.setFormData(new FormData(node.form!));
-            if (form.state.attempts) {
-              form.validate();
-            }
+              form.formData = new FormData(node.form!);
+              if (form.state.attempts) {
+                form.validate();
+              }
 
-            node.dispatchEvent(new FieldChangeEvent());
-          }),
-          on<HTMLInputElement>('input', (e) => {
-            const node = e.currentTarget;
-
-            form.setFormData(new FormData(node.form!));
-            if (form.state.attempts) {
-              form.validate();
-            }
-
-            node.dispatchEvent(new FieldChangeEvent());
-          }),
-        ],
-      },
-      key,
-    );
-  };
-});
+              node.dispatchEvent(new FieldChangeEvent());
+            }),
+          ],
+        },
+        key,
+      );
+    };
+  },
+);
 
 export function field<Output>(form: Form<Output>, name: FormFieldName<Output>) {
   return fieldMixin(form as Form<unknown>, name);

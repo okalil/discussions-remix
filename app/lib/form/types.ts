@@ -6,9 +6,15 @@ export type FormFieldName<Output> = Extract<keyof Output, string>;
  */
 export type TypedFormData<Output> = unknown extends Output
   ? FormData
-  : Omit<FormData, 'get' | 'getAll'> & {
+  : Omit<FormData, 'append' | 'delete' | 'get' | 'getAll' | 'has' | 'set'> & {
+      append(name: FormFieldName<Output>, value: string | Blob): void;
+      append(name: FormFieldName<Output>, value: Blob, filename?: string): void;
+      delete(name: FormFieldName<Output>): void;
       get(name: FormFieldName<Output>): FormDataEntryValue | null;
       getAll(name: FormFieldName<Output>): FormDataEntryValue[];
+      has(name: FormFieldName<Output>): boolean;
+      set(name: FormFieldName<Output>, value: string | Blob): void;
+      set(name: FormFieldName<Output>, value: Blob, filename?: string): void;
     };
 
 /** Serializable FormData string entries. */
@@ -58,7 +64,7 @@ export type FormStateOverrides<Output> = {
   errors?: ErrorsOf<Output>;
 };
 
-export type FormSubmitHandlers<Output> = {
+export type FormSubmitOptions<Output> = {
   handler: (values: Output) => Promise<void>;
   onInvalid?: (errors: ErrorsOf<Output>) => void;
 };

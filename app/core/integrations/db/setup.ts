@@ -45,7 +45,8 @@ export async function setup(sqlite: DatabaseSync) {
       body TEXT NOT NULL,
       category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
       author_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      created_at VARCHAR(255) NOT NULL
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS comments (
@@ -53,7 +54,8 @@ export async function setup(sqlite: DatabaseSync) {
       body TEXT NOT NULL,
       author_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       discussion_id INTEGER NOT NULL REFERENCES discussions(id) ON DELETE CASCADE,
-      created_at VARCHAR(255) NOT NULL
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS discussion_votes (

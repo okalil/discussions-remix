@@ -10,6 +10,8 @@ import registerController from './actions/auth/register/controller.tsx';
 import resetPasswordController from './actions/auth/reset-password/controller.tsx';
 import rootController from './actions/controller.tsx';
 import discussionsController from './actions/discussions/controller.tsx';
+import newDiscussionController from './actions/discussions/new/controller.tsx';
+import showDiscussionController from './actions/discussions/show/controller.tsx';
 import { auth } from './middleware/auth.ts';
 import { render } from './middleware/render.ts';
 import { services } from './middleware/services.ts';
@@ -38,6 +40,8 @@ declare module 'remix/router' {
 
 router.map(routes, rootController);
 router.map(routes.discussions, discussionsController);
+router.map(routes.discussions.new, newDiscussionController);
+router.map(routes.discussions.show, showDiscussionController);
 router.map(routes.auth, authController);
 router.map(routes.auth.login, loginController);
 router.map(routes.auth.register, registerController);
