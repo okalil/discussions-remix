@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap');
+
+/* Remix UI emits css(...) under @layer rmx; keep this reset below it. */
+@layer base, rmx-reset, rmx;
+
+@layer base {
+  /* Use a more-intuitive box-sizing model */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: #e5e7eb;
+  }
+
+  /* Remove default margin */
+  *:not(dialog) {
+    margin: 0;
+  }
+
+  /* Enable keyword animations */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      interpolate-size: allow-keywords;
+    }
+  }
+
+  html {
+    font-family:
+      'Inter',
+      ui-sans-serif,
+      system-ui,
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      Segoe UI Symbol,
+      'Noto Color Emoji';
+  }
+
+  body {
+    /* Increase line-height */
+    line-height: 1.5;
+    /* Improve text rendering */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Improve media defaults */
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Inherit fonts for form controls */
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  /* Avoid text overflows */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
+
+  /* Improve line wrapping */
+  p {
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+}
+
+hr {
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}

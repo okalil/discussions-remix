@@ -1,0 +1,34 @@
+{
+  "name": "discussions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development node --watch --env-file-if-exists=.env --import remix/node-tsx server.ts",
+    "start": "NODE_ENV=production node --env-file-if-exists=.env --import remix/node-tsx server.ts",
+    "test": "NODE_ENV=test node --env-file-if-exists=.env --import remix/node-tsx --test",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  },
+  "dependencies": {
+    "arctic": "^3.7.0",
+    "bcryptjs": "^3.0.3",
+    "react": "^19.2.7",
+    "react-email": "^6.9.0",
+    "remix": "^3.0.0-beta.5",
+    "resend": "^6.17.2",
+    "tsx": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "^19.2.17",
+    "oxfmt": "^0.59.0",
+    "oxlint": "^1.74.0",
+    "typescript": "latest"
+  },
+  "engines": {
+    "node": ">=24.3.0"
+  }
+}
