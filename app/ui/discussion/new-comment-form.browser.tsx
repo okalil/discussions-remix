@@ -16,7 +16,7 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
   import.meta.url,
   function NewCommentForm(handle) {
     const form = new Form({
-      action: `/discussions/${handle.props.discussionId}/comments`,
+      action: `/discussions/${handle.props.discussionId}/comments/new`,
       method: 'post',
       validator: newCommentValidator,
     });

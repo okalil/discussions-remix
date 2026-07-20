@@ -9,7 +9,7 @@ import { voteCommentValidator } from '../../ui/discussion/vote-comment.browser.t
 export default createController(routes.comments, {
   middleware: [requireAuth()],
   actions: {
-    async create({ params, formData, auth, commentService }) {
+    async new({ params, formData, auth, commentService }) {
       const { errors, data } = newCommentValidator.validate(formData);
       if (errors) {
         return Response.json({ errors }, { status: 422 });
@@ -25,7 +25,7 @@ export default createController(routes.comments, {
 
       return Response.json({ comment });
     },
-    async update({ params, formData, auth, commentService }) {
+    async edit({ params, formData, auth, commentService }) {
       const { errors, data } = editCommentValidator.validate(formData);
       if (errors) {
         return Response.json({ errors }, { status: 422 });
