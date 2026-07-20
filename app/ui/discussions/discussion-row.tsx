@@ -39,8 +39,8 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
 
         <div mix={styles.content}>
           <DiscussionLink
-            href={routes.discussions.show.index.href({ id: discussion.id })}
-            hovercardHref={routes.discussions.hovercard.href({
+            href={routes.discussions.show.href({ id: discussion.id })}
+            previewHref={routes.discussions.frames.preview.href({
               id: discussion.id,
             })}
           >
@@ -62,7 +62,7 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
         />
 
         <a
-          href={routes.discussions.show.index.href({ id: discussion.id })}
+          href={routes.discussions.show.href({ id: discussion.id })}
           aria-label={`${discussion.commentsCount} comments`}
           mix={styles.comments}
         >

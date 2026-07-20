@@ -6,7 +6,7 @@ export interface GetDiscussionsDto {
   currentUserId?: number;
 }
 
-export interface CreateDiscussionsDto {
+export interface CreateDiscussionDto {
   title: string;
   body: string;
   categoryId: number;

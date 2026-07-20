@@ -4,6 +4,7 @@ import { routes } from '../../routes.ts';
 import { VoteDiscussion } from '../discussions/vote-discussion.browser.tsx';
 import { Layout } from '../layout.tsx';
 import { Avatar } from '../shared/avatar.tsx';
+import { Participants, type Participant } from './participants.tsx';
 
 type DiscussionPageProps = {
   discussion: {
@@ -25,13 +26,14 @@ type DiscussionPageProps = {
     participantsCount: number;
     voted: boolean;
   };
+  participants: Participant[];
   sort: string;
   authenticated: boolean;
 };
 
 export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
   return () => {
-    const { discussion, sort, authenticated } = handle.props;
+    const { discussion, participants, sort, authenticated } = handle.props;
 
     const commentsHeading =
       discussion.commentsCount > 1
@@ -44,11 +46,6 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
       discussion.participantsCount > 1
         ? `${discussion.participantsCount} participants`
         : '1 participant';
-
-    const commentsSrc = routes.discussions.show.comments.href(
-      { id: discussion.id },
-      { sort },
-    );
 
     return (
       <Layout title={discussion.title}>
@@ -125,7 +122,10 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                   </div>
                   <Frame
                     name="comments"
-                    src={commentsSrc}
+                    src={routes.discussions.frames.comments.href(
+                      { id: discussion.id },
+                      { sort },
+                    )}
                     fallback={<div>Loading comments...</div>}
                   />
                   <hr mix={styles.divider} />
@@ -168,13 +168,7 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
 
                   <div mix={styles.asideSection}>
                     <h3 mix={styles.asideHeading}>{participantsHeading}</h3>
-                    <Frame
-                      name="participants"
-                      src={routes.discussions.show.participants.href({
-                        id: discussion.id,
-                      })}
-                      fallback={<div>Loading participants...</div>}
-                    />
+                    <Participants participants={participants} />
                   </div>
                 </div>
               </aside>

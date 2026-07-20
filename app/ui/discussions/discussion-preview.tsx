@@ -3,7 +3,7 @@ import { css, type Handle } from 'remix/ui';
 import { routes } from '../../routes.ts';
 import { Avatar } from '../shared/avatar.tsx';
 
-type DiscussionHovercardProps = {
+type DiscussionPreviewProps = {
   discussion: {
     id: number;
     title: string;
@@ -18,7 +18,7 @@ type DiscussionHovercardProps = {
   };
 };
 
-export function DiscussionHovercard(handle: Handle<DiscussionHovercardProps>) {
+export function DiscussionPreview(handle: Handle<DiscussionPreviewProps>) {
   return () => {
     const { discussion } = handle.props;
     return (
@@ -27,7 +27,7 @@ export function DiscussionHovercard(handle: Handle<DiscussionHovercardProps>) {
           <div mix={styles.heading}>
             <p mix={styles.titleWrap}>
               <a
-                href={routes.discussions.show.index.href({ id: discussion.id })}
+                href={routes.discussions.show.href({ id: discussion.id })}
                 mix={styles.title}
               >
                 {discussion.title}

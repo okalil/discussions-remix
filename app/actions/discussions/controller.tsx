@@ -1,7 +1,7 @@
 import { createController } from 'remix/router';
 
 import { routes } from '../../routes.ts';
-import { DiscussionHovercard } from '../../ui/discussions/discussion-hovercard.tsx';
+import { DiscussionPage } from '../../ui/discussion/discussion-page.tsx';
 import { DiscussionsPage } from '../../ui/discussions/discussions-page.tsx';
 import { voteDiscussionValidator } from '../../ui/discussions/vote-discussion.browser.tsx';
 
@@ -43,6 +43,28 @@ export default createController(routes.discussions, {
         />,
       );
     },
+    async show({ render, url, params, auth, discussionService }) {
+      const discussionId = Number(params.id);
+      const currentUserId = auth.ok ? auth.identity.id : undefined;
+      const sort = url.searchParams.get('sort') || 'oldest';
+
+      const [discussion, participants] = await Promise.all([
+        discussionService.getDiscussion(discussionId, currentUserId),
+        discussionService.getParticipants(discussionId),
+      ]);
+      if (!discussion) {
+        return new Response('Not found', { status: 404 });
+      }
+
+      return render(
+        <DiscussionPage
+          discussion={discussion}
+          participants={participants}
+          sort={sort}
+          authenticated={auth.ok}
+        />,
+      );
+    },
     async vote({ params, formData, auth, discussionService }) {
       if (!auth.ok) return Response.json(auth.error, { status: 401 });
 
@@ -61,16 +83,6 @@ export default createController(routes.discussions, {
       }
 
       return Response.json({ ok: true });
-    },
-    async hovercard({ render, params, discussionService }) {
-      const discussionId = Number(params.id);
-      const discussion =
-        await discussionService.getDiscussionSummary(discussionId);
-      if (!discussion) {
-        return new Response('Not found', { status: 404 });
-      }
-
-      return render(<DiscussionHovercard discussion={discussion} />);
     },
   },
 });

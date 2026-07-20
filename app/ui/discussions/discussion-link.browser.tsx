@@ -2,7 +2,7 @@ import { clientEntry, css, Frame, on } from 'remix/ui';
 
 type DiscussionLinkProps = {
   href: string;
-  hovercardHref: string;
+  previewHref: string;
   children: string;
 };
 
@@ -35,7 +35,7 @@ export const DiscussionLink = clientEntry<DiscussionLinkProps>(
     }
 
     return () => {
-      const { href, hovercardHref, children } = handle.props;
+      const { href, previewHref, children } = handle.props;
       return (
         <div mix={styles.root}>
           <a
@@ -57,7 +57,7 @@ export const DiscussionLink = clientEntry<DiscussionLinkProps>(
                 on('pointerleave', scheduleClose),
               ]}
             >
-              <Frame src={hovercardHref} />
+              <Frame src={previewHref} />
             </div>
           )}
         </div>

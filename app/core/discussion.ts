@@ -1,7 +1,7 @@
 import { sql } from 'remix/data-table';
 
 import type {
-  CreateDiscussionsDto,
+  CreateDiscussionDto,
   GetDiscussionsDto,
 } from './discussion.types.ts';
 import type { DatabaseClient } from './integrations/db.ts';
@@ -15,7 +15,7 @@ export class DiscussionService {
     body,
     categoryId,
     authorId,
-  }: CreateDiscussionsDto) {
+  }: CreateDiscussionDto) {
     return this.db.create(
       schema.discussions,
       {
@@ -105,7 +105,7 @@ export class DiscussionService {
     };
   }
 
-  async getDiscussion(id: number, userId = 0) {
+  async getDiscussion(id: number, currentUserId?: number) {
     const result = await this.db.exec(sql`
       SELECT
         d.id,
@@ -129,7 +129,7 @@ export class DiscussionService {
             WHERE c2.discussion_id = d.id
           ) participant
         ) AS participantsCount,
-        COUNT(CASE WHEN dv.user_id = ${userId} THEN 1 END) > 0 AS voted
+        COUNT(CASE WHEN dv.user_id = ${currentUserId ?? 0} THEN 1 END) > 0 AS voted
       FROM discussions d
       LEFT JOIN users u ON u.id = d.author_id
       LEFT JOIN categories c ON c.id = d.category_id
@@ -180,7 +180,7 @@ export class DiscussionService {
     };
   }
 
-  async getDiscussionSummary(id: number) {
+  async getDiscussionPreview(id: number) {
     const [discussionResult, replyResult] = await Promise.all([
       this.db.exec(sql`
         SELECT id, title, body

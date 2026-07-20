@@ -47,9 +47,7 @@ export default createController(routes.discussions.new, {
         authorId: auth.identity.id,
       });
 
-      return redirect(
-        routes.discussions.show.index.href({ id: discussion.id }),
-      );
+      return redirect(routes.discussions.show.href({ id: discussion.id }));
     },
   },
 });
