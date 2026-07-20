@@ -64,7 +64,6 @@ export type FormStateOverrides<Output> = {
   errors?: ErrorsOf<Output>;
 };
 
-export type FormSubmitOptions<Output> = {
-  handler: (values: Output) => Promise<void>;
-  onInvalid?: (errors: ErrorsOf<Output>) => void;
+export type FormSubmitOptions = {
+  signal?: AbortSignal;
 };

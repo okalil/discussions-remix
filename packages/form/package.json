@@ -1,0 +1,11 @@
+{
+  "name": "@discussions/form",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "peerDependencies": {
+    "remix": "^3.0.0-beta.5"
+  }
+}

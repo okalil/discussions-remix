@@ -1,15 +1,15 @@
+import { field, Form, FormValidator, submit } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
-import { field, Form, FormValidator, submit } from '../../lib/form.browser.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
 import { Textarea } from '../shared/textarea.browser.tsx';
 
 type EditCommentFormProps = {
-  action: string;
+  id: number;
   body: string;
 };
 
@@ -17,7 +17,9 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
   import.meta.url,
   function EditCommentForm(handle) {
     const form = new Form({
-      validator: updateCommentValidator,
+      action: `/comments/${handle.props.id}`,
+      method: 'post',
+      validator: editCommentValidator,
       draft: [['body', handle.props.body]],
     });
     addEventListeners(form, handle.signal, {
@@ -27,7 +29,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
     return () => {
       const { errors, pending } = form.state;
       return (
-        <form action={handle.props.action} mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, submit(form)]}>
           <input type="hidden" name="_method" value="put" />
           <Field label="Write" error={errors.body}>
             <Textarea
@@ -68,7 +70,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
   },
 );
 
-export const updateCommentValidator = new FormValidator(
+export const editCommentValidator = new FormValidator(
   f.object({
     body: f.field(s.string().pipe(minLength(1))),
   }),

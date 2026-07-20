@@ -31,7 +31,7 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
     return (
       <li mix={styles.row}>
         <VoteDiscussion
-          action={routes.discussions.vote.href({ id: discussion.id })}
+          id={discussion.id}
           voted={discussion.voted}
           votesCount={discussion.votesCount}
           disabled={!authenticated}

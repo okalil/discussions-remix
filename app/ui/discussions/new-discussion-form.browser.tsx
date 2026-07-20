@@ -1,11 +1,11 @@
+import { field, Form, FormValidator, submit } from '@discussions/form';
+import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
-import { field, Form, FormValidator, submit } from '../../lib/form.browser.ts';
-import type { FormDraft, FormErrors } from '../../lib/form.browser.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { ErrorMessage } from '../shared/error-message.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
@@ -22,14 +22,15 @@ type Category = {
 export type NewDiscussionFormProps = {
   categories: Category[];
   draft?: FormDraft;
-  errors?: FormErrors<CreateDiscussionValidator>;
+  errors?: FormErrors<NewDiscussionValidator>;
 };
 
 export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
   import.meta.url,
   function NewDiscussionForm(handle) {
     const form = new Form({
-      validator: createDiscussionValidator,
+      method: 'post',
+      validator: newDiscussionValidator,
       draft: handle.props.draft,
     });
     addEventListeners(form, handle.signal, {
@@ -40,7 +41,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
       form.mergeState({ errors: handle.props.errors });
       const { errors, pending } = form.state;
       return (
-        <form method="post" mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, submit(form)]}>
           <Field label="Title" error={errors.title}>
             <Input
               mix={field(form, 'title')}
@@ -91,7 +92,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
   },
 );
 
-export const createDiscussionValidator = new FormValidator(
+export const newDiscussionValidator = new FormValidator(
   f.object({
     title: f.field(s.string().pipe(minLength(1))),
     body: f.field(s.string().pipe(minLength(1))),
@@ -99,7 +100,7 @@ export const createDiscussionValidator = new FormValidator(
   }),
 );
 
-type CreateDiscussionValidator = typeof createDiscussionValidator;
+type NewDiscussionValidator = typeof newDiscussionValidator;
 
 const styles = {
   form: css({

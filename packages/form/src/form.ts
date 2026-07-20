@@ -1,7 +1,8 @@
 import { TypedEventTarget } from 'remix/ui';
 
-import type { FormValidator } from './form-validator.browser.ts';
+import type { FormValidator } from './form-validator.ts';
 import type {
+  ErrorsOf,
   FormDraft,
   FormInternalState,
   FormStateOverrides,
@@ -14,15 +15,25 @@ type FormEventMap = {
 };
 
 type FormOptions<Output> = {
-  validator: FormValidator<Output>;
+  action?: string;
+  method?: string;
+  validator?: FormValidator<Output>;
   draft?: FormDraft;
 };
 
-export class Form<Output> extends TypedEventTarget<FormEventMap> {
-  constructor(private options: FormOptions<Output>) {
+export class Form<Output = unknown> extends TypedEventTarget<FormEventMap> {
+  readonly #action: string | undefined;
+  readonly #method: string | undefined;
+  readonly #validator: FormValidator<Output> | undefined;
+
+  constructor(options?: FormOptions<Output>) {
     super();
 
-    if (options.draft) {
+    this.#action = options?.action;
+    this.#method = options?.method;
+    this.#validator = options?.validator;
+
+    if (options?.draft) {
       this.#formData = restoreFormData(options.draft);
     }
   }
@@ -34,6 +45,14 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   };
   #formData: TypedFormData<Output> = new FormData();
   #submissionId = 0;
+
+  get action() {
+    return this.#action;
+  }
+
+  get method() {
+    return this.#method;
+  }
 
   get state() {
     return {
@@ -62,27 +81,40 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   }
 
   validate() {
-    const validation = this.options.validator.validate(this.#formData);
+    if (!this.#validator) {
+      return { valid: true, data: null as Output, errors: null } as const;
+    }
+
+    const validation = this.#validator.validate(this.#formData);
     this.#state.errors = validation.errors ?? {};
     this.dispatchEvent(new Event('statechange'));
     return validation;
   }
 
-  async submit(options: FormSubmitOptions<Output>) {
+  async submit(options: FormSubmitOptions = {}): Promise<Response> {
     const submissionId = ++this.#submissionId;
 
     this.#state.attempts++;
 
     const validation = this.validate();
     if (!validation.valid) {
-      options.onInvalid?.(validation.errors);
-      return;
+      throw new FormValidationError(validation.errors);
     }
+
+    const method = this.method ?? 'get';
+    const action = this.action ?? location.href;
+
+    const supportsBody = !['GET', 'HEAD'].includes(method.toUpperCase());
+    const body = supportsBody ? this.#formData : undefined;
 
     try {
       this.#state.submission = { data: validation.data };
       this.dispatchEvent(new Event('statechange'));
-      await options.handler(validation.data);
+      return await fetch(action, {
+        method,
+        body,
+        signal: options.signal,
+      });
     } finally {
       // A newer submit may have replaced this one; don't clear its pending state.
       if (submissionId === this.#submissionId) {
@@ -91,6 +123,22 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
       }
     }
   }
+}
+
+export class FormValidationError<Output = unknown> extends Error {
+  readonly errors: ErrorsOf<Output>;
+
+  constructor(errors: ErrorsOf<Output>) {
+    super('Form validation failed');
+    this.name = 'FormValidationError';
+    this.errors = errors;
+  }
+}
+
+export function isFormValidationError(
+  error: unknown,
+): error is FormValidationError {
+  return error instanceof FormValidationError;
 }
 
 /** Recover FormData from a serialized draft after a page reload. */

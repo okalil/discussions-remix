@@ -1,10 +1,10 @@
+import { field, Form, FormValidator, submit } from '@discussions/form';
+import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
-import { field, Form, FormValidator, submit } from '../../lib/form.browser.ts';
-import type { FormDraft, FormErrors } from '../../lib/form.browser.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
 import { Input } from '../shared/input.browser.tsx';
@@ -18,6 +18,7 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
   import.meta.url,
   function ForgotPasswordForm(handle) {
     const form = new Form({
+      method: 'post',
       validator: forgotPasswordValidator,
       draft: handle.props.draft,
     });
@@ -29,7 +30,7 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
       form.mergeState({ errors: handle.props.errors });
       const { errors, pending } = form.state;
       return (
-        <form method="post" mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, submit(form)]}>
           <Field label="Email" error={errors.email}>
             <Input mix={field(form, 'email')} type="email" aria-required />
           </Field>

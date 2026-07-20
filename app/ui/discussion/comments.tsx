@@ -1,6 +1,5 @@
 import { css, type Handle } from 'remix/ui';
 
-import { routes } from '../../routes.ts';
 import { CommentRow, type CommentListItem } from './comment-row.browser.tsx';
 
 type CommentsProps = {
@@ -20,9 +19,6 @@ export function Comments(handle: Handle<CommentsProps>) {
             key={comment.id}
             comment={comment}
             authenticated={authenticated}
-            editAction={routes.comments.edit.href({ id: comment.id })}
-            destroyAction={routes.comments.destroy.href({ id: comment.id })}
-            voteAction={routes.comments.vote.href({ id: comment.id })}
           />
         ))}
       </ul>

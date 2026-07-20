@@ -4,7 +4,7 @@ import { createController } from 'remix/router';
 import { requireAuth } from '../../../middleware/auth.ts';
 import { routes } from '../../../routes.ts';
 import {
-  createDiscussionValidator,
+  newDiscussionValidator,
   NewDiscussionForm,
 } from '../../../ui/discussions/new-discussion-form.browser.tsx';
 import { NewDiscussionLayout } from '../../../ui/discussions/new-discussion-layout.tsx';
@@ -27,7 +27,7 @@ export default createController(routes.discussions.new, {
       categoryService,
       discussionService,
     }) {
-      const validation = createDiscussionValidator.validate(formData);
+      const validation = newDiscussionValidator.validate(formData);
       if (validation.errors) {
         const categories = await categoryService.getCategories();
         return render(

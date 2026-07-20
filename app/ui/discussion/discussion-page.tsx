@@ -80,9 +80,7 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                   </div>
                   <div mix={styles.body}>{discussion.body}</div>
                   <VoteDiscussion
-                    action={routes.discussions.vote.href({
-                      id: discussion.id,
-                    })}
+                    id={discussion.id}
                     voted={discussion.voted}
                     votesCount={discussion.votesCount}
                     disabled={!authenticated}
@@ -139,11 +137,7 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                 {authenticated ? (
                   <section>
                     <h3 mix={styles.addCommentHeading}>Add a comment</h3>
-                    <NewCommentForm
-                      action={routes.comments.new.href({
-                        discussionId: discussion.id,
-                      })}
-                    />
+                    <NewCommentForm discussionId={discussion.id} />
                   </section>
                 ) : (
                   <div mix={styles.signInPrompt}>

@@ -28,8 +28,8 @@ export const routes = route({
   },
 
   comments: {
-    new: post('/discussions/:discussionId/comments/new'),
-    edit: put('/comments/:id'),
+    create: post('/discussions/:discussionId/comments'),
+    update: put('/comments/:id'),
     destroy: del('/comments/:id'),
     vote: post('/comments/:id/vote'),
   },

@@ -1,43 +1,33 @@
+import { field, Form, FormValidator, submit } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css, ref } from 'remix/ui';
+import { addEventListeners, clientEntry, css } from 'remix/ui';
 
-import { field, Form, FormValidator, submit } from '../../lib/form.browser.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
 import { Textarea } from '../shared/textarea.browser.tsx';
 
 type NewCommentFormProps = {
-  action: string;
+  discussionId: number;
 };
 
 export const NewCommentForm = clientEntry<NewCommentFormProps>(
   import.meta.url,
   function NewCommentForm(handle) {
     const form = new Form({
-      validator: createCommentValidator,
+      action: `/discussions/${handle.props.discussionId}/comments`,
+      method: 'post',
+      validator: newCommentValidator,
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
     });
 
-    let formElement: HTMLFormElement | null = null;
-    addEventListeners(handle.frame, handle.signal, {
-      reloadComplete() {
-        form.reset();
-        formElement?.reset();
-      },
-    });
-
     return () => {
       const { errors, pending } = form.state;
       return (
-        <form
-          method="post"
-          action={handle.props.action}
-          mix={[styles.form, submit(form), ref((node) => (formElement = node))]}
-        >
+        <form mix={[styles.form, submit(form)]}>
           <Field label="Write" error={errors.body}>
             <Textarea
               mix={field(form, 'body')}
@@ -60,7 +50,7 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
   },
 );
 
-export const createCommentValidator = new FormValidator(
+export const newCommentValidator = new FormValidator(
   f.object({
     body: f.field(s.string().pipe(minLength(1))),
   }),

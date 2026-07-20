@@ -1,18 +1,18 @@
-import * as f from 'remix/data-schema/form-data';
+import { Form } from '@discussions/form';
 import { addEventListeners, clientEntry, on } from 'remix/ui';
 
-import { Form, FormValidator } from '../../lib/form.browser.ts';
 import { Button } from '../shared/button.browser.tsx';
 
 type DeleteCommentProps = {
-  action: string;
+  id: number;
 };
 
 export const DeleteComment = clientEntry<DeleteCommentProps>(
   import.meta.url,
   function DeleteComment(handle) {
     const form = new Form({
-      validator: deleteCommentValidator,
+      action: `/comments/${handle.props.id}`,
+      method: 'delete',
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
@@ -25,16 +25,9 @@ export const DeleteComment = clientEntry<DeleteCommentProps>(
           type="button"
           variant="danger"
           pending={pending}
-          mix={on('click', (_, signal) => {
-            form.submit({
-              async handler() {
-                await fetch(handle.props.action, {
-                  method: 'delete',
-                  signal,
-                });
-                await handle.frames.top.reload();
-              },
-            });
+          mix={on('click', async (_, signal) => {
+            await form.submit({ signal });
+            await handle.frames.top.reload();
           })}
         >
           Delete Comment
@@ -43,5 +36,3 @@ export const DeleteComment = clientEntry<DeleteCommentProps>(
     };
   },
 );
-
-export const deleteCommentValidator = new FormValidator(f.object({}));

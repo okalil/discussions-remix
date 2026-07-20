@@ -25,9 +25,6 @@ export type CommentListItem = {
 type CommentRowProps = {
   comment: CommentListItem;
   authenticated: boolean;
-  editAction: string;
-  destroyAction: string;
-  voteAction: string;
 };
 
 export const CommentRow = clientEntry<CommentRowProps>(
@@ -58,10 +55,7 @@ export const CommentRow = clientEntry<CommentRowProps>(
               }),
             ]}
           >
-            <EditCommentForm
-              action={handle.props.editAction}
-              body={comment.body}
-            />
+            <EditCommentForm id={comment.id} body={comment.body} />
           </li>
         );
       }
@@ -189,7 +183,7 @@ export const CommentRow = clientEntry<CommentRowProps>(
                         >
                           Cancel
                         </Button>
-                        <DeleteComment action={handle.props.destroyAction} />
+                        <DeleteComment id={comment.id} />
                       </div>
                     </div>
                   </div>
@@ -200,7 +194,7 @@ export const CommentRow = clientEntry<CommentRowProps>(
 
           <p mix={styles.body}>{comment.body}</p>
           <VoteComment
-            action={handle.props.voteAction}
+            id={comment.id}
             voted={comment.voted}
             votesCount={comment.votesCount}
             disabled={!authenticated}

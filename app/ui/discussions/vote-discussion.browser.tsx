@@ -1,12 +1,12 @@
+import { Form, FormValidator } from '@discussions/form';
 import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
-import { Form, FormValidator } from '../../lib/form.browser.ts';
 import { Icon } from '../shared/icon.browser.tsx';
 
 type VoteDiscussionProps = {
-  action: string;
+  id: number;
   voted: boolean;
   votesCount: number;
   disabled?: boolean;
@@ -16,6 +16,8 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
   import.meta.url,
   function VoteDiscussion(handle) {
     const form = new Form({
+      action: `/discussions/${handle.props.id}/vote`,
+      method: 'post',
       validator: voteDiscussionValidator,
     });
     addEventListeners(form, handle.signal, {
@@ -43,18 +45,10 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
           data-highlighted={voted}
           mix={[
             styles.button,
-            on('click', (_, signal) => {
+            on('click', async (_, signal) => {
               form.formData.set('voted', String(!voted));
-              form.submit({
-                async handler() {
-                  await fetch(handle.props.action, {
-                    method: 'post',
-                    body: form.formData,
-                    signal,
-                  });
-                  await handle.frame.reload();
-                },
-              });
+              await form.submit({ signal });
+              await handle.frame.reload();
             }),
           ]}
         >
