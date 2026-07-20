@@ -1,20 +1,29 @@
 import { css, type Handle } from 'remix/ui';
 
-import { CommentRow, type CommentListItem } from './comment-row.tsx';
+import { routes } from '../../routes.ts';
+import { CommentRow, type CommentListItem } from './comment-row.browser.tsx';
 
 type CommentsProps = {
   comments: CommentListItem[];
+  authenticated: boolean;
 };
 
 export function Comments(handle: Handle<CommentsProps>) {
   return () => {
-    const { comments } = handle.props;
+    const { comments, authenticated } = handle.props;
     if (!comments.length) return null;
 
     return (
       <ul mix={styles.list}>
         {comments.map((comment) => (
-          <CommentRow key={comment.id} comment={comment} />
+          <CommentRow
+            key={comment.id}
+            comment={comment}
+            authenticated={authenticated}
+            editAction={routes.comments.edit.href({ id: comment.id })}
+            destroyAction={routes.comments.destroy.href({ id: comment.id })}
+            voteAction={routes.comments.vote.href({ id: comment.id })}
+          />
         ))}
       </ul>
     );

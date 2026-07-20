@@ -27,7 +27,7 @@ export default createController(routes.discussions.frames, {
         sort,
       );
 
-      return render(<Comments comments={comments} />);
+      return render(<Comments comments={comments} authenticated={auth.ok} />);
     },
   },
 });

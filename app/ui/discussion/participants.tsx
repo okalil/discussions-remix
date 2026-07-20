@@ -1,6 +1,6 @@
 import { css, type Handle } from 'remix/ui';
 
-import { Avatar } from '../shared/avatar.tsx';
+import { Avatar } from '../shared/avatar.browser.tsx';
 
 export type Participant = {
   id: number;

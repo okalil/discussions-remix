@@ -3,7 +3,9 @@ import { css, Frame, type Handle } from 'remix/ui';
 import { routes } from '../../routes.ts';
 import { VoteDiscussion } from '../discussions/vote-discussion.browser.tsx';
 import { Layout } from '../layout.tsx';
-import { Avatar } from '../shared/avatar.tsx';
+import { Avatar } from '../shared/avatar.browser.tsx';
+import { CommentsFallback } from './comments-fallback.tsx';
+import { NewCommentForm } from './new-comment-form.browser.tsx';
 import { Participants, type Participant } from './participants.tsx';
 
 type DiscussionPageProps = {
@@ -110,28 +112,40 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                         Newest
                       </a>
                       <a
-                        href="?sort=popular"
+                        href="?sort=top"
                         mix={[
                           styles.sortLink,
-                          sort === 'popular' && styles.sortLinkActive,
+                          sort === 'top' && styles.sortLinkActive,
                         ]}
                       >
-                        Popular
+                        Top
                       </a>
                     </nav>
                   </div>
                   <Frame
-                    name="comments"
                     src={routes.discussions.frames.comments.href(
                       { id: discussion.id },
                       { sort },
                     )}
-                    fallback={<div>Loading comments...</div>}
+                    fallback={
+                      <CommentsFallback
+                        commentsCount={discussion.commentsCount}
+                      />
+                    }
                   />
                   <hr mix={styles.divider} />
                 </section>
 
-                {!authenticated && (
+                {authenticated ? (
+                  <section>
+                    <h3 mix={styles.addCommentHeading}>Add a comment</h3>
+                    <NewCommentForm
+                      action={routes.comments.new.href({
+                        discussionId: discussion.id,
+                      })}
+                    />
+                  </section>
+                ) : (
                   <div mix={styles.signInPrompt}>
                     <a
                       href={routes.auth.register.index.href()}
@@ -266,6 +280,11 @@ const styles = {
   divider: css({
     border: 0,
     borderTop: '1px solid #d1d5db',
+  }),
+  addCommentHeading: css({
+    margin: '0 0 1rem',
+    fontSize: '1.125rem',
+    fontWeight: 500,
   }),
   signInPrompt: css({
     padding: '0.75rem',

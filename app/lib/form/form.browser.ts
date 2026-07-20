@@ -50,6 +50,10 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     this.#formData = formData;
   }
 
+  reset() {
+    this.#formData = new FormData();
+  }
+
   mergeState(overrides: FormStateOverrides<Output>) {
     this.#state = {
       ...this.#state,

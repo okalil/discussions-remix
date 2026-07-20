@@ -8,6 +8,7 @@ import forgotPasswordController from './actions/auth/forgot-password/controller.
 import loginController from './actions/auth/login/controller.tsx';
 import registerController from './actions/auth/register/controller.tsx';
 import resetPasswordController from './actions/auth/reset-password/controller.tsx';
+import commentsController from './actions/comments/controller.tsx';
 import rootController from './actions/controller.tsx';
 import discussionsController from './actions/discussions/controller.tsx';
 import discussionsFramesController from './actions/discussions/frames/controller.tsx';
@@ -42,6 +43,7 @@ router.map(routes, rootController);
 router.map(routes.discussions, discussionsController);
 router.map(routes.discussions.new, newDiscussionController);
 router.map(routes.discussions.frames, discussionsFramesController);
+router.map(routes.comments, commentsController);
 router.map(routes.auth, authController);
 router.map(routes.auth.login, loginController);
 router.map(routes.auth.register, registerController);

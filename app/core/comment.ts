@@ -10,7 +10,7 @@ export class CommentService {
     const orderBy =
       sort === 'newest'
         ? sql`c.created_at DESC`
-        : sort === 'popular'
+        : sort === 'top'
           ? sql`COUNT(comment_votes.user_id) DESC`
           : sql`c.created_at ASC`;
 

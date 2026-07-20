@@ -16,12 +16,15 @@ export const submit = createMixin<HTMLFormElement, [Form<unknown>]>(
               e.preventDefault();
 
               const formElement = e.currentTarget;
-              form.formData = new FormData(formElement);
+              const formData = new FormData(formElement);
 
+              const overrideMethod = formData.get('_method')?.toString();
+
+              form.formData = formData;
               form.submit({
                 async handler() {
                   const response = await fetch(formElement.action, {
-                    method: formElement.method,
+                    method: overrideMethod ?? formElement.method,
                     body: form.formData,
                     signal,
                   });

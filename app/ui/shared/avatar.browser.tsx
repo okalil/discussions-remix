@@ -1,8 +1,6 @@
 import { css, type Handle } from 'remix/ui';
 import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
 
-import { routes } from '../../routes.ts';
-
 type AvatarProps = {
   src?: string | null;
   alt: string;
@@ -32,7 +30,7 @@ function parseSource(src: string) {
   try {
     return new URL(src).toString();
   } catch {
-    return routes.uploads.href({ key: src });
+    return `/uploads/${src}`;
   }
 }
 
