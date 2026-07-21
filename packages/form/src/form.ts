@@ -12,6 +12,7 @@ import type {
 
 type FormEventMap = {
   statechange: Event;
+  submitcomplete: FormSubmitCompleteEvent;
 };
 
 type FormOptions<Output> = {
@@ -44,7 +45,7 @@ export class Form<Output = unknown> extends TypedEventTarget<FormEventMap> {
     submission: null,
   };
   #formData: TypedFormData<Output> = new FormData();
-  #submissionId = 0;
+  #submitAbortController: SubmitAbortController | null = null;
 
   get action() {
     return this.#action;
@@ -91,15 +92,17 @@ export class Form<Output = unknown> extends TypedEventTarget<FormEventMap> {
     return validation;
   }
 
-  async submit(options: FormSubmitOptions = {}): Promise<Response> {
-    const submissionId = ++this.#submissionId;
-
+  async submit({ signal }: FormSubmitOptions = {}): Promise<Response> {
     this.#state.attempts++;
 
     const validation = this.validate();
     if (!validation.valid) {
       throw new FormValidationError(validation.errors);
     }
+
+    this.#submitAbortController?.abort();
+    const submitAbortController = new SubmitAbortController();
+    this.#submitAbortController = submitAbortController;
 
     const method = this.method ?? 'get';
     const action = this.action ?? location.href;
@@ -110,18 +113,44 @@ export class Form<Output = unknown> extends TypedEventTarget<FormEventMap> {
     try {
       this.#state.submission = { data: validation.data };
       this.dispatchEvent(new Event('statechange'));
-      return await fetch(action, {
+
+      const unfollow = submitAbortController.follow(signal);
+      const response = await fetch(action, {
         method,
         body,
-        signal: options.signal,
+        signal: submitAbortController.signal,
       });
+      unfollow();
+
+      const event = new FormSubmitCompleteEvent(response);
+      this.dispatchEvent(event);
+      await event.settle();
+
+      return response;
     } finally {
-      // A newer submit may have replaced this one; don't clear its pending state.
-      if (submissionId === this.#submissionId) {
+      if (this.#submitAbortController === submitAbortController) {
+        this.#submitAbortController = null;
         this.#state.submission = null;
         this.dispatchEvent(new Event('statechange'));
       }
     }
+  }
+}
+
+export class FormSubmitCompleteEvent extends Event {
+  #extenders: Promise<unknown>[] = [];
+
+  constructor(public readonly response: Response) {
+    super('submitcomplete');
+  }
+
+  waitUntil(promise: PromiseLike<unknown>) {
+    this.#extenders.push(Promise.resolve(promise));
+  }
+
+  /** @internal */
+  async settle() {
+    await Promise.allSettled(this.#extenders);
   }
 }
 
@@ -141,11 +170,23 @@ export function isFormValidationError(
   return error instanceof FormValidationError;
 }
 
-/** Recover FormData from a serialized draft after a page reload. */
 function restoreFormData(draft: FormDraft) {
   const formData = new FormData();
   for (const [key, value] of draft) {
     formData.append(key, value);
   }
   return formData;
+}
+
+class SubmitAbortController extends AbortController {
+  follow(signal?: AbortSignal) {
+    if (signal?.aborted) {
+      this.abort(signal.reason);
+      throw new Error(signal.reason);
+    }
+
+    const onAbort = () => this.abort(signal?.reason);
+    signal?.addEventListener('abort', onAbort);
+    return () => signal?.removeEventListener('abort', onAbort);
+  }
 }

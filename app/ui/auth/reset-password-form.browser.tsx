@@ -26,6 +26,7 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {

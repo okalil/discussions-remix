@@ -16,12 +16,13 @@ export const VoteComment = clientEntry<VoteCommentProps>(
   import.meta.url,
   function VoteComment(handle) {
     const form = new Form({
-      action: `/comments/${handle.props.id}/vote`,
       method: 'post',
+      action: `/comments/${handle.props.id}/vote`,
       validator: voteCommentValidator,
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
     });
 
     return () => {
@@ -45,10 +46,9 @@ export const VoteComment = clientEntry<VoteCommentProps>(
           data-highlighted={voted}
           mix={[
             styles.button,
-            on('click', async (_, signal) => {
+            on('click', (_, signal) => {
               form.formData.set('voted', String(!voted));
-              await form.submit({ signal });
-              await handle.frame.reload();
+              form.submit({ signal });
             }),
           ]}
         >

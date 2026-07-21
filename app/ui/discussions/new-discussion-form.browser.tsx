@@ -35,6 +35,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {

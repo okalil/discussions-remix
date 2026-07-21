@@ -1,4 +1,4 @@
-import { createMixin, on, type FrameHandle } from 'remix/ui';
+import { createMixin, on } from 'remix/ui';
 import { jsx } from 'remix/ui/jsx-runtime';
 
 import { isFormValidationError, type Form } from './form.ts';
@@ -22,8 +22,10 @@ export const submit = createMixin<HTMLFormElement, [Form<unknown>]>(
 
               try {
                 const response = await form.submit({ signal });
-                await updateFrame(handle.frame, response);
-
+                if (response.redirected) {
+                  syncNavigationState(response.url);
+                  handle.frame.src = response.url;
+                }
                 if (response.ok) {
                   formElement.reset();
                   form.reset();
@@ -47,24 +49,6 @@ export const submit = createMixin<HTMLFormElement, [Form<unknown>]>(
     };
   },
 );
-
-async function updateFrame(frame: FrameHandle, response: Response) {
-  if (isFrameResponse(response)) {
-    if (response.redirected) {
-      syncNavigationState(response.url);
-      frame.src = response.url;
-    }
-
-    await frame.replace(response.body);
-  } else {
-    await frame.reload();
-  }
-}
-
-function isFrameResponse(response: Response) {
-  const contentType = response.headers.get('content-type');
-  return contentType?.includes('text/html') ?? false;
-}
 
 function syncNavigationState(url: string) {
   const navigationState = {

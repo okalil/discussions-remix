@@ -16,12 +16,13 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
   import.meta.url,
   function NewCommentForm(handle) {
     const form = new Form({
-      action: `/discussions/${handle.props.discussionId}/comments/new`,
       method: 'post',
+      action: `/discussions/${handle.props.discussionId}/comments/new`,
       validator: newCommentValidator,
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
     });
 
     return () => {

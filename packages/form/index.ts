@@ -2,6 +2,7 @@ export type { FormErrors, FormValues } from './src/form-validator.ts';
 export type { FormDraft } from './src/types.ts';
 export {
   Form,
+  FormSubmitCompleteEvent,
   FormValidationError,
   isFormValidationError,
 } from './src/form.ts';

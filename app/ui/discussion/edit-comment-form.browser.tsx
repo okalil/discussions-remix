@@ -17,20 +17,20 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
   import.meta.url,
   function EditCommentForm(handle) {
     const form = new Form({
+      method: 'put',
       action: `/comments/${handle.props.id}`,
-      method: 'post',
       validator: editCommentValidator,
       draft: [['body', handle.props.body]],
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
     });
 
     return () => {
       const { errors, pending } = form.state;
       return (
         <form mix={[styles.form, submit(form)]}>
-          <input type="hidden" name="_method" value="put" />
           <Field label="Write" error={errors.body}>
             <Textarea
               mix={field(form, 'body')}

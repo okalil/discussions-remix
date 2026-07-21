@@ -16,12 +16,13 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
   import.meta.url,
   function VoteDiscussion(handle) {
     const form = new Form({
-      action: `/discussions/${handle.props.id}/vote`,
       method: 'post',
+      action: `/discussions/${handle.props.id}/vote`,
       validator: voteDiscussionValidator,
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
     });
 
     return () => {
@@ -45,10 +46,9 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
           data-highlighted={voted}
           mix={[
             styles.button,
-            on('click', async (_, signal) => {
+            on('click', (_, signal) => {
               form.formData.set('voted', String(!voted));
-              await form.submit({ signal });
-              await handle.frame.reload();
+              form.submit({ signal });
             }),
           ]}
         >

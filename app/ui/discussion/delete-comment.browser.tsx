@@ -11,11 +11,12 @@ export const DeleteComment = clientEntry<DeleteCommentProps>(
   import.meta.url,
   function DeleteComment(handle) {
     const form = new Form({
-      action: `/comments/${handle.props.id}`,
       method: 'delete',
+      action: `/comments/${handle.props.id}`,
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => e.waitUntil(handle.frames.top.reload()),
     });
 
     return () => {
@@ -25,10 +26,7 @@ export const DeleteComment = clientEntry<DeleteCommentProps>(
           type="button"
           variant="danger"
           pending={pending}
-          mix={on('click', async (_, signal) => {
-            await form.submit({ signal });
-            await handle.frames.top.reload();
-          })}
+          mix={on('click', (_, signal) => void form.submit({ signal }))}
         >
           Delete Comment
         </Button>

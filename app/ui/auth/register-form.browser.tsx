@@ -25,6 +25,7 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {
