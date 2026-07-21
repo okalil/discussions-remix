@@ -1,4 +1,4 @@
-import { field, Form, FormValidator, submit } from '@discussions/form';
+import { field, Form, form, FormValidator } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
@@ -28,24 +28,24 @@ export type NewDiscussionFormProps = {
 export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
   import.meta.url,
   function NewDiscussionForm(handle) {
-    const form = new Form({
+    const newDiscussionForm = new Form({
       method: 'post',
       validator: newDiscussionValidator,
       draft: handle.props.draft,
     });
-    addEventListeners(form, handle.signal, {
+    addEventListeners(newDiscussionForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {
-      form.mergeState({ errors: handle.props.errors });
-      const { errors, pending } = form.state;
+      newDiscussionForm.mergeState({ errors: handle.props.errors });
+      const { errors, pending } = newDiscussionForm.state;
       return (
-        <form mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, form(newDiscussionForm)]}>
           <Field label="Title" error={errors.title}>
             <Input
-              mix={field(form, 'title')}
+              mix={field(newDiscussionForm, 'title')}
               placeholder="Title"
               aria-required
             />
@@ -53,7 +53,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
 
           <Field label="Body" error={errors.body}>
             <Textarea
-              mix={field(form, 'body')}
+              mix={field(newDiscussionForm, 'body')}
               placeholder="Body"
               aria-required
               rows={16}
@@ -62,7 +62,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
 
           <Field label="Category" error={errors.categoryId}>
             <select
-              mix={[styles.select, field(form, 'categoryId')]}
+              mix={[styles.select, field(newDiscussionForm, 'categoryId')]}
               aria-required
             >
               {handle.props.categories.map((category) => (

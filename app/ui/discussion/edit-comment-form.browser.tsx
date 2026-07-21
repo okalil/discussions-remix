@@ -1,4 +1,4 @@
-import { field, Form, FormValidator, submit } from '@discussions/form';
+import { field, Form, form, FormValidator } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -16,24 +16,24 @@ type EditCommentFormProps = {
 export const EditCommentForm = clientEntry<EditCommentFormProps>(
   import.meta.url,
   function EditCommentForm(handle) {
-    const form = new Form({
+    const editCommentForm = new Form({
       method: 'put',
       action: `/comments/${handle.props.id}`,
       validator: editCommentValidator,
       draft: [['body', handle.props.body]],
     });
-    addEventListeners(form, handle.signal, {
+    addEventListeners(editCommentForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
     });
 
     return () => {
-      const { errors, pending } = form.state;
+      const { errors, pending } = editCommentForm.state;
       return (
-        <form mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, form(editCommentForm)]}>
           <Field label="Write" error={errors.body}>
             <Textarea
-              mix={field(form, 'body')}
+              mix={field(editCommentForm, 'body')}
               placeholder="Write your comment here..."
               rows={4}
               aria-required

@@ -22,7 +22,7 @@ type FormOptions<Output> = {
   draft?: FormDraft;
 };
 
-export class Form<Output = unknown> extends TypedEventTarget<FormEventMap> {
+export class Form<Output> extends TypedEventTarget<FormEventMap> {
   readonly #action: string | undefined;
   readonly #method: string | undefined;
   readonly #validator: FormValidator<Output> | undefined;
@@ -44,7 +44,7 @@ export class Form<Output = unknown> extends TypedEventTarget<FormEventMap> {
     attempts: 0,
     submission: null,
   };
-  #formData: TypedFormData<Output> = new FormData();
+  #formData = new FormData();
   #submitAbortController: SubmitAbortController | null = null;
 
   get action() {
@@ -62,7 +62,7 @@ export class Form<Output = unknown> extends TypedEventTarget<FormEventMap> {
     };
   }
 
-  get formData() {
+  get formData(): TypedFormData<Output> {
     return this.#formData;
   }
 

@@ -1,8 +1,8 @@
 import { createMixin, on } from 'remix/ui';
 import { jsx } from 'remix/ui/jsx-runtime';
 
-import type { Form } from './form.ts';
-import type { FormFieldName } from './types.ts';
+import type { Form } from '../form.ts';
+import type { FormFieldName } from '../types.ts';
 
 export const fieldChangeType = 'field:change' as const;
 

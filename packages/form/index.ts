@@ -7,5 +7,5 @@ export {
   isFormValidationError,
 } from './src/form.ts';
 export { FormValidator } from './src/form-validator.ts';
-export { submit } from './src/submit.ts';
-export { field, fieldChangeType } from './src/field.ts';
+export { form } from './src/mixins/form.ts';
+export { field, fieldChangeType } from './src/mixins/field.ts';

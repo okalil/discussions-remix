@@ -1,4 +1,4 @@
-import { field, Form, FormValidator, submit } from '@discussions/form';
+import { field, Form, form, FormValidator } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
@@ -19,30 +19,34 @@ export type ResetPasswordFormProps = {
 export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
   import.meta.url,
   function ResetPasswordForm(handle) {
-    const form = new Form({
+    const resetPasswordForm = new Form({
       method: 'post',
       validator: resetPasswordValidator,
       draft: handle.props.draft ?? [['token', handle.props.token ?? '']],
     });
-    addEventListeners(form, handle.signal, {
+    addEventListeners(resetPasswordForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {
-      form.mergeState({ errors: handle.props.errors });
-      const { errors, pending } = form.state;
+      resetPasswordForm.mergeState({ errors: handle.props.errors });
+      const { errors, pending } = resetPasswordForm.state;
       return (
-        <form mix={[styles.form, submit(form)]}>
-          <input mix={field(form, 'token')} type="hidden" />
+        <form mix={[styles.form, form(resetPasswordForm)]}>
+          <input mix={field(resetPasswordForm, 'token')} type="hidden" />
 
           <Field label="Email" error={errors.email}>
-            <Input mix={field(form, 'email')} type="email" aria-required />
+            <Input
+              mix={field(resetPasswordForm, 'email')}
+              type="email"
+              aria-required
+            />
           </Field>
 
           <Field label="New Password" error={errors.password}>
             <Input
-              mix={field(form, 'password')}
+              mix={field(resetPasswordForm, 'password')}
               type="password"
               aria-required
             />
@@ -50,7 +54,7 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
 
           <Field label="Confirm Password" error={errors.passwordConfirmation}>
             <Input
-              mix={field(form, 'passwordConfirmation')}
+              mix={field(resetPasswordForm, 'passwordConfirmation')}
               type="password"
               aria-required
             />

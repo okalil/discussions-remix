@@ -1,4 +1,4 @@
-import { field, Form, FormValidator, submit } from '@discussions/form';
+import { field, Form, form, FormValidator } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, minLength } from 'remix/data-schema/checks';
@@ -18,26 +18,26 @@ export type LoginFormProps = {
 export const LoginForm = clientEntry<LoginFormProps>(
   import.meta.url,
   function LoginForm(handle) {
-    const form = new Form({
+    const loginForm = new Form({
       method: 'post',
       validator: loginValidator,
       draft: handle.props.draft,
     });
-    addEventListeners(form, handle.signal, {
+    addEventListeners(loginForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {
-      form.mergeState({ errors: handle.props.errors });
-      const { errors, pending } = form.state;
+      loginForm.mergeState({ errors: handle.props.errors });
+      const { errors, pending } = loginForm.state;
       return (
-        <form mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, form(loginForm)]}>
           <Field label="Email" error={errors.email}>
-            <Input mix={field(form, 'email')} type="email" />
+            <Input mix={field(loginForm, 'email')} type="email" />
           </Field>
           <Field label="Password" error={errors.password}>
-            <Input mix={field(form, 'password')} type="password" />
+            <Input mix={field(loginForm, 'password')} type="password" />
           </Field>
 
           <a href="./forgot-password" mix={styles.link}>

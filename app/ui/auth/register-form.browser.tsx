@@ -1,4 +1,4 @@
-import { field, Form, FormValidator, submit } from '@discussions/form';
+import { field, Form, form, FormValidator } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
@@ -18,37 +18,45 @@ export type RegisterFormProps = {
 export const RegisterForm = clientEntry<RegisterFormProps>(
   import.meta.url,
   function RegisterForm(handle) {
-    const form = new Form({
+    const registerForm = new Form({
       method: 'post',
       validator: registerValidator,
       draft: handle.props.draft,
     });
-    addEventListeners(form, handle.signal, {
+    addEventListeners(registerForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {
-      form.mergeState({ errors: handle.props.errors });
-      const { errors, pending } = form.state;
+      registerForm.mergeState({ errors: handle.props.errors });
+      const { errors, pending } = registerForm.state;
       return (
-        <form mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, form(registerForm)]}>
           <Field label="Name" error={errors.name}>
-            <Input mix={field(form, 'name')} type="text" aria-required />
+            <Input
+              mix={field(registerForm, 'name')}
+              type="text"
+              aria-required
+            />
           </Field>
           <Field label="Email" error={errors.email}>
-            <Input mix={field(form, 'email')} type="email" aria-required />
+            <Input
+              mix={field(registerForm, 'email')}
+              type="email"
+              aria-required
+            />
           </Field>
           <Field label="Password" error={errors.password}>
             <Input
-              mix={field(form, 'password')}
+              mix={field(registerForm, 'password')}
               type="password"
               aria-required
             />
           </Field>
           <Field label="Confirm password" error={errors.passwordConfirmation}>
             <Input
-              mix={field(form, 'passwordConfirmation')}
+              mix={field(registerForm, 'passwordConfirmation')}
               type="password"
               aria-required
             />
