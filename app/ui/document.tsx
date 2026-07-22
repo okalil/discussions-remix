@@ -1,6 +1,7 @@
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../routes.ts';
+import { NavigationProgress } from './shared/navigation-progress.browser.tsx';
 
 export interface DocumentProps {
   children?: RemixNode;
@@ -23,6 +24,7 @@ export function Document(handle: Handle<DocumentProps>) {
         {meta}
       </head>
       <body mix={css({ height: '100%' })}>
+        <NavigationProgress />
         {children}
         <script
           type="module"
