@@ -1,22 +1,8 @@
-import { createMixin, on } from 'remix/ui';
+import { createMixin, on, type Dispatched } from 'remix/ui';
 import { jsx } from 'remix/ui/jsx-runtime';
 
 import type { Form } from '../form.ts';
 import type { FormFieldName } from '../types.ts';
-
-export const fieldChangeType = 'field:change' as const;
-
-declare global {
-  interface HTMLElementEventMap {
-    [fieldChangeType]: FieldChangeEvent;
-  }
-}
-
-class FieldChangeEvent extends Event {
-  constructor() {
-    super(fieldChangeType, { bubbles: true, cancelable: true });
-  }
-}
 
 type FormControlElement =
   | HTMLInputElement
@@ -85,4 +71,24 @@ const fieldMixin = createMixin<FormControlElement, [Form<unknown>, string]>(
 
 export function field<Output>(form: Form<Output>, name: FormFieldName<Output>) {
   return fieldMixin(form as Form<unknown>, name);
+}
+
+const FIELD_CHANGE_EVENT = 'field:change' as const;
+
+class FieldChangeEvent extends Event {
+  constructor() {
+    super(FIELD_CHANGE_EVENT, { bubbles: true, cancelable: true });
+  }
+}
+
+type FieldChangeHandler<target extends HTMLElement> = (
+  event: Dispatched<FieldChangeEvent, target>,
+  signal: AbortSignal,
+) => void | Promise<void>;
+
+export function onFieldChange<target extends HTMLElement>(
+  handler: FieldChangeHandler<target>,
+  captureBoolean?: boolean,
+) {
+  return on(FIELD_CHANGE_EVENT as never, handler as never, captureBoolean);
 }

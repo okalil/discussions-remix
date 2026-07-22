@@ -1,4 +1,4 @@
-import { field, Form, form, FormValidator } from '@discussions/form';
+import { field, Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
@@ -13,7 +13,7 @@ import { Input } from '../shared/input.browser.tsx';
 export type ResetPasswordFormProps = {
   token?: string | null;
   draft?: FormDraft;
-  errors?: FormErrors<ResetPasswordValidator>;
+  errors?: FormErrors;
 };
 
 export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
@@ -21,7 +21,7 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
   function ResetPasswordForm(handle) {
     const resetPasswordForm = new Form({
       method: 'post',
-      validator: resetPasswordValidator,
+      schema: resetPasswordSchema,
       draft: handle.props.draft ?? [['token', handle.props.token ?? '']],
     });
     addEventListeners(resetPasswordForm, handle.signal, {
@@ -83,23 +83,17 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
   },
 );
 
-export const resetPasswordValidator = new FormValidator(
-  f
-    .object({
-      email: f.field(s.string().pipe(email())),
-      password: f.field(s.string().pipe(minLength(8), maxLength(72))),
-      passwordConfirmation: f.field(
-        s.string().pipe(minLength(8), maxLength(72)),
-      ),
-      token: f.field(s.string()),
-    })
-    .refine(
-      (data) => data.password === data.passwordConfirmation,
-      'Passwords do not match',
-    ),
-);
-
-type ResetPasswordValidator = typeof resetPasswordValidator;
+export const resetPasswordSchema = f
+  .object({
+    email: f.field(s.string().pipe(email())),
+    password: f.field(s.string().pipe(minLength(8), maxLength(72))),
+    passwordConfirmation: f.field(s.string().pipe(minLength(8), maxLength(72))),
+    token: f.field(s.string()),
+  })
+  .refine(
+    (data) => data.password === data.passwordConfirmation,
+    'Passwords do not match',
+  );
 
 const styles = {
   form: css({

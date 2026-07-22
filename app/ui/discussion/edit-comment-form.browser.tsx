@@ -1,4 +1,4 @@
-import { field, Form, form, FormValidator } from '@discussions/form';
+import { field, Form, form } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -19,7 +19,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
     const editCommentForm = new Form({
       method: 'put',
       action: `/comments/${handle.props.id}`,
-      validator: editCommentValidator,
+      schema: editCommentSchema,
       draft: [['body', handle.props.body]],
     });
     addEventListeners(editCommentForm, handle.signal, {
@@ -70,11 +70,9 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
   },
 );
 
-export const editCommentValidator = new FormValidator(
-  f.object({
-    body: f.field(s.string().pipe(minLength(1))),
-  }),
-);
+export const editCommentSchema = f.object({
+  body: f.field(s.string().pipe(minLength(1))),
+});
 
 const styles = {
   form: css({

@@ -1,4 +1,4 @@
-import { field, Form, form, FormValidator } from '@discussions/form';
+import { field, Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
@@ -22,7 +22,7 @@ type Category = {
 export type NewDiscussionFormProps = {
   categories: Category[];
   draft?: FormDraft;
-  errors?: FormErrors<NewDiscussionValidator>;
+  errors?: FormErrors;
 };
 
 export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
@@ -30,7 +30,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
   function NewDiscussionForm(handle) {
     const newDiscussionForm = new Form({
       method: 'post',
-      validator: newDiscussionValidator,
+      schema: newDiscussionSchema,
       draft: handle.props.draft,
     });
     addEventListeners(newDiscussionForm, handle.signal, {
@@ -93,15 +93,11 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
   },
 );
 
-export const newDiscussionValidator = new FormValidator(
-  f.object({
-    title: f.field(s.string().pipe(minLength(1))),
-    body: f.field(s.string().pipe(minLength(1))),
-    categoryId: f.field(coerce.number()),
-  }),
-);
-
-type NewDiscussionValidator = typeof newDiscussionValidator;
+export const newDiscussionSchema = f.object({
+  title: f.field(s.string().pipe(minLength(1))),
+  body: f.field(s.string().pipe(minLength(1))),
+  categoryId: f.field(coerce.number()),
+});
 
 const styles = {
   form: css({

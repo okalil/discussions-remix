@@ -1,3 +1,6 @@
+import type { InferOutput, Schema } from 'remix/data-schema';
+import type { FormDataSource } from 'remix/data-schema/form-data';
+
 export type FormFieldName<Output> = Extract<keyof Output, string>;
 
 /**
@@ -24,27 +27,14 @@ export type GetDraftOptions<Output> = {
   omit?: readonly FormFieldName<Output>[];
 };
 
+export type FormErrors = Partial<Record<string | 'root', string>>;
+
 export type ErrorsOf<Output> = Partial<
   Record<FormFieldName<Output> | 'root', string>
 >;
 
-export type InvalidValidation<Output> = {
-  valid: false;
-  errors: ErrorsOf<Output>;
-  data: null;
-  getDraft: (options?: GetDraftOptions<Output>) => FormDraft;
-};
-
-export type ValidValidation<Output> = {
-  valid: true;
-  errors: null;
-  data: Output;
-  getDraft: (options?: GetDraftOptions<Output>) => FormDraft;
-};
-
-export type FormValidation<Output> =
-  | InvalidValidation<Output>
-  | ValidValidation<Output>;
+export type FormValues<S> =
+  S extends Schema<FormDataSource, unknown> ? InferOutput<S> : never;
 
 export type FormSubmission<Output> = {
   data: Output;
@@ -60,8 +50,8 @@ export type FormState<Output> = FormInternalState<Output> & {
   pending: boolean;
 };
 
-export type FormStateOverrides<Output> = {
-  errors?: ErrorsOf<Output>;
+export type FormStateOverrides = {
+  errors?: FormErrors;
 };
 
 export type FormSubmitOptions = {

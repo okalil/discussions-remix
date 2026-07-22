@@ -1,6 +1,7 @@
+import * as s from 'remix/data-schema';
+import type { FormDataSource } from 'remix/data-schema/form-data';
 import { TypedEventTarget } from 'remix/ui';
 
-import type { FormValidator } from './form-validator.ts';
 import type {
   ErrorsOf,
   FormDraft,
@@ -9,6 +10,7 @@ import type {
   FormSubmitOptions,
   TypedFormData,
 } from './types.ts';
+import { toErrors, toFormData } from './utils.ts';
 
 type FormEventMap = {
   statechange: Event;
@@ -18,24 +20,24 @@ type FormEventMap = {
 type FormOptions<Output> = {
   action?: string;
   method?: string;
-  validator?: FormValidator<Output>;
+  schema?: s.Schema<FormDataSource, Output>;
   draft?: FormDraft;
 };
 
 export class Form<Output> extends TypedEventTarget<FormEventMap> {
   readonly #action: string | undefined;
   readonly #method: string | undefined;
-  readonly #validator: FormValidator<Output> | undefined;
+  readonly #schema: s.Schema<FormDataSource, Output> | undefined;
 
   constructor(options?: FormOptions<Output>) {
     super();
 
     this.#action = options?.action;
     this.#method = options?.method;
-    this.#validator = options?.validator;
+    this.#schema = options?.schema;
 
     if (options?.draft) {
-      this.#formData = restoreFormData(options.draft);
+      this.#formData = toFormData(options.draft);
     }
   }
 
@@ -74,22 +76,32 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     this.#formData = new FormData();
   }
 
-  mergeState(overrides: FormStateOverrides<Output>) {
+  mergeState(overrides: FormStateOverrides) {
     this.#state = {
       ...this.#state,
-      errors: { ...this.#state.errors, ...overrides.errors },
+      errors: {
+        ...this.#state.errors,
+        ...overrides.errors,
+      } as ErrorsOf<Output>,
     };
   }
 
   validate() {
-    if (!this.#validator) {
+    if (!this.#schema) {
       return { valid: true, data: null as Output, errors: null } as const;
     }
 
-    const validation = this.#validator.validate(this.#formData);
-    this.#state.errors = validation.errors ?? {};
+    const result = s.parseSafe(this.#schema, this.#formData);
+    if (!result.success) {
+      const errors = toErrors(result.issues) as ErrorsOf<Output>;
+      this.#state.errors = errors;
+      this.dispatchEvent(new Event('statechange'));
+      return { valid: false as const, errors, data: null };
+    }
+
+    this.#state.errors = {};
     this.dispatchEvent(new Event('statechange'));
-    return validation;
+    return { valid: true as const, errors: null, data: result.value };
   }
 
   async submit({ signal }: FormSubmitOptions = {}): Promise<Response> {
@@ -168,14 +180,6 @@ export function isFormValidationError(
   error: unknown,
 ): error is FormValidationError {
   return error instanceof FormValidationError;
-}
-
-function restoreFormData(draft: FormDraft) {
-  const formData = new FormData();
-  for (const [key, value] of draft) {
-    formData.append(key, value);
-  }
-  return formData;
 }
 
 class SubmitAbortController extends AbortController {

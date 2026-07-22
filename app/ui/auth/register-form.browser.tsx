@@ -1,4 +1,4 @@
-import { field, Form, form, FormValidator } from '@discussions/form';
+import { field, Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
@@ -12,7 +12,7 @@ import { Input } from '../shared/input.browser.tsx';
 
 export type RegisterFormProps = {
   draft?: FormDraft;
-  errors?: FormErrors<RegisterValidator>;
+  errors?: FormErrors;
 };
 
 export const RegisterForm = clientEntry<RegisterFormProps>(
@@ -20,7 +20,7 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
   function RegisterForm(handle) {
     const registerForm = new Form({
       method: 'post',
-      validator: registerValidator,
+      schema: registerSchema,
       draft: handle.props.draft,
     });
     addEventListeners(registerForm, handle.signal, {
@@ -85,23 +85,17 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
   },
 );
 
-export const registerValidator = new FormValidator(
-  f
-    .object({
-      name: f.field(s.string().pipe(minLength(1))),
-      email: f.field(s.string().pipe(email())),
-      password: f.field(s.string().pipe(minLength(8), maxLength(72))),
-      passwordConfirmation: f.field(
-        s.string().pipe(minLength(8), maxLength(72)),
-      ),
-    })
-    .refine(
-      (data) => data.password === data.passwordConfirmation,
-      'Passwords do not match',
-    ),
-);
-
-type RegisterValidator = typeof registerValidator;
+export const registerSchema = f
+  .object({
+    name: f.field(s.string().pipe(minLength(1))),
+    email: f.field(s.string().pipe(email())),
+    password: f.field(s.string().pipe(minLength(8), maxLength(72))),
+    passwordConfirmation: f.field(s.string().pipe(minLength(8), maxLength(72))),
+  })
+  .refine(
+    (data) => data.password === data.passwordConfirmation,
+    'Passwords do not match',
+  );
 
 const styles = {
   form: css({

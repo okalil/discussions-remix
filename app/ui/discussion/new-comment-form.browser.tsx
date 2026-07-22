@@ -1,4 +1,4 @@
-import { field, Form, form, FormValidator } from '@discussions/form';
+import { field, Form, form } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -18,7 +18,7 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
     const newCommentForm = new Form({
       method: 'post',
       action: `/discussions/${handle.props.discussionId}/comments/new`,
-      validator: newCommentValidator,
+      schema: newCommentSchema,
     });
     addEventListeners(newCommentForm, handle.signal, {
       statechange: () => handle.update(),
@@ -51,11 +51,9 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
   },
 );
 
-export const newCommentValidator = new FormValidator(
-  f.object({
-    body: f.field(s.string().pipe(minLength(1))),
-  }),
-);
+export const newCommentSchema = f.object({
+  body: f.field(s.string().pipe(minLength(1))),
+});
 
 const styles = {
   form: css({

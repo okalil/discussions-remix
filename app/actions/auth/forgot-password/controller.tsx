@@ -1,10 +1,12 @@
+import { toDraft, toErrors } from '@discussions/form';
+import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
 import {
   ForgotPasswordForm,
-  forgotPasswordValidator,
+  forgotPasswordSchema,
 } from '../../../ui/auth/forgot-password-form.browser.tsx';
 import { ForgotPasswordLayout } from '../../../ui/auth/forgot-password-layout.tsx';
 
@@ -18,14 +20,14 @@ export default createController(routes.auth.forgotPassword, {
       );
     },
     async action(context) {
-      const validation = forgotPasswordValidator.validate(context.formData);
+      const validation = parseSafe(forgotPasswordSchema, context.formData);
 
-      if (validation.errors) {
+      if (!validation.success) {
         return context.render(
           <ForgotPasswordLayout>
             <ForgotPasswordForm
-              draft={validation.getDraft()}
-              errors={validation.errors}
+              draft={toDraft(context.formData)}
+              errors={toErrors(validation.issues)}
             />
           </ForgotPasswordLayout>,
           { status: 422 },
@@ -33,7 +35,7 @@ export default createController(routes.auth.forgotPassword, {
       }
 
       const user = await context.userService.getUserByEmail(
-        validation.data.email,
+        validation.value.email,
       );
       if (user?.email) {
         await context.accountService.forgetPassword(user.email);

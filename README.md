@@ -22,15 +22,15 @@ The `.browser` suffix marks **browser-loadable** modules, not “browser-only”
 
 ### Form validation
 
-One shared `FormValidator` over a `remix/data-schema` form schema is the contract between the form UI and the route action. `validate(formData)` returns either parsed `data` or an `errors` map and `getDraft()` to provide a serializable draft of partial form state.
+A shared `remix/data-schema` form schema is the contract between the form UI and the route action. The client and server both validate with that schema; helpers map failures into form-friendly `errors` and serializable `draft` state.
 
 **Client**: the component renders a native `<form method="post">`.
 
-- `Form` manages form state and runs the shared validator client-side.
+- `Form` manages form state and runs the shared schema client-side.
 - `field` mixin binds controls, setting up initial state and live validation after first attempt.
-- `submit` mixin coordinates progressively-enhanced submission handling.
+- `form` mixin binds the form element and coordinates progressively-enhanced submission handling.
 
-**Server**: the route action reuses the same validator server-side. On failure it re-renders with the `errors` and `draft`, which is used to restore the `Form` state after a full page reload.
+**Server**: the route action validates with the same schema server-side. On failure it re-renders with `toErrors(issues)` and `toDraft(formData)`, which is used to restore `Form` values after a full page reload.
 
 **Errors**: server errors are applied with `mergeState` on every render (either document or fetch responses), including failures only the server can determine (e.g. invalid credentials).
 
@@ -38,34 +38,34 @@ See `app/ui/auth/login-form.browser.tsx` and `app/actions/auth/login/controller.
 
 ```tsx
 // login-form.browser.tsx
-export const loginValidator = new FormValidator(
-  f.object({
-    email: f.field(s.string().pipe(email())),
-    password: f.field(s.string().pipe(minLength(8))),
-  }),
-);
+export const loginSchema = f.object({
+  email: f.field(s.string().pipe(email())),
+  password: f.field(s.string().pipe(minLength(8))),
+});
 
 export const LoginForm = clientEntry<LoginFormProps>(
   import.meta.url,
   function LoginForm(handle) {
-    const form = new Form({
-      validator: loginValidator,
+    const loginForm = new Form({
+      method: 'post',
+      schema: loginSchema,
       draft: handle.props.draft,
     });
-    addEventListeners(form, handle.signal, {
+    addEventListeners(loginForm, handle.signal, {
       statechange: () => handle.update(),
+      submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {
-      form.mergeState({ errors: handle.props.errors });
-      const { errors, pending } = form.state;
+      loginForm.mergeState({ errors: handle.props.errors });
+      const { errors, pending } = loginForm.state;
       return (
-        <form method="post" mix={[styles.form, submit(form)]}>
+        <form mix={[styles.form, form(loginForm)]}>
           <Field label="Email" error={errors.email}>
-            <Input mix={field(form, 'email')} type="email" />
+            <Input mix={field(loginForm, 'email')} type="email" />
           </Field>
           <Field label="Password" error={errors.password}>
-            <Input mix={field(form, 'password')} type="password" />
+            <Input mix={field(loginForm, 'password')} type="password" />
           </Field>
           {errors.root && <ErrorMessage error={errors.root} />}
           <Button type="submit" variant="primary" pending={pending}>
@@ -80,19 +80,19 @@ export const LoginForm = clientEntry<LoginFormProps>(
 
 ```tsx
 // login/controller.tsx (action)
-const validation = loginValidator.validate(context.formData);
-if (validation.errors) {
+const validation = parseSafe(loginSchema, context.formData);
+if (!validation.success) {
   return context.render(
     <LoginLayout>
       <LoginForm
-        draft={validation.getDraft({ omit: ['password'] })}
-        errors={validation.errors}
+        draft={toDraft(context.formData, { omit: ['password'] })}
+        errors={toErrors(validation.issues)}
       />
     </LoginLayout>,
     { status: 422 },
   );
 }
-// …use validation.data, then redirect
+// …use validation.value, then redirect
 ```
 
 ## Commands

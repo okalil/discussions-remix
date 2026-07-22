@@ -1,4 +1,4 @@
-import { field, Form, form, FormValidator } from '@discussions/form';
+import { field, Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email } from 'remix/data-schema/checks';
@@ -11,7 +11,7 @@ import { Input } from '../shared/input.browser.tsx';
 
 export type ForgotPasswordFormProps = {
   draft?: FormDraft;
-  errors?: FormErrors<ForgotPasswordValidator>;
+  errors?: FormErrors;
 };
 
 export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
@@ -19,7 +19,7 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
   function ForgotPasswordForm(handle) {
     const forgotPasswordForm = new Form({
       method: 'post',
-      validator: forgotPasswordValidator,
+      schema: forgotPasswordSchema,
       draft: handle.props.draft,
     });
     addEventListeners(forgotPasswordForm, handle.signal, {
@@ -62,13 +62,9 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
   },
 );
 
-export const forgotPasswordValidator = new FormValidator(
-  f.object({
-    email: f.field(s.string().pipe(email())),
-  }),
-);
-
-type ForgotPasswordValidator = typeof forgotPasswordValidator;
+export const forgotPasswordSchema = f.object({
+  email: f.field(s.string().pipe(email())),
+});
 
 const styles = {
   form: css({

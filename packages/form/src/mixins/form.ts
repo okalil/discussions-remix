@@ -25,7 +25,7 @@ export const form = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
                 syncNavigationState(response.url);
                 handle.frame.src = response.url;
               }
-              if (response.ok) formElement.reset()
+              if (response.ok) formElement.reset();
             } catch (error) {
               if (isFormValidationError(error)) {
                 const fieldName = Object.keys(error.errors).find(
@@ -38,7 +38,7 @@ export const form = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
               throw error;
             }
           }),
-          on<HTMLFormElement>('reset', () => instance.reset())
+          on<HTMLFormElement>('reset', () => instance.reset()),
         ],
       },
       key,

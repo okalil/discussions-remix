@@ -1,4 +1,4 @@
-import { field, Form, form, FormValidator } from '@discussions/form';
+import { field, Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, minLength } from 'remix/data-schema/checks';
@@ -12,7 +12,7 @@ import { Input } from '../shared/input.browser.tsx';
 
 export type LoginFormProps = {
   draft?: FormDraft;
-  errors?: FormErrors<LoginValidator>;
+  errors?: FormErrors;
 };
 
 export const LoginForm = clientEntry<LoginFormProps>(
@@ -20,7 +20,7 @@ export const LoginForm = clientEntry<LoginFormProps>(
   function LoginForm(handle) {
     const loginForm = new Form({
       method: 'post',
-      validator: loginValidator,
+      schema: loginSchema,
       draft: handle.props.draft,
     });
     addEventListeners(loginForm, handle.signal, {
@@ -66,14 +66,10 @@ export const LoginForm = clientEntry<LoginFormProps>(
   },
 );
 
-export const loginValidator = new FormValidator(
-  f.object({
-    email: f.field(s.string().pipe(email())),
-    password: f.field(s.string().pipe(minLength(8))),
-  }),
-);
-
-type LoginValidator = typeof loginValidator;
+export const loginSchema = f.object({
+  email: f.field(s.string().pipe(email())),
+  password: f.field(s.string().pipe(minLength(8))),
+});
 
 const styles = {
   form: css({

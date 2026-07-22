@@ -1,10 +1,12 @@
+import { toDraft, toErrors } from '@discussions/form';
+import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
 import {
   ResetPasswordForm,
-  resetPasswordValidator,
+  resetPasswordSchema,
 } from '../../../ui/auth/reset-password-form.browser.tsx';
 import { ResetPasswordLayout } from '../../../ui/auth/reset-password-layout.tsx';
 
@@ -19,28 +21,30 @@ export default createController(routes.auth.resetPassword, {
       );
     },
     async action(context) {
-      const validation = resetPasswordValidator.validate(context.formData);
+      const validation = parseSafe(resetPasswordSchema, context.formData);
 
-      if (validation.errors) {
+      if (!validation.success) {
         return context.render(
           <ResetPasswordLayout>
             <ResetPasswordForm
-              draft={validation.getDraft({
+              draft={toDraft(context.formData, {
                 omit: ['password', 'passwordConfirmation'],
               })}
-              errors={validation.errors}
+              errors={toErrors(validation.issues)}
             />
           </ResetPasswordLayout>,
           { status: 422 },
         );
       }
 
-      const reset = await context.accountService.resetPassword(validation.data);
+      const reset = await context.accountService.resetPassword(
+        validation.value,
+      );
       if (!reset) {
         return context.render(
           <ResetPasswordLayout>
             <ResetPasswordForm
-              draft={validation.getDraft({
+              draft={toDraft(context.formData, {
                 omit: ['password', 'passwordConfirmation'],
               })}
               errors={{ root: 'Invalid credentials' }}

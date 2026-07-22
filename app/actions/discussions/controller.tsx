@@ -1,9 +1,11 @@
+import { toErrors } from '@discussions/form';
+import { parseSafe } from 'remix/data-schema';
 import { createController } from 'remix/router';
 
 import { routes } from '../../routes.ts';
 import { DiscussionPage } from '../../ui/discussion/discussion-page.tsx';
 import { DiscussionsPage } from '../../ui/discussions/discussions-page.tsx';
-import { voteDiscussionValidator } from '../../ui/discussions/vote-discussion.browser.tsx';
+import { voteDiscussionSchema } from '../../ui/discussions/vote-discussion.browser.tsx';
 
 export default createController(routes.discussions, {
   actions: {
@@ -68,14 +70,17 @@ export default createController(routes.discussions, {
     async vote({ params, formData, auth, discussionService }) {
       if (!auth.ok) return Response.json(auth.error, { status: 401 });
 
-      const validation = voteDiscussionValidator.validate(formData);
-      if (!validation.valid) {
-        return Response.json({ errors: validation.errors }, { status: 422 });
+      const validation = parseSafe(voteDiscussionSchema, formData);
+      if (!validation.success) {
+        return Response.json(
+          { errors: toErrors(validation.issues) },
+          { status: 422 },
+        );
       }
 
       const discussionId = Number(params.id);
       const currentUserId = auth.identity.id;
-      const voted = validation.data.voted;
+      const voted = validation.value.voted;
       if (voted) {
         await discussionService.voteDiscussion(discussionId, currentUserId);
       } else {

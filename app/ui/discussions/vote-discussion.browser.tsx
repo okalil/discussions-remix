@@ -1,4 +1,4 @@
-import { Form, FormValidator } from '@discussions/form';
+import { Form } from '@discussions/form';
 import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
@@ -18,7 +18,7 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
     const form = new Form({
       method: 'post',
       action: `/discussions/${handle.props.id}/vote`,
-      validator: voteDiscussionValidator,
+      schema: voteDiscussionSchema,
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
@@ -60,11 +60,9 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
   },
 );
 
-export const voteDiscussionValidator = new FormValidator(
-  f.object({
-    voted: f.field(coerce.boolean()),
-  }),
-);
+export const voteDiscussionSchema = f.object({
+  voted: f.field(coerce.boolean()),
+});
 
 const styles = {
   form: css({

@@ -1,11 +1,13 @@
+import { toDraft, toErrors } from '@discussions/form';
 import { completeAuth } from 'remix/auth';
+import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
 import {
   LoginForm,
-  loginValidator,
+  loginSchema,
 } from '../../../ui/auth/login-form.browser.tsx';
 import { LoginLayout } from '../../../ui/auth/login-layout.tsx';
 
@@ -19,13 +21,13 @@ export default createController(routes.auth.login, {
       );
     },
     async action(context) {
-      const validation = loginValidator.validate(context.formData);
-      if (validation.errors) {
+      const validation = parseSafe(loginSchema, context.formData);
+      if (!validation.success) {
         return context.render(
           <LoginLayout>
             <LoginForm
-              draft={validation.getDraft({ omit: ['password'] })}
-              errors={validation.errors}
+              draft={toDraft(context.formData, { omit: ['password'] })}
+              errors={toErrors(validation.issues)}
             />
           </LoginLayout>,
           { status: 422 },
@@ -33,13 +35,13 @@ export default createController(routes.auth.login, {
       }
 
       const user = await context.accountService.getUserByCredentials(
-        validation.data,
+        validation.value,
       );
       if (!user) {
         return context.render(
           <LoginLayout>
             <LoginForm
-              draft={validation.getDraft({ omit: ['password'] })}
+              draft={toDraft(context.formData, { omit: ['password'] })}
               errors={{ root: 'Invalid email or password' }}
             />
           </LoginLayout>,

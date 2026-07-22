@@ -1,11 +1,13 @@
+import { toDraft, toErrors } from '@discussions/form';
 import { completeAuth } from 'remix/auth';
+import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
 import {
   RegisterForm,
-  registerValidator,
+  registerSchema,
 } from '../../../ui/auth/register-form.browser.tsx';
 import { RegisterLayout } from '../../../ui/auth/register-layout.tsx';
 
@@ -19,29 +21,29 @@ export default createController(routes.auth.register, {
       );
     },
     async action(context) {
-      const validation = registerValidator.validate(context.formData);
+      const validation = parseSafe(registerSchema, context.formData);
 
-      if (validation.errors) {
+      if (!validation.success) {
         return context.render(
           <RegisterLayout>
             <RegisterForm
-              draft={validation.getDraft({
+              draft={toDraft(context.formData, {
                 omit: ['password', 'passwordConfirmation'],
               })}
-              errors={validation.errors}
+              errors={toErrors(validation.issues)}
             />
           </RegisterLayout>,
           { status: 422 },
         );
       }
 
-      const { data } = validation;
+      const { value } = validation;
 
-      if (await context.userService.getUserByEmail(data.email)) {
+      if (await context.userService.getUserByEmail(value.email)) {
         return context.render(
           <RegisterLayout>
             <RegisterForm
-              draft={validation.getDraft({
+              draft={toDraft(context.formData, {
                 omit: ['password', 'passwordConfirmation'],
               })}
               errors={{ email: 'Email already taken' }}
@@ -51,7 +53,7 @@ export default createController(routes.auth.register, {
         );
       }
 
-      const user = await context.accountService.createCredentialAccount(data);
+      const user = await context.accountService.createCredentialAccount(value);
 
       const userSession = await context.sessionService.createSession(user.id);
       const session = completeAuth(context);
