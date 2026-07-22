@@ -3,6 +3,7 @@ import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
+import { routes } from '../../routes.ts';
 import { Icon } from '../shared/icon.browser.tsx';
 
 type VoteCommentProps = {
@@ -17,7 +18,7 @@ export const VoteComment = clientEntry<VoteCommentProps>(
   function VoteComment(handle) {
     const form = new Form({
       method: 'post',
-      action: `/comments/${handle.props.id}/vote`,
+      action: routes.comments.vote.href({ id: handle.props.id }),
       schema: voteCommentSchema,
     });
     addEventListeners(form, handle.signal, {

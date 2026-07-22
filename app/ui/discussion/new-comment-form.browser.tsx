@@ -4,6 +4,7 @@ import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
+import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
 import { Textarea } from '../shared/textarea.browser.tsx';
@@ -17,7 +18,9 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
   function NewCommentForm(handle) {
     const newCommentForm = new Form({
       method: 'post',
-      action: `/discussions/${handle.props.discussionId}/comments/new`,
+      action: routes.comments.new.href({
+        discussionId: handle.props.discussionId,
+      }),
       schema: newCommentSchema,
     });
     addEventListeners(newCommentForm, handle.signal, {

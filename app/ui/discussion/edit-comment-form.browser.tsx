@@ -4,6 +4,7 @@ import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
+import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
 import { Textarea } from '../shared/textarea.browser.tsx';
@@ -18,7 +19,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
   function EditCommentForm(handle) {
     const editCommentForm = new Form({
       method: 'put',
-      action: `/comments/${handle.props.id}`,
+      action: routes.comments.edit.href({ id: handle.props.id }),
       schema: editCommentSchema,
       draft: [['body', handle.props.body]],
     });

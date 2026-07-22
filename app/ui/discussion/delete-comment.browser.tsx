@@ -1,6 +1,7 @@
 import { Form } from '@discussions/form';
 import { addEventListeners, clientEntry, on } from 'remix/ui';
 
+import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 
 type DeleteCommentProps = {
@@ -12,7 +13,7 @@ export const DeleteComment = clientEntry<DeleteCommentProps>(
   function DeleteComment(handle) {
     const form = new Form({
       method: 'delete',
-      action: `/comments/${handle.props.id}`,
+      action: routes.comments.destroy.href({ id: handle.props.id }),
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),

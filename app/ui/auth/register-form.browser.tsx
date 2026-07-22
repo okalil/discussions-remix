@@ -5,6 +5,7 @@ import { email, maxLength, minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
+import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { ErrorMessage } from '../shared/error-message.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
@@ -75,7 +76,7 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
 
           <p mix={styles.footer}>
             Already have an account?{' '}
-            <a href="./login" mix={styles.link}>
+            <a href={routes.auth.login.index.href()} mix={styles.link}>
               Sign in now
             </a>
           </p>

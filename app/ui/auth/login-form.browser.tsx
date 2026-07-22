@@ -5,6 +5,7 @@ import { email, minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
+import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { ErrorMessage } from '../shared/error-message.browser.tsx';
 import { Field } from '../shared/field.browser.tsx';
@@ -40,7 +41,7 @@ export const LoginForm = clientEntry<LoginFormProps>(
             <Input mix={field(loginForm, 'password')} type="password" />
           </Field>
 
-          <a href="./forgot-password" mix={styles.link}>
+          <a href={routes.auth.forgotPassword.index.href()} mix={styles.link}>
             Forgot Password?
           </a>
 
@@ -56,7 +57,7 @@ export const LoginForm = clientEntry<LoginFormProps>(
           </Button>
           <p mix={styles.footer}>
             Don't have an account?{' '}
-            <a href="./register" mix={styles.link}>
+            <a href={routes.auth.register.index.href()} mix={styles.link}>
               Register now
             </a>
           </p>
