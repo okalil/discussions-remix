@@ -1,4 +1,4 @@
-import { field, Form, form } from '@discussions/form';
+import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
@@ -8,9 +8,11 @@ import { addEventListeners, clientEntry, css } from 'remix/ui';
 
 import { Button } from '../shared/button.browser.tsx';
 import { ErrorMessage } from '../shared/error-message.browser.tsx';
-import { Field } from '../shared/field.browser.tsx';
-import { Input } from '../shared/input.browser.tsx';
-import { Textarea } from '../shared/textarea.browser.tsx';
+import {
+  SelectField,
+  TextAreaField,
+  TextField,
+} from '../shared/field.browser.tsx';
 
 type Category = {
   id: number;
@@ -43,39 +45,25 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
       const { errors, pending } = newDiscussionForm.state;
       return (
         <form mix={[styles.form, form(newDiscussionForm)]}>
-          <Field label="Title" error={errors.title}>
-            <Input
-              mix={field(newDiscussionForm, 'title')}
-              placeholder="Title"
-              aria-required
-            />
-          </Field>
-
-          <Field label="Body" error={errors.body}>
-            <Textarea
-              mix={field(newDiscussionForm, 'body')}
-              placeholder="Body"
-              aria-required
-              rows={16}
-            />
-          </Field>
-
-          <Field label="Category" error={errors.categoryId}>
-            <select
-              mix={[styles.select, field(newDiscussionForm, 'categoryId')]}
-              aria-required
-            >
-              {handle.props.categories.map((category) => (
-                <option
-                  key={category.id}
-                  value={category.id}
-                  mix={styles.option}
-                >
-                  {category.title}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <TextField
+            field={newDiscussionForm.field('title')}
+            label="Title"
+            placeholder="Title"
+          />
+          <TextAreaField
+            field={newDiscussionForm.field('body')}
+            label="Body"
+            placeholder="Body"
+            rows={16}
+          />
+          <SelectField
+            field={newDiscussionForm.field('categoryId')}
+            label="Category"
+            options={handle.props.categories.map((category) => ({
+              label: `${category.emoji} ${category.title}`,
+              value: String(category.id),
+            }))}
+          />
 
           {errors.root && <ErrorMessage error={errors.root} />}
 
@@ -107,27 +95,27 @@ const styles = {
   submit: css({
     marginLeft: 'auto',
   }),
-  select: css({
-    width: '320px',
-    maxWidth: '100%',
-    padding: '0.5rem 0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.375rem',
-    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    fontSize: '0.875rem',
-    '&:focus': {
-      outline: 'none',
-      borderColor: '#6366f1',
-      boxShadow: '0 0 0 1px #6366f1, 0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    },
-  }),
-  option: css({
-    display: 'flex',
-    gap: '0.75rem',
-    padding: '0.5rem 1rem',
-    alignItems: 'center',
-    '&:checked, &:active, &:hover': {
-      background: '#f7f7f7',
-    },
-  }),
+  // select: css({
+  //   width: '320px',
+  //   maxWidth: '100%',
+  //   padding: '0.5rem 0.75rem',
+  //   border: '1px solid #d1d5db',
+  //   borderRadius: '0.375rem',
+  //   boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  //   fontSize: '0.875rem',
+  //   '&:focus': {
+  //     outline: 'none',
+  //     borderColor: '#6366f1',
+  //     boxShadow: '0 0 0 1px #6366f1, 0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  //   },
+  // }),
+  // option: css({
+  //   display: 'flex',
+  //   gap: '0.75rem',
+  //   padding: '0.5rem 1rem',
+  //   alignItems: 'center',
+  //   '&:checked, &:active, &:hover': {
+  //     background: '#f7f7f7',
+  //   },
+  // }),
 };

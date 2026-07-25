@@ -1,7 +1,7 @@
 import { css, type Handle } from 'remix/ui';
 import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
 
-type InputProps = ElementProps<'input'>;
+export type InputProps = ElementProps<'input'>;
 
 export function Input(handle: Handle<InputProps>) {
   return () => {

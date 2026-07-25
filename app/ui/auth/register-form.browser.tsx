@@ -1,4 +1,4 @@
-import { field, Form, form } from '@discussions/form';
+import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
@@ -8,8 +8,7 @@ import { addEventListeners, clientEntry, css } from 'remix/ui';
 import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { ErrorMessage } from '../shared/error-message.browser.tsx';
-import { Field } from '../shared/field.browser.tsx';
-import { Input } from '../shared/input.browser.tsx';
+import { TextField } from '../shared/field.browser.tsx';
 
 export type RegisterFormProps = {
   draft?: FormDraft;
@@ -34,34 +33,30 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
       const { errors, pending } = registerForm.state;
       return (
         <form mix={[styles.form, form(registerForm)]}>
-          <Field label="Name" error={errors.name}>
-            <Input
-              mix={field(registerForm, 'name')}
-              type="text"
-              aria-required
-            />
-          </Field>
-          <Field label="Email" error={errors.email}>
-            <Input
-              mix={field(registerForm, 'email')}
-              type="email"
-              aria-required
-            />
-          </Field>
-          <Field label="Password" error={errors.password}>
-            <Input
-              mix={field(registerForm, 'password')}
-              type="password"
-              aria-required
-            />
-          </Field>
-          <Field label="Confirm password" error={errors.passwordConfirmation}>
-            <Input
-              mix={field(registerForm, 'passwordConfirmation')}
-              type="password"
-              aria-required
-            />
-          </Field>
+          <TextField
+            field={registerForm.field('name')}
+            label="Name"
+            type="text"
+            aria-required
+          />
+          <TextField
+            field={registerForm.field('email')}
+            label="Email"
+            type="email"
+            aria-required
+          />
+          <TextField
+            field={registerForm.field('password')}
+            label="Password"
+            type="password"
+            aria-required
+          />
+          <TextField
+            field={registerForm.field('passwordConfirmation')}
+            label="Confirm password"
+            type="password"
+            aria-required
+          />
 
           {errors.root && <ErrorMessage error={errors.root} />}
 

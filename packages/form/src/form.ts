@@ -5,6 +5,8 @@ import { TypedEventTarget } from 'remix/ui';
 import type {
   ErrorsOf,
   FormDraft,
+  FormFieldName,
+  FormFieldRef,
   FormInternalState,
   FormStateOverrides,
   FormSubmitOptions,
@@ -65,7 +67,7 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   }
 
   get formData(): TypedFormData<Output> {
-    return this.#formData;
+    return this.#formData as TypedFormData<Output>;
   }
 
   set formData(formData: FormData) {
@@ -74,6 +76,14 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
 
   reset() {
     this.#formData = new FormData();
+  }
+
+  field<Name extends FormFieldName<Output>>(name: Name): FormFieldRef {
+    return {
+      name,
+      value: this.#formData.get(name),
+      error: this.#state.errors[name],
+    };
   }
 
   mergeState(overrides: FormStateOverrides) {

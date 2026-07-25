@@ -3,21 +3,57 @@ import type { FormDataSource } from 'remix/data-schema/form-data';
 
 export type FormFieldName<Output> = Extract<keyof Output, string>;
 
+export type FormFieldRef = {
+  name: string;
+  value: FormDataEntryValue | null;
+  error: string | undefined;
+};
+
 /**
- * FormData whose name-based helpers only accept schema field keys.
+ * Raw FormData entry type for a parsed field value.
+ * File (or File[]) outputs map to File; everything else maps to string.
+ */
+export type FormDataEntryOf<Value> =
+  NonNullable<Value> extends File
+    ? File
+    : NonNullable<Value> extends ReadonlyArray<File>
+      ? File
+      : string;
+
+/** Value accepted by append/set for a parsed field value. */
+export type FormDataValueOf<Value> =
+  FormDataEntryOf<Value> extends File ? Blob : string;
+
+/**
+ * FormData whose name-based helpers only accept schema field keys,
+ * with per-key string vs File inference from the parsed output shape.
  * Erases to plain FormData when Output is unknown.
  */
 export type TypedFormData<Output> = unknown extends Output
   ? FormData
   : Omit<FormData, 'append' | 'delete' | 'get' | 'getAll' | 'has' | 'set'> & {
-      append(name: FormFieldName<Output>, value: string | Blob): void;
-      append(name: FormFieldName<Output>, value: Blob, filename?: string): void;
+      append<Name extends FormFieldName<Output>>(
+        name: Name,
+        value: FormDataValueOf<Output[Name]>,
+        ...rest: FormDataEntryOf<Output[Name]> extends File
+          ? [filename?: string]
+          : []
+      ): void;
       delete(name: FormFieldName<Output>): void;
-      get(name: FormFieldName<Output>): FormDataEntryValue | null;
-      getAll(name: FormFieldName<Output>): FormDataEntryValue[];
+      get<Name extends FormFieldName<Output>>(
+        name: Name,
+      ): FormDataEntryOf<Output[Name]> | null;
+      getAll<Name extends FormFieldName<Output>>(
+        name: Name,
+      ): Array<FormDataEntryOf<Output[Name]>>;
       has(name: FormFieldName<Output>): boolean;
-      set(name: FormFieldName<Output>, value: string | Blob): void;
-      set(name: FormFieldName<Output>, value: Blob, filename?: string): void;
+      set<Name extends FormFieldName<Output>>(
+        name: Name,
+        value: FormDataValueOf<Output[Name]>,
+        ...rest: FormDataEntryOf<Output[Name]> extends File
+          ? [filename?: string]
+          : []
+      ): void;
     };
 
 /** Serializable FormData string entries. */

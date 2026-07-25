@@ -1,4 +1,4 @@
-import { field, Form, form } from '@discussions/form';
+import { Form, form } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -6,8 +6,7 @@ import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
-import { Field } from '../shared/field.browser.tsx';
-import { Textarea } from '../shared/textarea.browser.tsx';
+import { TextAreaField } from '../shared/field.browser.tsx';
 
 type EditCommentFormProps = {
   id: number;
@@ -29,17 +28,16 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
     });
 
     return () => {
-      const { errors, pending } = editCommentForm.state;
+      const { pending } = editCommentForm.state;
       return (
         <form mix={[styles.form, form(editCommentForm)]}>
-          <Field label="Write" error={errors.body}>
-            <Textarea
-              mix={field(editCommentForm, 'body')}
-              placeholder="Write your comment here..."
-              rows={4}
-              aria-required
-            />
-          </Field>
+          <TextAreaField
+            field={editCommentForm.field('body')}
+            label="Write"
+            placeholder="Write your comment here..."
+            rows={4}
+            aria-required
+          />
 
           <div mix={styles.actions}>
             <Button

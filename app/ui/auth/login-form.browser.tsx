@@ -1,4 +1,4 @@
-import { field, Form, form } from '@discussions/form';
+import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, minLength } from 'remix/data-schema/checks';
@@ -8,8 +8,7 @@ import { addEventListeners, clientEntry, css } from 'remix/ui';
 import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { ErrorMessage } from '../shared/error-message.browser.tsx';
-import { Field } from '../shared/field.browser.tsx';
-import { Input } from '../shared/input.browser.tsx';
+import { TextField } from '../shared/field.browser.tsx';
 
 export type LoginFormProps = {
   draft?: FormDraft;
@@ -34,12 +33,16 @@ export const LoginForm = clientEntry<LoginFormProps>(
       const { errors, pending } = loginForm.state;
       return (
         <form mix={[styles.form, form(loginForm)]}>
-          <Field label="Email" error={errors.email}>
-            <Input mix={field(loginForm, 'email')} type="email" />
-          </Field>
-          <Field label="Password" error={errors.password}>
-            <Input mix={field(loginForm, 'password')} type="password" />
-          </Field>
+          <TextField
+            field={loginForm.field('email')}
+            label="Email"
+            type="email"
+          />
+          <TextField
+            field={loginForm.field('password')}
+            label="Password"
+            type="password"
+          />
 
           <a href={routes.auth.forgotPassword.index.href()} mix={styles.link}>
             Forgot Password?

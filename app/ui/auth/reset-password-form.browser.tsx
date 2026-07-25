@@ -1,4 +1,4 @@
-import { field, Form, form } from '@discussions/form';
+import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
@@ -8,8 +8,7 @@ import { addEventListeners, clientEntry, css } from 'remix/ui';
 import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
 import { ErrorMessage } from '../shared/error-message.browser.tsx';
-import { Field } from '../shared/field.browser.tsx';
-import { Input } from '../shared/input.browser.tsx';
+import { TextField } from '../shared/field.browser.tsx';
 
 export type ResetPasswordFormProps = {
   token?: string | null;
@@ -35,31 +34,30 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
       const { errors, pending } = resetPasswordForm.state;
       return (
         <form mix={[styles.form, form(resetPasswordForm)]}>
-          <input mix={field(resetPasswordForm, 'token')} type="hidden" />
+          <input
+            type="hidden"
+            name={resetPasswordForm.field('token').name}
+            defaultValue={String(resetPasswordForm.formData.get('token') ?? '')}
+          />
 
-          <Field label="Email" error={errors.email}>
-            <Input
-              mix={field(resetPasswordForm, 'email')}
-              type="email"
-              aria-required
-            />
-          </Field>
-
-          <Field label="New Password" error={errors.password}>
-            <Input
-              mix={field(resetPasswordForm, 'password')}
-              type="password"
-              aria-required
-            />
-          </Field>
-
-          <Field label="Confirm Password" error={errors.passwordConfirmation}>
-            <Input
-              mix={field(resetPasswordForm, 'passwordConfirmation')}
-              type="password"
-              aria-required
-            />
-          </Field>
+          <TextField
+            field={resetPasswordForm.field('email')}
+            label="Email"
+            type="email"
+            aria-required
+          />
+          <TextField
+            field={resetPasswordForm.field('password')}
+            label="New Password"
+            type="password"
+            aria-required
+          />
+          <TextField
+            field={resetPasswordForm.field('passwordConfirmation')}
+            label="Confirm Password"
+            type="password"
+            aria-required
+          />
 
           {errors.root && <ErrorMessage error={errors.root} />}
 

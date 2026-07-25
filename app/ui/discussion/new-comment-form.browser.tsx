@@ -1,4 +1,4 @@
-import { field, Form, form } from '@discussions/form';
+import { Form, form } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -6,8 +6,7 @@ import { addEventListeners, clientEntry, css } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Button } from '../shared/button.browser.tsx';
-import { Field } from '../shared/field.browser.tsx';
-import { Textarea } from '../shared/textarea.browser.tsx';
+import { TextAreaField } from '../shared/field.browser.tsx';
 
 type NewCommentFormProps = {
   discussionId: number;
@@ -29,17 +28,16 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
     });
 
     return () => {
-      const { errors, pending } = newCommentForm.state;
+      const { pending } = newCommentForm.state;
       return (
         <form mix={[styles.form, form(newCommentForm)]}>
-          <Field label="Write" error={errors.body}>
-            <Textarea
-              mix={field(newCommentForm, 'body')}
-              placeholder="Write your comment here..."
-              rows={4}
-              aria-required
-            />
-          </Field>
+          <TextAreaField
+            field={newCommentForm.field('body')}
+            label="Write"
+            placeholder="Write your comment here..."
+            rows={4}
+            aria-required
+          />
           <Button
             type="submit"
             variant="primary"

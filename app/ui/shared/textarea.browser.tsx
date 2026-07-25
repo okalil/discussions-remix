@@ -1,7 +1,7 @@
 import { css, type Handle } from 'remix/ui';
 import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
 
-type TextareaProps = ElementProps<'textarea'>;
+export type TextareaProps = ElementProps<'textarea'>;
 
 export function Textarea(handle: Handle<TextareaProps>) {
   return () => {

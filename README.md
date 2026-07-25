@@ -27,7 +27,6 @@ A shared `remix/data-schema` form schema is the contract between the form UI and
 **Client**: the component renders a native `<form method="post">`.
 
 - `Form` manages form state and runs the shared schema client-side.
-- `field` mixin binds controls, setting up initial state and live validation after first attempt.
 - `form` mixin binds the form element and coordinates progressively-enhanced submission handling.
 
 **Server**: the route action validates with the same schema server-side. On failure it re-renders with `toErrors(issues)` and `toDraft(formData)`, which is used to restore `Form` values after a full page reload.
@@ -61,12 +60,16 @@ export const LoginForm = clientEntry<LoginFormProps>(
       const { errors, pending } = loginForm.state;
       return (
         <form mix={[styles.form, form(loginForm)]}>
-          <Field label="Email" error={errors.email}>
-            <Input mix={field(loginForm, 'email')} type="email" />
-          </Field>
-          <Field label="Password" error={errors.password}>
-            <Input mix={field(loginForm, 'password')} type="password" />
-          </Field>
+          <TextField
+            field={loginForm.field('email')}
+            label="Email"
+            type="email"
+          />
+          <TextField
+            field={loginForm.field('password')}
+            label="Password"
+            type="password"
+          />
           {errors.root && <ErrorMessage error={errors.root} />}
           <Button type="submit" variant="primary" pending={pending}>
             Log in

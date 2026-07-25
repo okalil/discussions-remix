@@ -1,10 +1,10 @@
 import { createMixin, on } from 'remix/ui';
 import { jsx } from 'remix/ui/jsx-runtime';
 
+import { onFieldChange } from '../field.ts';
 import { isFormValidationError, type Form } from '../form.ts';
-import { onFieldChange } from './field.ts';
 
-export const form = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
+const formMixin = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
   return (instance, { key, ...props }) => {
     return jsx(
       handle.element,
@@ -52,6 +52,10 @@ export const form = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
     );
   };
 });
+
+export function form<Output>(instance: Form<Output>) {
+  return formMixin(instance as Form<unknown>);
+}
 
 function syncNavigationState(url: string) {
   const navigationState = {
