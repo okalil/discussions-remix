@@ -4,12 +4,7 @@ import { jsx } from 'remix/ui/jsx-runtime';
 import type { Form } from '../form.ts';
 import type { FormFieldName } from '../types.ts';
 
-type FormControlElement =
-  | HTMLInputElement
-  | HTMLSelectElement
-  | HTMLTextAreaElement;
-
-const fieldMixin = createMixin<FormControlElement, [Form<unknown>, string]>(
+const fieldMixin = createMixin<HTMLElement, [Form<unknown>, string]>(
   (handle) => {
     return (form, name, { key, ...props }) => {
       const hasError = !!Reflect.get(form.state.errors, name);
@@ -41,25 +36,11 @@ const fieldMixin = createMixin<FormControlElement, [Form<unknown>, string]>(
           'aria-invalid': hasError ? true : undefined,
           ...getControlProps(),
           mix: [
-            on<FormControlElement>('change', (e) => {
-              const node = e.currentTarget;
-
-              form.formData = new FormData(node.form!);
-              if (form.state.attempts) {
-                form.validate();
-              }
-
-              node.dispatchEvent(new FieldChangeEvent());
+            on<HTMLElement>('change', (e) => {
+              e.currentTarget.dispatchEvent(new FieldChangeEvent());
             }),
-            on<FormControlElement>('input', (e) => {
-              const node = e.currentTarget;
-
-              form.formData = new FormData(node.form!);
-              if (form.state.attempts) {
-                form.validate();
-              }
-
-              node.dispatchEvent(new FieldChangeEvent());
+            on<HTMLElement>('input', (e) => {
+              e.currentTarget.dispatchEvent(new FieldChangeEvent());
             }),
           ],
         },

@@ -2,6 +2,7 @@ import { createMixin, on } from 'remix/ui';
 import { jsx } from 'remix/ui/jsx-runtime';
 
 import { isFormValidationError, type Form } from '../form.ts';
+import { onFieldChange } from './field.ts';
 
 export const form = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
   return (instance, { key, ...props }) => {
@@ -39,6 +40,12 @@ export const form = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
             }
           }),
           on<HTMLFormElement>('reset', () => instance.reset()),
+          onFieldChange<HTMLFormElement>((e) => {
+            instance.formData = new FormData(e.currentTarget);
+            if (instance.state.attempts) {
+              instance.validate();
+            }
+          }),
         ],
       },
       key,
