@@ -59,6 +59,9 @@ export type TypedFormData<Output> = unknown extends Output
 /** Serializable FormData string entries. */
 export type FormDraft = Array<[string, string]>;
 
+/** Reads the live draft/errors from props when Form needs them. */
+export type FormPropGetter<T> = () => T | undefined;
+
 export type GetDraftOptions<Output> = {
   omit?: readonly FormFieldName<Output>[];
 };
@@ -84,10 +87,6 @@ export type FormInternalState<Output> = {
 
 export type FormState<Output> = FormInternalState<Output> & {
   pending: boolean;
-};
-
-export type FormStateOverrides = {
-  errors?: FormErrors;
 };
 
 export type FormSubmitOptions = {

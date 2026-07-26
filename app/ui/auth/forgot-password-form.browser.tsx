@@ -20,7 +20,8 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
     const forgotPasswordForm = new Form({
       method: 'post',
       schema: forgotPasswordSchema,
-      draft: handle.props.draft,
+      draft: () => handle.props.draft,
+      errors: () => handle.props.errors,
     });
     addEventListeners(forgotPasswordForm, handle.signal, {
       statechange: () => handle.update(),
@@ -28,7 +29,6 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
     });
 
     return () => {
-      forgotPasswordForm.mergeState({ errors: handle.props.errors });
       const { pending } = forgotPasswordForm.state;
 
       return (

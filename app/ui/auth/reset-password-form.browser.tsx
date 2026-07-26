@@ -22,7 +22,8 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
     const resetPasswordForm = new Form({
       method: 'post',
       schema: resetPasswordSchema,
-      draft: handle.props.draft ?? [['token', handle.props.token ?? '']],
+      draft: () => handle.props.draft ?? [['token', handle.props.token ?? '']],
+      errors: () => handle.props.errors,
     });
     addEventListeners(resetPasswordForm, handle.signal, {
       statechange: () => handle.update(),
@@ -30,7 +31,6 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
     });
 
     return () => {
-      resetPasswordForm.mergeState({ errors: handle.props.errors });
       const { errors, pending } = resetPasswordForm.state;
       return (
         <form mix={[styles.form, form(resetPasswordForm)]}>

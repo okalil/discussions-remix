@@ -20,7 +20,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
       method: 'put',
       action: routes.comments.edit.href({ id: handle.props.id }),
       schema: editCommentSchema,
-      draft: [['body', handle.props.body]],
+      draft: () => [['body', handle.props.body]],
     });
     addEventListeners(editCommentForm, handle.signal, {
       statechange: () => handle.update(),

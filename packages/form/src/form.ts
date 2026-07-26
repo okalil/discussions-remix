@@ -5,10 +5,11 @@ import { TypedEventTarget } from 'remix/ui';
 import type {
   ErrorsOf,
   FormDraft,
+  FormErrors,
   FormFieldName,
   FormFieldRef,
   FormInternalState,
-  FormStateOverrides,
+  FormPropGetter,
   FormSubmitOptions,
   TypedFormData,
 } from './types.ts';
@@ -23,13 +24,16 @@ type FormOptions<Output> = {
   action?: string;
   method?: string;
   schema?: s.Schema<FormDataSource, Output>;
-  draft?: FormDraft;
+  draft?: FormPropGetter<FormDraft>;
+  errors?: FormPropGetter<FormErrors>;
 };
 
 export class Form<Output> extends TypedEventTarget<FormEventMap> {
   readonly #action: string | undefined;
   readonly #method: string | undefined;
   readonly #schema: s.Schema<FormDataSource, Output> | undefined;
+  readonly #draft: FormPropGetter<FormDraft> | undefined;
+  readonly #errors: FormPropGetter<FormErrors> | undefined;
 
   constructor(options?: FormOptions<Output>) {
     super();
@@ -37,10 +41,9 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     this.#action = options?.action;
     this.#method = options?.method;
     this.#schema = options?.schema;
-
-    if (options?.draft) {
-      this.#formData = toFormData(options.draft);
-    }
+    this.#draft = options?.draft;
+    this.#errors = options?.errors;
+    this.#formData = toFormData(this.#draft?.() ?? []);
   }
 
   #state: FormInternalState<Output> = {
@@ -62,6 +65,10 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   get state() {
     return {
       ...this.#state,
+      errors: {
+        ...this.#state.errors,
+        ...this.#errors?.(),
+      },
       pending: !!this.#state.submission,
     };
   }
@@ -75,29 +82,23 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   }
 
   reset() {
-    this.#formData = new FormData();
+    this.#formData = toFormData(this.#draft?.() ?? []);
+    this.#state.errors = {};
+    this.#state.attempts = 0;
+    this.dispatchEvent(new Event('statechange'));
   }
 
   field<Name extends FormFieldName<Output>>(name: Name): FormFieldRef {
     return {
       name,
       value: this.#formData.get(name),
-      error: this.#state.errors[name],
-    };
-  }
-
-  mergeState(overrides: FormStateOverrides) {
-    this.#state = {
-      ...this.#state,
-      errors: {
-        ...this.#state.errors,
-        ...overrides.errors,
-      } as ErrorsOf<Output>,
+      error: this.state.errors[name],
     };
   }
 
   validate() {
     if (!this.#schema) {
+      this.#state.errors = {};
       return { valid: true, data: null as Output, errors: null } as const;
     }
 

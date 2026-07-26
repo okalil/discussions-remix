@@ -4,8 +4,11 @@ import { jsx } from 'remix/ui/jsx-runtime';
 import { onFieldChange } from '../field.ts';
 import { isFormValidationError, type Form } from '../form.ts';
 
-const formMixin = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
-  return (instance, { key, ...props }) => {
+const formMixin = createMixin<
+  HTMLFormElement,
+  [Form<unknown>, { replace?: boolean }]
+>((handle) => {
+  return (instance, options, { key, ...props }) => {
     return jsx(
       handle.element,
       {
@@ -23,10 +26,15 @@ const formMixin = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
             try {
               const response = await instance.submit({ signal });
               if (response.redirected) {
-                syncNavigationState(response.url);
+                syncNavigationState(response.url, options.replace);
                 handle.frame.src = response.url;
               }
-              if (response.ok) formElement.reset();
+              if (response.ok) {
+                requestAnimationFrame(() => {
+                  instance.reset();
+                  formElement.reset();
+                });
+              }
             } catch (error) {
               if (isFormValidationError(error)) {
                 const fieldName = Object.keys(error.errors).find(
@@ -39,7 +47,6 @@ const formMixin = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
               throw error;
             }
           }),
-          on<HTMLFormElement>('reset', () => instance.reset()),
           onFieldChange<HTMLFormElement>((e) => {
             instance.formData = new FormData(e.currentTarget);
             if (instance.state.attempts) {
@@ -53,18 +60,25 @@ const formMixin = createMixin<HTMLFormElement, [Form<unknown>]>((handle) => {
   };
 });
 
-export function form<Output>(instance: Form<Output>) {
-  return formMixin(instance as Form<unknown>);
+export function form<Output>(
+  instance: Form<Output>,
+  options?: { replace?: boolean },
+) {
+  return formMixin(instance as Form<unknown>, options ?? {});
 }
 
-function syncNavigationState(url: string) {
+function syncNavigationState(url: string, replace?: boolean) {
   const navigationState = {
     $rmx: true,
     resetScroll: true,
     src: url,
     target: undefined,
   };
-  history.pushState(navigationState, '', url);
+  if (replace) {
+    history.replaceState(navigationState, '', url);
+  } else {
+    history.pushState(navigationState, '', url);
+  }
   window.navigation.updateCurrentEntry({
     state: navigationState,
   });

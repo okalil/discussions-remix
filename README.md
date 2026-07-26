@@ -28,10 +28,11 @@ A shared `remix/data-schema` form schema is the contract between the form UI and
 
 - `Form` manages form state and runs the shared schema client-side.
 - `form` mixin binds the form element and coordinates progressively-enhanced submission handling.
+- `draft` and `errors` are always getters so Form reads live server props instead of values snapshotted at construction. That keeps defaults/errors in sync after frame replaces.
 
 **Server**: the route action validates with the same schema server-side. On failure it re-renders with `toErrors(issues)` and `toDraft(formData)`, which is used to restore `Form` values after a full page reload.
 
-**Errors**: server errors are applied with `mergeState` on every render (either document or fetch responses), including failures only the server can determine (e.g. invalid credentials).
+**Errors**: the `errors` getter covers failures only the server can determine (e.g. invalid credentials). Client validation errors live in Form state and are merged with server errors.
 
 See `app/ui/auth/login-form.browser.tsx` and `app/actions/auth/login/controller.tsx`.
 
@@ -48,7 +49,8 @@ export const LoginForm = clientEntry<LoginFormProps>(
     const loginForm = new Form({
       method: 'post',
       schema: loginSchema,
-      draft: handle.props.draft,
+      draft: () => handle.props.draft,
+      errors: () => handle.props.errors,
     });
     addEventListeners(loginForm, handle.signal, {
       statechange: () => handle.update(),
@@ -56,7 +58,6 @@ export const LoginForm = clientEntry<LoginFormProps>(
     });
 
     return () => {
-      loginForm.mergeState({ errors: handle.props.errors });
       const { errors, pending } = loginForm.state;
       return (
         <form mix={[styles.form, form(loginForm)]}>

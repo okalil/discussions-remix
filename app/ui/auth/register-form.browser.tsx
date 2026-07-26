@@ -21,7 +21,8 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
     const registerForm = new Form({
       method: 'post',
       schema: registerSchema,
-      draft: handle.props.draft,
+      draft: () => handle.props.draft,
+      errors: () => handle.props.errors,
     });
     addEventListeners(registerForm, handle.signal, {
       statechange: () => handle.update(),
@@ -29,7 +30,6 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
     });
 
     return () => {
-      registerForm.mergeState({ errors: handle.props.errors });
       const { errors, pending } = registerForm.state;
       return (
         <form mix={[styles.form, form(registerForm)]}>

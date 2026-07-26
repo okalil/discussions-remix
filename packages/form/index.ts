@@ -4,6 +4,7 @@ export type {
   FormValues,
   FormFieldName,
   FormFieldRef,
+  FormPropGetter,
 } from './src/types.ts';
 export {
   Form,

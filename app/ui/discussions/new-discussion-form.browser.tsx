@@ -33,7 +33,8 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
     const newDiscussionForm = new Form({
       method: 'post',
       schema: newDiscussionSchema,
-      draft: handle.props.draft,
+      draft: () => handle.props.draft,
+      errors: () => handle.props.errors,
     });
     addEventListeners(newDiscussionForm, handle.signal, {
       statechange: () => handle.update(),
@@ -41,7 +42,6 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
     });
 
     return () => {
-      newDiscussionForm.mergeState({ errors: handle.props.errors });
       const { errors, pending } = newDiscussionForm.state;
       return (
         <form mix={[styles.form, form(newDiscussionForm)]}>
