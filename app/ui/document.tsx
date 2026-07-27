@@ -1,6 +1,9 @@
+import { getContext } from 'remix/async-context-middleware';
+import type { Session } from 'remix/session';
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../routes.ts';
+import { FlashToast } from './shared/flash-toast.browser.tsx';
 import { NavigationProgress } from './shared/navigation-progress.browser.tsx';
 
 export interface DocumentProps {
@@ -12,7 +15,9 @@ export interface DocumentProps {
 const DEFAULT_TITLE = decodeURIComponent('Discussions');
 
 export function Document(handle: Handle<DocumentProps>) {
-  const { title = DEFAULT_TITLE, meta, children } = handle.props;
+  const { session } = getContext();
+  const toast = getFlashToast(session);
+
   return () => (
     <html lang="en" mix={css({ height: '100%' })}>
       <head>
@@ -20,12 +25,15 @@ export function Document(handle: Handle<DocumentProps>) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="stylesheet" href="/styles/setup.css" />
-        <title>{title}</title>
-        {meta}
+        <title>{handle.props.title ?? DEFAULT_TITLE}</title>
+        {handle.props.meta}
       </head>
       <body mix={css({ height: '100%' })}>
         <NavigationProgress />
-        {children}
+        {toast && <FlashToast {...toast} />}
+
+        {handle.props.children}
+
         <script
           type="module"
           src={routes.assets.href({ path: 'app/entry.browser.ts' })}
@@ -33,4 +41,14 @@ export function Document(handle: Handle<DocumentProps>) {
       </body>
     </html>
   );
+}
+
+function getFlashToast(session: Session) {
+  for (const type of ['error', 'success'] as const) {
+    const message = session.get(type);
+    if (typeof message !== 'string') continue;
+
+    return { type, message };
+  }
+  return null;
 }
