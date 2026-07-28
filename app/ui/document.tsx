@@ -36,7 +36,7 @@ export function Document(handle: Handle<DocumentProps>) {
 
         <script
           type="module"
-          src={routes.assets.href({ path: 'app/entry.ts' })}
+          src={routes.assets.href({ path: 'app/client.ts' })}
         />
       </body>
     </html>

@@ -11,7 +11,7 @@ export const assetServer = createAssetServer({
     'node_modules/*path': 'node_modules/*path',
   },
   allow: [
-    'app/entry.ts',
+    'app/client.ts',
     'app/routes.ts',
     'app/**/public/**',
     'node_modules/**',
