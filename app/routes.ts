@@ -20,13 +20,11 @@ export const routes = route({
     new: form('/discussions/new'),
     show: '/discussions/:id',
     vote: post('/discussions/:id/vote'),
-    frames: {
-      preview: '/discussions/:id/preview',
-      comments: '/discussions/:id/comments',
-    },
+    preview: '/discussions/:id/preview',
   },
 
   comments: {
+    index: '/discussions/:discussionId/comments',
     new: post('/discussions/:discussionId/comments/new'),
     edit: put('/comments/:id'),
     destroy: del('/comments/:id'),

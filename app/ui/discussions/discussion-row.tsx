@@ -40,7 +40,7 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
         <div mix={styles.content}>
           <DiscussionLink
             href={routes.discussions.show.href({ id: discussion.id })}
-            previewHref={routes.discussions.frames.preview.href({
+            previewHref={routes.discussions.preview.href({
               id: discussion.id,
             })}
           >

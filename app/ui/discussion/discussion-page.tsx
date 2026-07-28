@@ -121,8 +121,8 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                     </nav>
                   </div>
                   <Frame
-                    src={routes.discussions.frames.comments.href(
-                      { id: discussion.id },
+                    src={routes.comments.index.href(
+                      { discussionId: discussion.id },
                       { sort },
                     )}
                     fallback={

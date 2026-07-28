@@ -4,6 +4,7 @@ import { createController } from 'remix/router';
 
 import { routes } from '../../routes.ts';
 import { DiscussionPage } from '../../ui/discussion/discussion-page.tsx';
+import { DiscussionPreview } from '../../ui/discussions/discussion-preview.tsx';
 import { DiscussionsPage } from '../../ui/discussions/discussions-page.tsx';
 import { voteDiscussionSchema } from '../../ui/discussions/vote-discussion.tsx';
 
@@ -88,6 +89,14 @@ export default createController(routes.discussions, {
       }
 
       return Response.json({ ok: true });
+    },
+    async preview({ render, params, discussionService }) {
+      const discussionId = Number(params.id);
+      const discussion =
+        await discussionService.getDiscussionPreview(discussionId);
+      if (!discussion) return new Response('Not found', { status: 404 });
+
+      return render(<DiscussionPreview discussion={discussion} />);
     },
   },
 });
