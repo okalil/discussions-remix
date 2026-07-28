@@ -5,7 +5,7 @@ import { createController } from 'remix/router';
 import { routes } from '../../routes.ts';
 import { DiscussionPage } from '../../ui/discussion/discussion-page.tsx';
 import { DiscussionsPage } from '../../ui/discussions/discussions-page.tsx';
-import { voteDiscussionSchema } from '../../ui/discussions/vote-discussion.browser.tsx';
+import { voteDiscussionSchema } from '../../ui/discussions/vote-discussion.tsx';
 
 export default createController(routes.discussions, {
   actions: {

@@ -20,7 +20,7 @@ import { services } from './middleware/services.ts';
 import { session } from './middleware/session.ts';
 import { routes } from './routes.ts';
 
-export const router = createRouter({
+const router = createRouter({
   middleware: [
     staticFiles('./public', { index: false }),
     services(),
@@ -51,3 +51,5 @@ router.map(routes.auth.register, registerController);
 router.map(routes.auth.forgotPassword, forgotPasswordController);
 router.map(routes.auth.resetPassword, resetPasswordController);
 router.map(routes.profile, profileController);
+
+export default router;

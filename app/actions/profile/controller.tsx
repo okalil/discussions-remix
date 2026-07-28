@@ -8,7 +8,7 @@ import { routes } from '../../routes.ts';
 import {
   ProfileForm,
   updateProfileSchema,
-} from '../../ui/profile/profile-form.browser.tsx';
+} from '../../ui/profile/profile-form.tsx';
 import { ProfileLayout } from '../../ui/profile/profile-layout.tsx';
 
 export default createController(routes.profile, {

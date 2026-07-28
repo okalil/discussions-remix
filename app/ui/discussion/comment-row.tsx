@@ -1,12 +1,12 @@
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 import * as menu from 'remix/ui/menu/primitives';
 
-import { Avatar } from '../shared/avatar.browser.tsx';
-import { Button } from '../shared/button.browser.tsx';
-import { Icon } from '../shared/icon.browser.tsx';
-import { DeleteComment } from './delete-comment.browser.tsx';
-import { EditCommentForm } from './edit-comment-form.browser.tsx';
-import { VoteComment } from './vote-comment.browser.tsx';
+import { Avatar } from '../shared/avatar.tsx';
+import { Button } from '../shared/button.tsx';
+import { Icon } from '../shared/icon.tsx';
+import { DeleteComment } from './delete-comment.tsx';
+import { EditCommentForm } from './edit-comment-form.tsx';
+import { VoteComment } from './vote-comment.tsx';
 
 export type CommentListItem = {
   id: number;

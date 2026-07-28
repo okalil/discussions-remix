@@ -2,7 +2,7 @@ import { Form } from '@discussions/form';
 import { addEventListeners, clientEntry, on } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
-import { Button } from '../shared/button.browser.tsx';
+import { Button } from '../shared/button.tsx';
 
 type DeleteCommentProps = {
   id: number;

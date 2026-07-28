@@ -6,9 +6,9 @@ import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
-import { Button } from '../shared/button.browser.tsx';
-import { ErrorMessage } from '../shared/error-message.browser.tsx';
-import { TextField } from '../shared/field.browser.tsx';
+import { Button } from '../shared/button.tsx';
+import { ErrorMessage } from '../shared/error-message.tsx';
+import { TextField } from '../shared/field.tsx';
 
 export type LoginFormProps = {
   draft?: FormDraft;

@@ -7,7 +7,7 @@ import { routes } from '../../../routes.ts';
 import {
   ResetPasswordForm,
   resetPasswordSchema,
-} from '../../../ui/auth/reset-password-form.browser.tsx';
+} from '../../../ui/auth/reset-password-form.tsx';
 import { ResetPasswordLayout } from '../../../ui/auth/reset-password-layout.tsx';
 
 export default createController(routes.auth.resetPassword, {

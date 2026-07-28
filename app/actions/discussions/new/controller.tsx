@@ -8,7 +8,7 @@ import { routes } from '../../../routes.ts';
 import {
   newDiscussionSchema,
   NewDiscussionForm,
-} from '../../../ui/discussions/new-discussion-form.browser.tsx';
+} from '../../../ui/discussions/new-discussion-form.tsx';
 import { NewDiscussionLayout } from '../../../ui/discussions/new-discussion-layout.tsx';
 
 export default createController(routes.discussions.new, {

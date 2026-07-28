@@ -1,6 +1,6 @@
 import { css, type Handle } from 'remix/ui';
 
-import { CommentRow, type CommentListItem } from './comment-row.browser.tsx';
+import { CommentRow, type CommentListItem } from './comment-row.tsx';
 
 type CommentsProps = {
   comments: CommentListItem[];

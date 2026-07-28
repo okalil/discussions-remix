@@ -4,7 +4,7 @@ import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
-import { Icon } from '../shared/icon.browser.tsx';
+import { Icon } from '../shared/icon.tsx';
 
 type VoteDiscussionProps = {
   id: number;

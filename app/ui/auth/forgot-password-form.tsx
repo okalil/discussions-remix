@@ -6,8 +6,8 @@ import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
-import { Button } from '../shared/button.browser.tsx';
-import { TextField } from '../shared/field.browser.tsx';
+import { Button } from '../shared/button.tsx';
+import { TextField } from '../shared/field.tsx';
 
 export type ForgotPasswordFormProps = {
   draft?: FormDraft;

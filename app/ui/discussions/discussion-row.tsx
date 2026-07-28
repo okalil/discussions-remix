@@ -1,10 +1,10 @@
 import { css, type Handle } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
-import { Avatar } from '../shared/avatar.browser.tsx';
-import { Icon } from '../shared/icon.browser.tsx';
-import { DiscussionLink } from './discussion-link.browser.tsx';
-import { VoteDiscussion } from './vote-discussion.browser.tsx';
+import { Avatar } from '../shared/avatar.tsx';
+import { Icon } from '../shared/icon.tsx';
+import { DiscussionLink } from './discussion-link.tsx';
+import { VoteDiscussion } from './vote-discussion.tsx';
 
 export type DiscussionListItem = {
   id: number;

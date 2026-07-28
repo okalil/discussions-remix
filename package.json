@@ -3,14 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development node --watch --env-file-if-exists=.env --import remix/node-tsx server.ts",
-    "start": "NODE_ENV=production node --env-file-if-exists=.env --import remix/node-tsx server.ts",
-    "test": "NODE_ENV=test node --env-file-if-exists=.env --import remix/node-tsx --test",
+    "dev": "vp dev",
+    "build": "vp build",
+    "start": "node server.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "fmt": "vp fmt",
+    "fmt:check": "vp fmt --check"
   },
   "dependencies": {
     "@discussions/form": "workspace:*",
@@ -23,11 +23,15 @@
     "tsx": "latest"
   },
   "devDependencies": {
+    "@pitlane/dev": "^0.1.1",
     "@types/node": "latest",
     "@types/react": "^19.2.17",
     "oxfmt": "^0.59.0",
     "oxlint": "^1.74.0",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vite-plugin-devtools-json": "^1.1.0",
+    "vite-plus": "^0.2.6"
   },
   "engines": {
     "node": ">=24.3.0"

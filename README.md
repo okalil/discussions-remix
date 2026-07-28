@@ -14,12 +14,6 @@ The purpose is to provide a reference implementation of a maintainable Remix 3 a
 
 ## Patterns and conventions
 
-### Browser modules
-
-Interactive components that require client-side JS (like a button with pending state) are typically defined with `clientEntry(import.meta.url, …)` inside a `*.browser.*` module so the client can load and hydrate them.
-
-The `.browser` suffix marks **browser-loadable** modules, not “browser-only” code. The same module can be imported on the server (controllers), fetched by the browser via `<script />`, or imported by another browser module. Modules that don't use the suffix can only be used on the server-side.
-
 ### Form validation
 
 A shared `remix/data-schema` form schema is the contract between the form UI and the route action. The client and server both validate with that schema; helpers map failures into form-friendly `errors` and serializable `draft` state.
@@ -34,10 +28,10 @@ A shared `remix/data-schema` form schema is the contract between the form UI and
 
 **Errors**: the `errors` getter covers failures only the server can determine (e.g. invalid credentials). Client validation errors live in Form state and are merged with server errors.
 
-See `app/ui/auth/login-form.browser.tsx` and `app/actions/auth/login/controller.tsx`.
+See `app/ui/auth/login-form.tsx` and `app/actions/auth/login/controller.tsx`.
 
 ```tsx
-// login-form.browser.tsx
+// login-form.tsx
 export const loginSchema = f.object({
   email: f.field(s.string().pipe(email())),
   password: f.field(s.string().pipe(minLength(8))),

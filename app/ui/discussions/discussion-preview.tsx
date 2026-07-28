@@ -1,7 +1,7 @@
 import { css, type Handle } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
-import { Avatar } from '../shared/avatar.browser.tsx';
+import { Avatar } from '../shared/avatar.tsx';
 
 type DiscussionPreviewProps = {
   discussion: {

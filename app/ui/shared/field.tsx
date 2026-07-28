@@ -9,8 +9,8 @@ import {
 } from 'remix/ui/select';
 import { onSelectChange } from 'remix/ui/select/primitives';
 
-import { Input, type InputProps } from './input.browser.tsx';
-import { Textarea, type TextareaProps } from './textarea.browser.tsx';
+import { Input, type InputProps } from './input.tsx';
+import { Textarea, type TextareaProps } from './textarea.tsx';
 
 type FieldProps = {
   label: string;

@@ -1,7 +1,7 @@
 import { css, type Handle, type RemixNode } from 'remix/ui';
 import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
 
-import { Icon } from './icon.browser.tsx';
+import { Icon } from './icon.tsx';
 
 type ButtonProps = ElementProps<'button'> & {
   variant: 'primary' | 'default' | 'danger';

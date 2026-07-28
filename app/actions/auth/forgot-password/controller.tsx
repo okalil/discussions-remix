@@ -7,7 +7,7 @@ import { routes } from '../../../routes.ts';
 import {
   ForgotPasswordForm,
   forgotPasswordSchema,
-} from '../../../ui/auth/forgot-password-form.browser.tsx';
+} from '../../../ui/auth/forgot-password-form.tsx';
 import { ForgotPasswordLayout } from '../../../ui/auth/forgot-password-layout.tsx';
 
 export default createController(routes.auth.forgotPassword, {

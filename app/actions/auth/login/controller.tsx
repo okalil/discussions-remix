@@ -5,10 +5,7 @@ import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
-import {
-  LoginForm,
-  loginSchema,
-} from '../../../ui/auth/login-form.browser.tsx';
+import { LoginForm, loginSchema } from '../../../ui/auth/login-form.tsx';
 import { LoginLayout } from '../../../ui/auth/login-layout.tsx';
 
 export default createController(routes.auth.login, {

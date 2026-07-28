@@ -1,11 +1,11 @@
 import { css, Frame, type Handle } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
-import { VoteDiscussion } from '../discussions/vote-discussion.browser.tsx';
+import { VoteDiscussion } from '../discussions/vote-discussion.tsx';
 import { Layout } from '../layout.tsx';
-import { Avatar } from '../shared/avatar.browser.tsx';
+import { Avatar } from '../shared/avatar.tsx';
 import { CommentsFallback } from './comments-fallback.tsx';
-import { NewCommentForm } from './new-comment-form.browser.tsx';
+import { NewCommentForm } from './new-comment-form.tsx';
 import { Participants, type Participant } from './participants.tsx';
 
 type DiscussionPageProps = {
