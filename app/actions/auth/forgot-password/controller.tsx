@@ -4,11 +4,11 @@ import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../../routes.ts';
+import { ForgotPasswordLayout } from '../../../ui/auth/forgot-password-layout.tsx';
 import {
   ForgotPasswordForm,
   forgotPasswordSchema,
-} from '../../../ui/auth/forgot-password-form.browser.tsx';
-import { ForgotPasswordLayout } from '../../../ui/auth/forgot-password-layout.tsx';
+} from '../../../ui/auth/public/forgot-password-form.tsx';
 
 export default createController(routes.auth.forgotPassword, {
   actions: {

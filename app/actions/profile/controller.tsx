@@ -5,11 +5,11 @@ import { createController } from 'remix/router';
 
 import { requireAuth } from '../../middleware/auth.ts';
 import { routes } from '../../routes.ts';
+import { ProfileLayout } from '../../ui/profile/profile-layout.tsx';
 import {
   ProfileForm,
   updateProfileSchema,
-} from '../../ui/profile/profile-form.browser.tsx';
-import { ProfileLayout } from '../../ui/profile/profile-layout.tsx';
+} from '../../ui/profile/public/profile-form.tsx';
 
 export default createController(routes.profile, {
   middleware: [requireAuth()],

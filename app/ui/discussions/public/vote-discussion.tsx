@@ -3,23 +3,23 @@ import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
-import { routes } from '../../routes.ts';
-import { Icon } from '../shared/icon.browser.tsx';
+import { routes } from '../../../routes.ts';
+import { Icon } from '../../public/icon.tsx';
 
-type VoteCommentProps = {
+type VoteDiscussionProps = {
   id: number;
   voted: boolean;
   votesCount: number;
   disabled?: boolean;
 };
 
-export const VoteComment = clientEntry<VoteCommentProps>(
+export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
   import.meta.url,
-  function VoteComment(handle) {
+  function VoteDiscussion(handle) {
     const form = new Form({
       method: 'post',
-      action: routes.comments.vote.href({ id: handle.props.id }),
-      schema: voteCommentSchema,
+      action: routes.discussions.vote.href({ id: handle.props.id }),
+      schema: voteDiscussionSchema,
     });
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
@@ -61,11 +61,15 @@ export const VoteComment = clientEntry<VoteCommentProps>(
   },
 );
 
-export const voteCommentSchema = f.object({
+export const voteDiscussionSchema = f.object({
   voted: f.field(coerce.boolean()),
 });
 
 const styles = {
+  form: css({
+    display: 'grid',
+    placeContent: 'center',
+  }),
   button: css({
     display: 'flex',
     alignItems: 'center',

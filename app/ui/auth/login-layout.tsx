@@ -2,8 +2,8 @@ import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Document } from '../document.tsx';
-import { Button } from '../shared/button.browser.tsx';
-import { Icon } from '../shared/icon.browser.tsx';
+import { Button } from '../public/button.tsx';
+import { Icon } from '../public/icon.tsx';
 import { AuthLayout } from './auth-layout.tsx';
 
 type LoginLayoutProps = {

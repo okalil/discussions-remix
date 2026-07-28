@@ -4,9 +4,9 @@ import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
-import { routes } from '../../routes.ts';
-import { Button } from '../shared/button.browser.tsx';
-import { TextAreaField } from '../shared/field.browser.tsx';
+import { routes } from '../../../routes.ts';
+import { Button } from '../../public/button.tsx';
+import { TextAreaField } from '../../public/field.tsx';
 
 type EditCommentFormProps = {
   id: number;

@@ -3,8 +3,8 @@ import type { Session } from 'remix/session';
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../routes.ts';
-import { FlashToast } from './shared/flash-toast.browser.tsx';
-import { NavigationProgress } from './shared/navigation-progress.browser.tsx';
+import { FlashToast } from './public/flash-toast.tsx';
+import { NavigationProgress } from './public/navigation-progress.tsx';
 
 export interface DocumentProps {
   children?: RemixNode;
@@ -36,7 +36,7 @@ export function Document(handle: Handle<DocumentProps>) {
 
         <script
           type="module"
-          src={routes.assets.href({ path: 'app/entry.browser.ts' })}
+          src={routes.assets.href({ path: 'app/entry.ts' })}
         />
       </body>
     </html>

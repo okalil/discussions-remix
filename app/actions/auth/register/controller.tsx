@@ -8,7 +8,7 @@ import { routes } from '../../../routes.ts';
 import {
   RegisterForm,
   registerSchema,
-} from '../../../ui/auth/register-form.browser.tsx';
+} from '../../../ui/auth/public/register-form.tsx';
 import { RegisterLayout } from '../../../ui/auth/register-layout.tsx';
 
 export default createController(routes.auth.register, {

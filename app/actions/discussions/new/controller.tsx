@@ -5,11 +5,11 @@ import { createController } from 'remix/router';
 
 import { requireAuth } from '../../../middleware/auth.ts';
 import { routes } from '../../../routes.ts';
+import { NewDiscussionLayout } from '../../../ui/discussions/new-discussion-layout.tsx';
 import {
   newDiscussionSchema,
   NewDiscussionForm,
-} from '../../../ui/discussions/new-discussion-form.browser.tsx';
-import { NewDiscussionLayout } from '../../../ui/discussions/new-discussion-layout.tsx';
+} from '../../../ui/discussions/public/new-discussion-form.tsx';
 
 export default createController(routes.discussions.new, {
   middleware: [requireAuth()],

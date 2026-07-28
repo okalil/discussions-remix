@@ -5,11 +5,11 @@ import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
-import type { User } from '../../core/user.types.ts';
-import { Avatar } from '../shared/avatar.browser.tsx';
-import { Button } from '../shared/button.browser.tsx';
-import { ErrorMessage } from '../shared/error-message.browser.tsx';
-import { TextField } from '../shared/field.browser.tsx';
+import type { User } from '../../../core/user.types.ts';
+import { Avatar } from '../../public/avatar.tsx';
+import { Button } from '../../public/button.tsx';
+import { ErrorMessage } from '../../public/error-message.tsx';
+import { TextField } from '../../public/field.tsx';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 

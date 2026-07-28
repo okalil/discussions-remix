@@ -3,8 +3,8 @@ import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../routes.ts';
 import { Document, type DocumentProps } from './document.tsx';
-import { Avatar } from './shared/avatar.browser.tsx';
-import { Button } from './shared/button.browser.tsx';
+import { Avatar } from './public/avatar.tsx';
+import { Button } from './public/button.tsx';
 
 export interface LayoutProps extends DocumentProps {
   children?: RemixNode;

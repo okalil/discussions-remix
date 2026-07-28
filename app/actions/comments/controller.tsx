@@ -4,9 +4,9 @@ import { createController } from 'remix/router';
 
 import { requireAuth } from '../../middleware/auth.ts';
 import { routes } from '../../routes.ts';
-import { editCommentSchema } from '../../ui/discussion/edit-comment-form.browser.tsx';
-import { newCommentSchema } from '../../ui/discussion/new-comment-form.browser.tsx';
-import { voteCommentSchema } from '../../ui/discussion/vote-comment.browser.tsx';
+import { editCommentSchema } from '../../ui/discussion/public/edit-comment-form.tsx';
+import { newCommentSchema } from '../../ui/discussion/public/new-comment-form.tsx';
+import { voteCommentSchema } from '../../ui/discussion/public/vote-comment.tsx';
 
 export default createController(routes.comments, {
   middleware: [requireAuth()],

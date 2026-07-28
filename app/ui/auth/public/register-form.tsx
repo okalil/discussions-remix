@@ -5,56 +5,55 @@ import { email, maxLength, minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css } from 'remix/ui';
 
-import { routes } from '../../routes.ts';
-import { Button } from '../shared/button.browser.tsx';
-import { ErrorMessage } from '../shared/error-message.browser.tsx';
-import { TextField } from '../shared/field.browser.tsx';
+import { routes } from '../../../routes.ts';
+import { Button } from '../../public/button.tsx';
+import { ErrorMessage } from '../../public/error-message.tsx';
+import { TextField } from '../../public/field.tsx';
 
-export type ResetPasswordFormProps = {
-  token?: string | null;
+export type RegisterFormProps = {
   draft?: FormDraft;
   errors?: FormErrors;
 };
 
-export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
+export const RegisterForm = clientEntry<RegisterFormProps>(
   import.meta.url,
-  function ResetPasswordForm(handle) {
-    const resetPasswordForm = new Form({
+  function RegisterForm(handle) {
+    const registerForm = new Form({
       method: 'post',
-      schema: resetPasswordSchema,
-      draft: () => handle.props.draft ?? [['token', handle.props.token ?? '']],
+      schema: registerSchema,
+      draft: () => handle.props.draft,
       errors: () => handle.props.errors,
     });
-    addEventListeners(resetPasswordForm, handle.signal, {
+    addEventListeners(registerForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {
-      const { errors, pending } = resetPasswordForm.state;
+      const { errors, pending } = registerForm.state;
       return (
-        <form mix={[styles.form, form(resetPasswordForm)]}>
-          <input
-            type="hidden"
-            name={resetPasswordForm.field('token').name}
-            defaultValue={String(resetPasswordForm.formData.get('token') ?? '')}
-          />
-
+        <form mix={[styles.form, form(registerForm)]}>
           <TextField
-            field={resetPasswordForm.field('email')}
+            field={registerForm.field('name')}
+            label="Name"
+            type="text"
+            aria-required
+          />
+          <TextField
+            field={registerForm.field('email')}
             label="Email"
             type="email"
             aria-required
           />
           <TextField
-            field={resetPasswordForm.field('password')}
-            label="New Password"
+            field={registerForm.field('password')}
+            label="Password"
             type="password"
             aria-required
           />
           <TextField
-            field={resetPasswordForm.field('passwordConfirmation')}
-            label="Confirm Password"
+            field={registerForm.field('passwordConfirmation')}
+            label="Confirm password"
             type="password"
             aria-required
           />
@@ -67,13 +66,13 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
             pending={pending}
             mix={styles.submit}
           >
-            Submit
+            Register
           </Button>
 
           <p mix={styles.footer}>
-            Remember your password?{' '}
+            Already have an account?{' '}
             <a href={routes.auth.login.index.href()} mix={styles.link}>
-              Login
+              Sign in now
             </a>
           </p>
         </form>
@@ -82,12 +81,12 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
   },
 );
 
-export const resetPasswordSchema = f
+export const registerSchema = f
   .object({
+    name: f.field(s.string().pipe(minLength(1))),
     email: f.field(s.string().pipe(email())),
     password: f.field(s.string().pipe(minLength(8), maxLength(72))),
     passwordConfirmation: f.field(s.string().pipe(minLength(8), maxLength(72))),
-    token: f.field(s.string()),
   })
   .refine(
     (data) => data.password === data.passwordConfirmation,
