@@ -1,7 +1,7 @@
 import { Form } from '@discussions/form';
 import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css, on } from 'remix/ui';
+import { addEventListeners, css, on, type Handle } from 'remix/ui';
 
 import { routes } from '../../../routes.ts';
 import { Icon } from '../../public/icon.tsx';
@@ -13,53 +13,50 @@ type VoteCommentProps = {
   disabled?: boolean;
 };
 
-export const VoteComment = clientEntry<VoteCommentProps>(
-  import.meta.url,
-  function VoteComment(handle) {
-    const form = new Form({
-      method: 'post',
-      action: routes.comments.vote.href({ id: handle.props.id }),
-      schema: voteCommentSchema,
-    });
-    addEventListeners(form, handle.signal, {
-      statechange: () => handle.update(),
-      submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
-    });
+export function VoteComment(handle: Handle<VoteCommentProps>) {
+  const form = new Form({
+    method: 'post',
+    action: routes.comments.vote.href({ id: handle.props.id }),
+    schema: voteCommentSchema,
+  });
+  addEventListeners(form, handle.signal, {
+    statechange: () => handle.update(),
+    submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
+  });
 
-    return () => {
-      const { submission } = form.state;
-      const optimisticVoted = submission?.data.voted;
-      const voted = optimisticVoted ?? handle.props.voted;
+  return () => {
+    const { submission } = form.state;
+    const optimisticVoted = submission?.data.voted;
+    const voted = optimisticVoted ?? handle.props.voted;
 
-      let votesCount = handle.props.votesCount;
-      if (
-        typeof optimisticVoted === 'boolean' &&
-        optimisticVoted !== handle.props.voted
-      ) {
-        votesCount += optimisticVoted ? 1 : -1;
-      }
+    let votesCount = handle.props.votesCount;
+    if (
+      typeof optimisticVoted === 'boolean' &&
+      optimisticVoted !== handle.props.voted
+    ) {
+      votesCount += optimisticVoted ? 1 : -1;
+    }
 
-      return (
-        <button
-          type="button"
-          disabled={handle.props.disabled}
-          aria-label={voted ? 'Remove upvote' : 'Upvote'}
-          data-highlighted={voted}
-          mix={[
-            styles.button,
-            on('click', (_, signal) => {
-              form.formData.set('voted', String(!voted));
-              form.submit({ signal });
-            }),
-          ]}
-        >
-          <Icon name="arrow-up" size={16} />
-          {votesCount}
-        </button>
-      );
-    };
-  },
-);
+    return (
+      <button
+        type="button"
+        disabled={handle.props.disabled}
+        aria-label={voted ? 'Remove upvote' : 'Upvote'}
+        data-highlighted={voted}
+        mix={[
+          styles.button,
+          on('click', (_, signal) => {
+            form.formData.set('voted', String(!voted));
+            form.submit({ signal });
+          }),
+        ]}
+      >
+        <Icon name="arrow-up" size={16} />
+        {votesCount}
+      </button>
+    );
+  };
+}
 
 export const voteCommentSchema = f.object({
   voted: f.field(coerce.boolean()),

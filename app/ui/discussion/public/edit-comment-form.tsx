@@ -2,7 +2,7 @@ import { Form, form } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css, on } from 'remix/ui';
+import { addEventListeners, css, on, type Handle } from 'remix/ui';
 
 import { routes } from '../../../routes.ts';
 import { Button } from '../../public/button.tsx';
@@ -13,61 +13,58 @@ type EditCommentFormProps = {
   body: string;
 };
 
-export const EditCommentForm = clientEntry<EditCommentFormProps>(
-  import.meta.url,
-  function EditCommentForm(handle) {
-    const editCommentForm = new Form({
-      method: 'put',
-      action: routes.comments.edit.href({ id: handle.props.id }),
-      schema: editCommentSchema,
-      draft: () => [['body', handle.props.body]],
-    });
-    addEventListeners(editCommentForm, handle.signal, {
-      statechange: () => handle.update(),
-      submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
-    });
+export function EditCommentForm(handle: Handle<EditCommentFormProps>) {
+  const editCommentForm = new Form({
+    method: 'put',
+    action: routes.comments.edit.href({ id: handle.props.id }),
+    schema: editCommentSchema,
+    draft: () => [['body', handle.props.body]],
+  });
+  addEventListeners(editCommentForm, handle.signal, {
+    statechange: () => handle.update(),
+    submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
+  });
 
-    return () => {
-      const { pending } = editCommentForm.state;
-      return (
-        <form mix={[styles.form, form(editCommentForm)]}>
-          <TextAreaField
-            field={editCommentForm.field('body')}
-            label="Write"
-            placeholder="Write your comment here..."
-            rows={4}
-            aria-required
-          />
+  return () => {
+    const { pending } = editCommentForm.state;
+    return (
+      <form mix={[styles.form, form(editCommentForm)]}>
+        <TextAreaField
+          field={editCommentForm.field('body')}
+          label="Write"
+          placeholder="Write your comment here..."
+          rows={4}
+          aria-required
+        />
 
-          <div mix={styles.actions}>
-            <Button
-              type="button"
-              variant="danger"
-              mix={[
-                styles.cancel,
-                on('click', (e) => {
-                  e.currentTarget.dispatchEvent(
-                    new Event('cancel', { bubbles: true }),
-                  );
-                }),
-              ]}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              pending={pending}
-              mix={styles.submit}
-            >
-              Update comment
-            </Button>
-          </div>
-        </form>
-      );
-    };
-  },
-);
+        <div mix={styles.actions}>
+          <Button
+            type="button"
+            variant="danger"
+            mix={[
+              styles.cancel,
+              on('click', (e) => {
+                e.currentTarget.dispatchEvent(
+                  new Event('cancel', { bubbles: true }),
+                );
+              }),
+            ]}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            pending={pending}
+            mix={styles.submit}
+          >
+            Update comment
+          </Button>
+        </div>
+      </form>
+    );
+  };
+}
 
 export const editCommentSchema = f.object({
   body: f.field(s.string().pipe(minLength(1))),
