@@ -6,7 +6,7 @@ import { CommentService } from '../core/comment.ts';
 import { DiscussionService } from '../core/discussion.ts';
 import { GithubAuthProvider } from '../core/integrations/auth/providers/github.ts';
 import { db } from '../core/integrations/db.ts';
-import { mailer } from '../core/integrations/email.ts';
+import { mailer } from '../core/integrations/mail.ts';
 import { storage } from '../core/integrations/storage.ts';
 import { SessionService } from '../core/session.ts';
 import { UserService } from '../core/user.ts';

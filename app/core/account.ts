@@ -10,9 +10,9 @@ import type {
 import type { AuthProvider } from './integrations/auth/provider.ts';
 import type { DatabaseClient } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
-import type { EmailClient } from './integrations/email.ts';
-import { ResetPasswordLink } from './integrations/email/templates/reset-password-link.tsx';
-import { ResetPasswordSuccess } from './integrations/email/templates/reset-password-success.tsx';
+import type { EmailClient } from './integrations/mail.ts';
+import { ResetPasswordLink } from './integrations/mail/templates/reset-password-link.tsx';
+import { ResetPasswordSuccess } from './integrations/mail/templates/reset-password-success.tsx';
 
 export class AccountService {
   private providers: Map<string, AuthProvider> = new Map();
