@@ -6,8 +6,8 @@ import {
 import { redirect } from 'remix/response/redirect';
 import { Session } from 'remix/session';
 
-import { SessionService } from '../core/session.ts';
-import type { User } from '../core/user.types.ts';
+import { SessionService } from '../../core/session.ts';
+import type { User } from '../../core/user.types.ts';
 import { routes } from '../routes.ts';
 
 export function auth() {

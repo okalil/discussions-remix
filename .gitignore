@@ -2,7 +2,6 @@ node_modules
 .env
 .env.local
 .env.*.local
-uploads
 data.db
 data.db-*
 .DS_Store

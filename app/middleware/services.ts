@@ -1,22 +1,22 @@
 import { env } from 'cloudflare:workers';
 import type { Middleware } from 'remix/router';
 
-import { AccountService } from '../core/account.ts';
-import { CategoryService } from '../core/category.ts';
-import { CommentService } from '../core/comment.ts';
-import { DiscussionService } from '../core/discussion.ts';
-import { GithubAuthProvider } from '../core/integrations/auth/providers/github.ts';
+import { AccountService } from '../../core/account.ts';
+import { CategoryService } from '../../core/category.ts';
+import { CommentService } from '../../core/comment.ts';
+import { DiscussionService } from '../../core/discussion.ts';
+import { GithubAuthProvider } from '../../core/integrations/auth/providers/github.ts';
 import {
   createDatabase,
   createD1DatabaseAdapter,
-} from '../core/integrations/db.ts';
+} from '../../core/integrations/db.ts';
 import {
   createMailer,
   createResendMailerAdapter,
-} from '../core/integrations/mailer.ts';
-import { createR2FileStorage } from '../core/integrations/storage/adapters/r2.ts';
-import { SessionService } from '../core/session.ts';
-import { UserService } from '../core/user.ts';
+} from '../../core/integrations/mailer.ts';
+import { createR2FileStorage } from '../../core/integrations/storage/adapters/r2.ts';
+import { SessionService } from '../../core/session.ts';
+import { UserService } from '../../core/user.ts';
 
 export function services(): Middleware<ServicesContextTransform> {
   return async (context, next) => {
