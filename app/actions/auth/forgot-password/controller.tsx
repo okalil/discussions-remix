@@ -38,7 +38,10 @@ export default createController(routes.auth.forgotPassword, {
         validation.value.email,
       );
       if (user?.email) {
-        await context.accountService.forgetPassword(user.email);
+        await context.accountService.deliverResetPasswordLink({
+          email: user.email,
+          path: routes.auth.resetPassword.index.href(),
+        });
       }
 
       context.session.flash(

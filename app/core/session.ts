@@ -1,12 +1,12 @@
 import { sql } from 'remix/data-table';
 
-import type { DatabaseClient } from './integrations/db.ts';
+import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 
 const expirationTime = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 export class SessionService {
-  constructor(private db: DatabaseClient) {}
+  constructor(private db: Database) {}
 
   async createSession(userId: number) {
     return this.db.create(

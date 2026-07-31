@@ -1,3 +1,4 @@
+import { env } from 'cloudflare:workers';
 import type { Middleware } from 'remix/router';
 
 import { AccountService } from '../core/account.ts';
@@ -5,15 +6,31 @@ import { CategoryService } from '../core/category.ts';
 import { CommentService } from '../core/comment.ts';
 import { DiscussionService } from '../core/discussion.ts';
 import { GithubAuthProvider } from '../core/integrations/auth/providers/github.ts';
-import { db } from '../core/integrations/db.ts';
-import { mailer } from '../core/integrations/mail.ts';
-import { storage } from '../core/integrations/storage.ts';
+import {
+  createDatabase,
+  createD1DatabaseAdapter,
+} from '../core/integrations/db.ts';
+import {
+  createMailer,
+  createResendMailerAdapter,
+} from '../core/integrations/mailer.ts';
+import { createR2FileStorage } from '../core/integrations/storage/adapters/r2.ts';
 import { SessionService } from '../core/session.ts';
 import { UserService } from '../core/user.ts';
-import { env } from '../env.ts';
 
 export function services(): Middleware<ServicesContextTransform> {
   return async (context, next) => {
+    const d1DatabaseAdapter = createD1DatabaseAdapter(env.DB);
+    const db = createDatabase(d1DatabaseAdapter);
+
+    const resendMailerAdapter = createResendMailerAdapter(env.RESEND_API_KEY);
+    const mailer = createMailer(resendMailerAdapter, {
+      site: env.SITE_URL,
+      production: import.meta.env.PROD,
+    });
+
+    const storage = createR2FileStorage(env.R2);
+
     const authProviders = [
       new GithubAuthProvider(env.GITHUB_CLIENT_ID, env.GITHUB_CLIENT_SECRET),
     ];

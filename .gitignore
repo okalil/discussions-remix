@@ -6,3 +6,5 @@ uploads
 data.db
 data.db-*
 .DS_Store
+.wrangler
+worker-configuration.d.ts

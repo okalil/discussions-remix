@@ -4,11 +4,10 @@ import { createCookie } from 'remix/cookie';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
-import { env } from '../../../env.ts';
 import { routes } from '../../../routes.ts';
 
 const cookie = createCookie('state', {
-  secure: env.NODE_ENV === 'production',
+  secure: import.meta.env.PROD,
   path: '/',
   httpOnly: true,
   maxAge: 10 * 60, // 10 min

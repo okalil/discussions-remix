@@ -4,11 +4,11 @@ import type {
   CreateDiscussionDto,
   GetDiscussionsDto,
 } from './discussion.types.ts';
-import type { DatabaseClient } from './integrations/db.ts';
+import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 
 export class DiscussionService {
-  constructor(private db: DatabaseClient) {}
+  constructor(private db: Database) {}
 
   async createDiscussion({
     title,

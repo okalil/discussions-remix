@@ -1,10 +1,10 @@
 import { sql } from 'remix/data-table';
 
-import type { DatabaseClient } from './integrations/db.ts';
+import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 
 export class CommentService {
-  constructor(private db: DatabaseClient) {}
+  constructor(private db: Database) {}
 
   async getComments(discussionId: number, userId = 0, sort = 'oldest') {
     const orderBy =

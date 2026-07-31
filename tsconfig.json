@@ -2,7 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
-    "types": ["node", "@pitlane/dev/assets"],
+    "types": ["node", "@pitlane/dev/assets", "vite/client"],
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "target": "ESNext",

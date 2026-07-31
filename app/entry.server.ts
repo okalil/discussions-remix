@@ -50,4 +50,6 @@ router.map(routes.auth.forgotPassword, forgotPasswordController);
 router.map(routes.auth.resetPassword, resetPasswordController);
 router.map(routes.profile, profileController);
 
-export default router;
+export default {
+  fetch: (request) => router.fetch(request),
+} satisfies ExportedHandler<Env>;

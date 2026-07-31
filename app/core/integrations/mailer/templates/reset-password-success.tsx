@@ -13,8 +13,9 @@ import {
   Text,
 } from 'react-email';
 
-interface Props {
-  baseUrl: string;
+import type { MailerTemplateProps } from '../../mailer.ts';
+
+interface Props extends MailerTemplateProps {
   email: string;
 }
 

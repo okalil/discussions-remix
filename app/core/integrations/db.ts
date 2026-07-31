@@ -1,15 +1,3 @@
-import { DatabaseSync } from 'node:sqlite';
-import { createDatabase, type Database } from 'remix/data-table';
-import { createSqliteDatabaseAdapter } from 'remix/data-table-sqlite';
+export { Database, createDatabase } from 'remix/data-table';
 
-import { setup } from './db/setup.ts';
-
-export type DatabaseClient = Database;
-
-const sqlite = new DatabaseSync('./data.db');
-await setup(sqlite);
-
-export const db = createDatabase(createSqliteDatabaseAdapter(sqlite), {
-  // Store timestamps as ISO strings so raw SQL reads stay compatible with `new Date(...)`.
-  now: () => new Date().toISOString(),
-});
+export { createD1DatabaseAdapter } from './db/adapters/d1.ts';

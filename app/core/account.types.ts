@@ -14,3 +14,8 @@ export interface ResetPasswordDto {
   password: string;
   token: string;
 }
+
+export interface DeliverResetPasswordLinkDto {
+  email: string;
+  path: string;
+}

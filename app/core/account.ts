@@ -1,25 +1,25 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
 
-import { env } from '../env.ts';
 import type {
   CreateCredentialsAccountDto,
   CredentialsDto,
+  DeliverResetPasswordLinkDto,
   ResetPasswordDto,
 } from './account.types.ts';
 import type { AuthProvider } from './integrations/auth/provider.ts';
-import type { DatabaseClient } from './integrations/db.ts';
+import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
-import type { EmailClient } from './integrations/mail.ts';
-import { ResetPasswordLink } from './integrations/mail/templates/reset-password-link.tsx';
-import { ResetPasswordSuccess } from './integrations/mail/templates/reset-password-success.tsx';
+import type { Mailer } from './integrations/mailer.ts';
+import { ResetPasswordLink } from './integrations/mailer/templates/reset-password-link.tsx';
+import { ResetPasswordSuccess } from './integrations/mailer/templates/reset-password-success.tsx';
 
 export class AccountService {
   private providers: Map<string, AuthProvider> = new Map();
 
   constructor(
-    private db: DatabaseClient,
-    private mailer: EmailClient,
+    private db: Database,
+    private mailer: Mailer,
     private authProviders: AuthProvider[],
   ) {
     this.providers = new Map(
@@ -65,16 +65,19 @@ export class AccountService {
     return user;
   }
 
-  async forgetPassword(email: string) {
+  async deliverResetPasswordLink({ email, path }: DeliverResetPasswordLinkDto) {
     const token = await this.createVerificationToken(email);
+    const link = new URL(path, this.mailer.config.site);
+    link.searchParams.set('token', token);
+
     await this.mailer.send({
       to: email,
       subject: 'Discussions, Password Reset',
-      template: ResetPasswordLink({
-        baseUrl: env.SITE_URL,
+      template: ResetPasswordLink,
+      props: {
         email,
-        token,
-      }),
+        link: link.href,
+      },
     });
   }
 
@@ -101,10 +104,8 @@ export class AccountService {
     await this.mailer.send({
       to: email,
       subject: 'Discussions, Password Successfully Reset',
-      template: ResetPasswordSuccess({
-        baseUrl: env.SITE_URL,
-        email,
-      }),
+      template: ResetPasswordSuccess,
+      props: { email },
     });
 
     return true;

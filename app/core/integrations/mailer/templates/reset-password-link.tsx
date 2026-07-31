@@ -14,14 +14,14 @@ import {
   Text,
 } from 'react-email';
 
-interface Props {
-  baseUrl: string;
+import type { MailerTemplateProps } from '../../mailer.ts';
+
+interface Props extends MailerTemplateProps {
   email: string;
-  token: string;
+  link: string;
 }
 
-export function ResetPasswordLink({ baseUrl, email, token }: Props) {
-  const url = `${baseUrl}/auth/reset-password?token=${token}`;
+export function ResetPasswordLink({ baseUrl, email, link }: Props) {
   return (
     <Html>
       <Head />
@@ -45,7 +45,7 @@ export function ResetPasswordLink({ baseUrl, email, token }: Props) {
             <Section className="my-8 mt-8">
               <Button
                 className="rounded-lg bg-black px-6 py-3 text-center text-[12px] font-semibold text-white"
-                href={url}
+                href={link}
               >
                 Reset Password
               </Button>
@@ -54,7 +54,7 @@ export function ResetPasswordLink({ baseUrl, email, token }: Props) {
               or copy and paste this URL into your browser:
             </Text>
             <Text className="text-sm font-medium text-purple-600 break-all">
-              {url.replace(/^https?:\/\//, '')}
+              {link.replace(/^https?:\/\//, '')}
             </Text>
 
             <Hr className="mx-0 my-6 w-full border border-neutral-200" />
@@ -75,7 +75,7 @@ export function ResetPasswordLink({ baseUrl, email, token }: Props) {
 ResetPasswordLink.PreviewProps = {
   baseUrl: 'http://localhost:44100',
   email: 'john@due.com',
-  token: '1e7ab5ef3e239582fa4f0f4fc31ed6b2d77bf46e32f28d7b343644d1946889ae',
+  link: 'https://localhost:44100/auth/reset-password?token=1e7ab5ef3e239582fa4f0f4fc31ed6b2d77bf46e32f28d7b343644d1946889ae',
 } as Props;
 
 export default ResetPasswordLink;

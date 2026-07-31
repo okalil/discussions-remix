@@ -1,8 +1,8 @@
-import type { DatabaseClient } from './integrations/db.ts';
+import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 
 export class CategoryService {
-  constructor(private db: DatabaseClient) {}
+  constructor(private db: Database) {}
 
   async getCategories() {
     const categories = await this.db.findMany(schema.categories);

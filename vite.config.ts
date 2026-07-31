@@ -1,4 +1,6 @@
+import { cloudflare } from '@cloudflare/vite-plugin';
 import { remix } from '@pitlane/dev';
+import devtoolsJson from 'vite-plugin-devtools-json';
 import { defineConfig } from 'vite-plus';
 
 // Load .env into the dev-server process so request middleware (like the
@@ -12,9 +14,12 @@ try {
 export default defineConfig({
   plugins: [
     remix({
-      serverEntry: 'app/router.ts',
-      clientEntry: 'app/client.ts',
+      serverEntry: 'app/entry.server.ts',
+      clientEntry: 'app/entry.client.ts',
+      serverHandler: false,
     }),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    devtoolsJson(),
   ],
   server: {
     port: 44100,
@@ -25,7 +30,23 @@ export default defineConfig({
   run: {
     tasks: {
       dev: {
+        dependsOn: ['db:migrate'],
         command: 'vp dev --host',
+      },
+      'db:generate': {
+        command: 'node db/generate-migrations.ts',
+      },
+      'db:migrate': {
+        dependsOn: ['db:generate'],
+        command: 'wrangler d1 migrations apply DB --local',
+      },
+      'db:migrate:remote': {
+        dependsOn: ['db:generate'],
+        command: 'wrangler d1 migrations apply DB --remote',
+      },
+      'db:reset': {
+        command: 'rm -rf .wrangler/state/v3/d1',
+        cache: false,
       },
       typecheck: {
         command: 'tsc',

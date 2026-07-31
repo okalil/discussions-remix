@@ -3,8 +3,8 @@ import { getContext } from 'remix/async-context-middleware';
 import type { Session } from 'remix/session';
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
-import clientAssets from '../client.ts?assets=client';
-import serverAssets from '../router.ts?assets=ssr';
+import clientAssets from '../entry.client.ts?assets=client';
+import serverAssets from '../entry.server.ts?assets=ssr';
 import { FlashToast } from './shared/flash-toast.tsx';
 import { NavigationProgress } from './shared/navigation-progress.tsx';
 

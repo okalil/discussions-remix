@@ -1,8 +1,7 @@
+import { env } from 'cloudflare:workers';
 import { createCookie } from 'remix/cookie';
 import { session as sessionMiddleware } from 'remix/session-middleware';
 import { createCookieSessionStorage } from 'remix/session-storage/cookie';
-
-import { env } from '../env.ts';
 
 const sessionCookie = createCookie('__session', {
   secrets: [env.SESSION_SECRET],

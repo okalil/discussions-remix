@@ -1,11 +1,11 @@
-import type { DatabaseClient } from './integrations/db.ts';
+import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
-import type { StorageClient } from './integrations/storage.ts';
+import type { FileStorage } from './integrations/storage.ts';
 
 export class UserService {
   constructor(
-    private db: DatabaseClient,
-    private storage: StorageClient,
+    private db: Database,
+    private storage: FileStorage,
   ) {}
 
   async getUserByEmail(email: string) {
