@@ -2,8 +2,8 @@ import { getContext } from 'remix/async-context-middleware';
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../routes.ts';
-import { Avatar } from './avatar.tsx';
-import { Button } from './button.tsx';
+import { Avatar } from '../shared/avatar.tsx';
+import { Button } from '../shared/button.tsx';
 import { Document, type DocumentProps } from './document.tsx';
 
 export interface LayoutProps extends DocumentProps {

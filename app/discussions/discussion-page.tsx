@@ -2,9 +2,9 @@ import { css, Frame, type Handle } from 'remix/ui';
 
 import { CommentsFallback } from '../comments/comments-fallback.tsx';
 import { NewCommentForm } from '../comments/new-comment-form.tsx';
+import { Layout } from '../layouts/layout.tsx';
 import { routes } from '../routes.ts';
 import { Avatar } from '../shared/avatar.tsx';
-import { Layout } from '../shared/layout.tsx';
 import { Participants, type Participant } from './participants.tsx';
 import { VoteDiscussion } from './vote-discussion.tsx';
 

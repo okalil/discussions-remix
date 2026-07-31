@@ -1,10 +1,10 @@
 import { css, type Handle } from 'remix/ui';
 
+import { Layout } from '../layouts/layout.tsx';
 import { routes } from '../routes.ts';
 import { Button } from '../shared/button.tsx';
 import { Icon } from '../shared/icon.tsx';
 import { Input } from '../shared/input.tsx';
-import { Layout } from '../shared/layout.tsx';
 import { Pagination } from '../shared/pagination.tsx';
 import { DiscussionRow, type DiscussionListItem } from './discussion-row.tsx';
 

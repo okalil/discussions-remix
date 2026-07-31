@@ -1,8 +1,8 @@
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
+import { Document } from '../../layouts/document.tsx';
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
-import { Document } from '../../shared/document.tsx';
 import { Icon } from '../../shared/icon.tsx';
 import { AuthLayout } from '../auth-layout.tsx';
 

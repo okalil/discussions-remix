@@ -5,8 +5,8 @@ import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import clientAssets from '../entry.client.ts?assets=client';
 import serverAssets from '../entry.server.ts?assets=ssr';
-import { FlashToast } from './flash-toast.tsx';
-import { NavigationProgress } from './navigation-progress.tsx';
+import { FlashToast } from '../shared/flash-toast.tsx';
+import { NavigationProgress } from '../shared/navigation-progress.tsx';
 
 export interface DocumentProps {
   children?: RemixNode;

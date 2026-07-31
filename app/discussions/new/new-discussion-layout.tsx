@@ -1,6 +1,6 @@
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
-import { Layout } from '../../shared/layout.tsx';
+import { Layout } from '../../layouts/layout.tsx';
 
 type NewDiscussionLayoutProps = {
   children?: RemixNode;

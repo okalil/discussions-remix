@@ -1,6 +1,6 @@
 import { type Handle, type RemixNode } from 'remix/ui';
 
-import { Document } from '../../shared/document.tsx';
+import { Document } from '../../layouts/document.tsx';
 import { AuthLayout } from '../auth-layout.tsx';
 
 type RegisterLayoutProps = {
