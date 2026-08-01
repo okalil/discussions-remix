@@ -5,12 +5,8 @@ The purpose is to provide a reference implementation of a maintainable Remix 3 a
 
 ## Shape
 
-- `app/routes.ts` defines the route contract.
-- `app/router.ts` wires routes to handlers.
-- `app/core/` hosts the core application logic and integrations.
-- `app/actions/` holds the routes handlers.
-- `app/middleware/` holds reusable route middlewares.
-- `app/ui/` holds the layout and ui components.
+- `app/` is the web layer: routes, middleware, controllers, and UI.
+- `core/` hosts the domain logic and integrations.
 
 ## Patterns and conventions
 
@@ -28,7 +24,7 @@ A shared `remix/data-schema` form schema is the contract between the form UI and
 
 **Errors**: the `errors` getter covers failures only the server can determine (e.g. invalid credentials). Client validation errors live in Form state and are merged with server errors.
 
-See `app/ui/auth/login-form.tsx` and `app/actions/auth/login/controller.tsx`.
+See `app/auth/login/login-form.tsx` and `app/auth/login/controller.tsx`.
 
 ```tsx
 // login-form.tsx
@@ -96,8 +92,6 @@ if (!validation.success) {
 ## Commands
 
 ```sh
-npm i
-npm run start
-npm test
-npm run typecheck
+pnpm i
+vp run dev
 ```

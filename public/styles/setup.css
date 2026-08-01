@@ -86,10 +86,14 @@
   h6 {
     text-wrap: balance;
   }
-}
 
-hr {
-  height: 0;
-  color: inherit;
-  border-top-width: 1px;
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+
+  a {
+    text-decoration: none;
+  }
 }

@@ -1,39 +1,43 @@
 import { env } from 'cloudflare:workers';
-import type { Middleware } from 'remix/router';
+import { createContextKey, type Middleware } from 'remix/router';
 
-import { AccountService } from '../core/account.ts';
-import { CategoryService } from '../core/category.ts';
-import { CommentService } from '../core/comment.ts';
-import { DiscussionService } from '../core/discussion.ts';
-import { GithubAuthProvider } from '../core/integrations/auth/providers/github.ts';
+import { AccountService } from '../../core/account.ts';
+import { CategoryService } from '../../core/category.ts';
+import { CommentService } from '../../core/comment.ts';
+import { DiscussionService } from '../../core/discussion.ts';
+import { GithubAuthProvider } from '../../core/integrations/auth/providers/github.ts';
 import {
   createDatabase,
   createD1DatabaseAdapter,
-} from '../core/integrations/db.ts';
+} from '../../core/integrations/db.ts';
 import {
   createMailer,
   createResendMailerAdapter,
-} from '../core/integrations/mailer.ts';
-import { createR2FileStorage } from '../core/integrations/storage/adapters/r2.ts';
-import { SessionService } from '../core/session.ts';
-import { UserService } from '../core/user.ts';
+} from '../../core/integrations/mailer.ts';
+import {
+  createR2FileStorage,
+  type FileStorage,
+} from '../../core/integrations/storage.ts';
+import { SessionService } from '../../core/session.ts';
+import { UserService } from '../../core/user.ts';
+
+const Storage = createContextKey<FileStorage>();
 
 export function services(): Middleware<ServicesContextTransform> {
   return async (context, next) => {
-    const d1DatabaseAdapter = createD1DatabaseAdapter(env.DB);
-    const db = createDatabase(d1DatabaseAdapter);
-
-    const resendMailerAdapter = createResendMailerAdapter(env.RESEND_API_KEY);
-    const mailer = createMailer(resendMailerAdapter, {
+    const db = createDatabase(createD1DatabaseAdapter(env.DB));
+    const mailer = createMailer(createResendMailerAdapter(env.RESEND_API_KEY), {
       site: env.SITE_URL,
       production: import.meta.env.PROD,
     });
-
     const storage = createR2FileStorage(env.R2);
-
     const authProviders = [
       new GithubAuthProvider(env.GITHUB_CLIENT_ID, env.GITHUB_CLIENT_SECRET),
     ];
+
+    context.set(Storage, storage, {
+      property: 'storage',
+    });
     context.set(AccountService, new AccountService(db, mailer, authProviders), {
       property: 'accountService',
     });
@@ -58,6 +62,11 @@ export function services(): Middleware<ServicesContextTransform> {
 }
 
 type ServicesContextTransform = [
+  {
+    key: typeof Storage;
+    value: FileStorage;
+    property: 'storage';
+  },
   {
     key: typeof AccountService;
     value: AccountService;
