@@ -20,6 +20,7 @@ import { session } from './middleware/session.ts';
 import profileController from './profile/controller.tsx';
 import { routes } from './routes.ts';
 import uploadsController from './uploads/controller.tsx';
+import wsController from './ws/controller.ts';
 
 const router = createRouter({
   middleware: [
@@ -53,6 +54,7 @@ router.map(routes.auth.forgotPassword, forgotPasswordController);
 router.map(routes.auth.resetPassword, resetPasswordController);
 router.map(routes.auth.social, socialController);
 router.map(routes.profile, profileController);
+router.map(routes.ws, wsController);
 
 export default {
   fetch: (request) => router.fetch(request),
