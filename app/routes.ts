@@ -5,6 +5,10 @@ export const routes = route({
     index: get('/uploads/*key'),
   },
 
+  ws: route('/__ws', {
+    frames: get('/frames'),
+  }),
+
   auth: route('/auth', {
     login: form('/login'),
     register: form('/register'),
