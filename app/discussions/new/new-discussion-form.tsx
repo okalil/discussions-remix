@@ -41,9 +41,9 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
             placeholder="Title"
           />
           <TextAreaField
-            field={newDiscussionForm.field('body')}
-            label="Body"
-            placeholder="Body"
+            field={newDiscussionForm.field('content')}
+            label="Content"
+            placeholder="Content"
             rows={16}
           />
           <SelectField
@@ -73,7 +73,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
 
 export const newDiscussionSchema = f.object({
   title: f.field(s.string().pipe(minLength(1))),
-  body: f.field(s.string().pipe(minLength(1))),
+  content: f.field(s.string().pipe(minLength(1))),
   categoryId: f.field(coerce.number()),
 });
 
@@ -85,27 +85,4 @@ const styles = {
   submit: css({
     marginLeft: 'auto',
   }),
-  // select: css({
-  //   width: '320px',
-  //   maxWidth: '100%',
-  //   padding: '0.5rem 0.75rem',
-  //   border: '1px solid #d1d5db',
-  //   borderRadius: '0.375rem',
-  //   boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-  //   fontSize: '0.875rem',
-  //   '&:focus': {
-  //     outline: 'none',
-  //     borderColor: '#6366f1',
-  //     boxShadow: '0 0 0 1px #6366f1, 0 1px 2px 0 rgb(0 0 0 / 0.05)',
-  //   },
-  // }),
-  // option: css({
-  //   display: 'flex',
-  //   gap: '0.75rem',
-  //   padding: '0.5rem 1rem',
-  //   alignItems: 'center',
-  //   '&:checked, &:active, &:hover': {
-  //     background: '#f7f7f7',
-  //   },
-  // }),
 };

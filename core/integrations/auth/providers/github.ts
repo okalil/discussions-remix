@@ -35,7 +35,7 @@ export class GithubAuthProvider implements AuthProvider {
     return {
       id: user.id.toString(),
       name: user.name,
-      image: user.avatar_url,
+      avatar: user.avatar_url,
       email: primaryEmailInfo.email,
       emailVerified: primaryEmailInfo.verified,
     };

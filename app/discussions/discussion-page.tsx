@@ -46,7 +46,7 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                 <section mix={styles.card}>
                   <div mix={styles.authorRow}>
                     <Avatar
-                      src={discussion.author.image}
+                      src={discussion.author.avatar}
                       alt={`${discussion.author.name}'s avatar`}
                       fallback={discussion.author.name.at(0)}
                       size={32}
@@ -62,7 +62,7 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                       })}
                     </p>
                   </div>
-                  <div mix={styles.body}>{discussion.body}</div>
+                  <div mix={styles.body}>{discussion.content}</div>
                   <VoteDiscussion
                     id={discussion.id}
                     voted={discussion.voted}

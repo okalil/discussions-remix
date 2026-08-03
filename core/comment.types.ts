@@ -2,7 +2,7 @@ import type { PublicUserDto } from './user.types.ts';
 
 export type CommentSummaryDto = {
   id: number;
-  body: string;
+  content: string;
   authorId: number;
   discussionId: number;
   createdAt: string;

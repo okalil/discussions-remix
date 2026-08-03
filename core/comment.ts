@@ -22,12 +22,12 @@ export class CommentService {
     const result = await this.db.exec(sql`
       SELECT
         c.id,
-        c.body,
+        c.content,
         c.author_id AS authorId,
         c.discussion_id AS discussionId,
         c.created_at AS createdAt,
         u.name AS authorName,
-        u.image AS authorImage,
+        u.avatar AS authorAvatar,
         COUNT(DISTINCT comment_votes.user_id) AS votesCount,
         COUNT(CASE WHEN comment_votes.user_id = ${userId} THEN 1 END) > 0 AS voted,
         c.author_id = ${userId} AS isCommentAuthor,
@@ -44,12 +44,12 @@ export class CommentService {
     return (result.rows ?? []).map((row) => {
       const comment = row as {
         id: number;
-        body: string;
+        content: string;
         authorId: number;
         discussionId: number;
         createdAt: string;
         authorName: string;
-        authorImage: string | null;
+        authorAvatar: string | null;
         votesCount: number | string;
         voted: boolean | number;
         isCommentAuthor: boolean | number;
@@ -58,14 +58,14 @@ export class CommentService {
 
       return {
         id: comment.id,
-        body: comment.body,
+        content: comment.content,
         authorId: comment.authorId,
         discussionId: comment.discussionId,
         createdAt: comment.createdAt,
         author: {
           id: comment.authorId,
           name: comment.authorName,
-          image: comment.authorImage,
+          avatar: comment.authorAvatar,
         },
         votesCount: Number(comment.votesCount ?? 0),
         voted: Boolean(comment.voted),
@@ -75,11 +75,11 @@ export class CommentService {
     });
   }
 
-  async createComment(discussionId: number, body: string, userId: number) {
+  async createComment(discussionId: number, content: string, userId: number) {
     return this.db.create(
       schema.comments,
       {
-        body,
+        content,
         author_id: userId,
         discussion_id: discussionId,
       },
@@ -87,10 +87,10 @@ export class CommentService {
     );
   }
 
-  async updateComment(id: number, body: string, userId: number) {
+  async updateComment(id: number, content: string, userId: number) {
     await this.db.updateMany(
       schema.comments,
-      { body },
+      { content },
       {
         where: {
           id,

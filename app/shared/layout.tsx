@@ -46,7 +46,7 @@ export function Layout(handle: Handle<LayoutProps>) {
               <div mix={styles.actions}>
                 <a href={routes.profile.index.href()}>
                   <Avatar
-                    src={user.image}
+                    src={user.avatar}
                     alt={user.name ?? ''}
                     size={32}
                     fallback={user.name?.charAt(0)}

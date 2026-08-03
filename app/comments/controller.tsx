@@ -38,7 +38,7 @@ export default createController(routes.comments, {
       const currentUserId = auth.identity.id;
       const comment = await commentService.createComment(
         discussionId,
-        validation.value.body,
+        validation.value.content,
         currentUserId,
       );
 
@@ -59,7 +59,7 @@ export default createController(routes.comments, {
       const currentUserId = auth.identity.id;
       await commentService.updateComment(
         commentId,
-        validation.value.body,
+        validation.value.content,
         currentUserId,
       );
 

@@ -25,14 +25,14 @@ export function DiscussionPreview(handle: Handle<DiscussionPreviewProps>) {
             </p>
             <span mix={styles.id}>#{discussion.id}</span>
           </div>
-          <p mix={styles.body}>{discussion.body}</p>
+          <p mix={styles.body}>{discussion.content}</p>
         </div>
 
         {discussion.reply && (
           <div mix={styles.reply}>
             <div mix={styles.replyHeader}>
               <Avatar
-                src={discussion.reply.author.image}
+                src={discussion.reply.author.avatar}
                 alt={`${discussion.reply.author.name}'s avatar`}
                 fallback={discussion.reply.author.name.at(0)}
                 size={20}
@@ -45,7 +45,7 @@ export function DiscussionPreview(handle: Handle<DiscussionPreviewProps>) {
                 replied
               </p>
             </div>
-            <p mix={styles.replyBody}>{discussion.reply.body}</p>
+            <p mix={styles.replyBody}>{discussion.reply.content}</p>
           </div>
         )}
       </div>

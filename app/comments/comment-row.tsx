@@ -42,7 +42,7 @@ export const CommentRow = clientEntry<CommentRowProps>(
               }),
             ]}
           >
-            <EditCommentForm id={comment.id} body={comment.body} />
+            <EditCommentForm comment={comment} />
           </li>
         );
       }
@@ -52,7 +52,7 @@ export const CommentRow = clientEntry<CommentRowProps>(
           <div mix={styles.header}>
             <div mix={styles.authorRow}>
               <Avatar
-                src={comment.author.image}
+                src={comment.author.avatar}
                 alt={`${comment.author.name}'s avatar`}
                 fallback={comment.author.name.at(0)}
                 size={32}
@@ -179,7 +179,7 @@ export const CommentRow = clientEntry<CommentRowProps>(
             )}
           </div>
 
-          <p mix={styles.body}>{comment.body}</p>
+          <p mix={styles.body}>{comment.content}</p>
           <VoteComment
             id={comment.id}
             voted={comment.voted}

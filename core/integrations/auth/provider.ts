@@ -8,7 +8,7 @@ export interface AuthProvider {
 interface AuthProviderUser {
   id: string;
   name: string;
-  image: string;
+  avatar: string;
   email: string;
   emailVerified?: boolean;
 }

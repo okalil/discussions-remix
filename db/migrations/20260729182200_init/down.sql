@@ -1,9 +1,0 @@
-DROP TABLE IF EXISTS comment_votes;
-DROP TABLE IF EXISTS discussion_votes;
-DROP TABLE IF EXISTS comments;
-DROP TABLE IF EXISTS discussions;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS verification_tokens;
-DROP TABLE IF EXISTS sessions;
-DROP TABLE IF EXISTS accounts;
-DROP TABLE IF EXISTS users;

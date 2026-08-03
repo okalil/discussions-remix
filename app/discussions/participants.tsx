@@ -13,7 +13,7 @@ export function Participants(handle: Handle<ParticipantsProps>) {
       {handle.props.participants.map((participant) => (
         <Avatar
           key={participant.id}
-          src={participant.image}
+          src={participant.avatar}
           alt={`${participant.name}'s avatar`}
           fallback={participant.name.at(0)}
           size={24}

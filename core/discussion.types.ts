@@ -11,7 +11,7 @@ export interface GetDiscussionsDto {
 
 export interface CreateDiscussionDto {
   title: string;
-  body: string;
+  content: string;
   categoryId: number;
   authorId: number;
 }
@@ -29,7 +29,7 @@ export type DiscussionSummaryDto = {
 export type DiscussionDetailDto = {
   id: number;
   title: string;
-  body: string;
+  content: string;
   createdAt: string;
   author: PublicUserDto;
   category: Pick<CategoryDto, 'emoji' | 'title' | 'slug'>;
@@ -42,9 +42,9 @@ export type DiscussionDetailDto = {
 export type DiscussionPreviewDto = {
   id: number;
   title: string;
-  body: string;
+  content: string;
   reply?: {
-    body: string;
+    content: string;
     author: PublicUserDto;
   };
 };

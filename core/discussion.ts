@@ -16,7 +16,7 @@ export class DiscussionService {
 
   async createDiscussion({
     title,
-    body,
+    content,
     categoryId,
     authorId,
   }: CreateDiscussionDto) {
@@ -24,7 +24,7 @@ export class DiscussionService {
       schema.discussions,
       {
         title,
-        body,
+        content,
         category_id: categoryId,
         author_id: authorId,
       },
@@ -44,7 +44,7 @@ export class DiscussionService {
     const offset = (page - 1) * limit;
     const categoryFilter = category ? sql`AND c.slug = ${category}` : sql``;
     const searchFilter = q
-      ? sql`AND (d.title LIKE ${`%${q}%`} OR d.body LIKE ${`%${q}%`})`
+      ? sql`AND (d.title LIKE ${`%${q}%`} OR d.content LIKE ${`%${q}%`})`
       : sql``;
 
     const [totalResult, discussionsResult] = await Promise.all([
@@ -63,7 +63,7 @@ export class DiscussionService {
           d.created_at AS createdAt,
           u.id AS authorId,
           u.name AS authorName,
-          u.image AS authorImage,
+          u.avatar AS authorAvatar,
           COUNT(DISTINCT cm.id) AS commentsCount,
           COUNT(DISTINCT dv.user_id) AS votesCount,
           COUNT(CASE WHEN dv.user_id = ${currentUserId ?? 0} THEN 1 END) > 0 AS voted
@@ -91,7 +91,7 @@ export class DiscussionService {
         createdAt: string;
         authorId: number;
         authorName: string;
-        authorImage: string | null;
+        authorAvatar: string | null;
         commentsCount: number | string;
         votesCount: number | string;
         voted: boolean | number;
@@ -104,7 +104,7 @@ export class DiscussionService {
         author: {
           id: resultRow.authorId,
           name: resultRow.authorName,
-          image: resultRow.authorImage,
+          avatar: resultRow.authorAvatar,
         },
         commentsCount: Number(resultRow.commentsCount ?? 0),
         votesCount: Number(resultRow.votesCount ?? 0),
@@ -127,11 +127,11 @@ export class DiscussionService {
       SELECT
         d.id,
         d.title,
-        d.body,
+        d.content,
         d.created_at AS createdAt,
         u.id AS authorId,
         u.name AS authorName,
-        u.image AS authorImage,
+        u.avatar AS authorAvatar,
         c.emoji AS categoryEmoji,
         c.title AS categoryTitle,
         c.slug AS categorySlug,
@@ -161,11 +161,11 @@ export class DiscussionService {
       | {
           id: number;
           title: string;
-          body: string;
+          content: string;
           createdAt: string;
           authorId: number;
           authorName: string;
-          authorImage: string | null;
+          authorAvatar: string | null;
           categoryEmoji: string;
           categoryTitle: string;
           categorySlug: string;
@@ -181,12 +181,12 @@ export class DiscussionService {
     return {
       id: discussion.id,
       title: discussion.title,
-      body: discussion.body,
+      content: discussion.content,
       createdAt: discussion.createdAt,
       author: {
         id: discussion.authorId,
         name: discussion.authorName,
-        image: discussion.authorImage,
+        avatar: discussion.authorAvatar,
       },
       category: {
         emoji: discussion.categoryEmoji,
@@ -203,17 +203,17 @@ export class DiscussionService {
   async getDiscussionPreview(id: number): Promise<DiscussionPreviewDto | null> {
     const [discussionResult, replyResult] = await Promise.all([
       this.db.exec(sql`
-        SELECT id, title, body
+        SELECT id, title, content
         FROM discussions
         WHERE id = ${id}
         LIMIT 1
       `),
       this.db.exec(sql`
         SELECT
-          c.body,
+          c.content,
           u.id AS authorId,
           u.name AS authorName,
-          u.image AS authorImage
+          u.avatar AS authorAvatar
         FROM comments c
         LEFT JOIN users u ON u.id = c.author_id
         WHERE c.discussion_id = ${id}
@@ -222,14 +222,14 @@ export class DiscussionService {
       `),
     ]);
     const discussionRow = discussionResult.rows?.at(0) as
-      | { id: number; title: string; body: string }
+      | { id: number; title: string; content: string }
       | undefined;
     const replyRow = replyResult.rows?.at(0) as
       | {
-          body: string;
+          content: string;
           authorId: number;
           authorName: string;
-          authorImage: string | null;
+          authorAvatar: string | null;
         }
       | undefined;
 
@@ -237,16 +237,16 @@ export class DiscussionService {
 
     const discussion = {
       ...discussionRow,
-      body: formatLargeText(discussionRow.body),
+      content: formatLargeText(discussionRow.content),
     };
 
     const reply = replyRow
       ? {
-          body: formatLargeText(replyRow.body),
+          content: formatLargeText(replyRow.content),
           author: {
             id: replyRow.authorId,
             name: replyRow.authorName,
-            image: replyRow.authorImage,
+            avatar: replyRow.authorAvatar,
           },
         }
       : undefined;
@@ -272,7 +272,7 @@ export class DiscussionService {
       SELECT DISTINCT
         u.id,
         u.name,
-        u.image
+        u.avatar
       FROM users u
       INNER JOIN discussions d ON d.id = ${discussionId}
       LEFT JOIN comments c ON c.discussion_id = ${discussionId}

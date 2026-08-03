@@ -30,7 +30,7 @@ export class SessionService {
         u.id AS userId,
         u.email AS userEmail,
         u.name AS userName,
-        u.image AS userImage,
+        u.avatar AS userAvatar,
         u.email_verified AS userEmailVerified
       FROM sessions s
       INNER JOIN users u ON u.id = s.user_id
@@ -46,7 +46,7 @@ export class SessionService {
           userId: number;
           userEmail: string;
           userName: string;
-          userImage: string | null;
+          userAvatar: string | null;
           userEmailVerified: boolean | number;
         }
       | undefined;
@@ -61,7 +61,7 @@ export class SessionService {
         id: row.userId,
         email: row.userEmail,
         name: row.userName,
-        image: row.userImage,
+        avatar: row.userAvatar,
         emailVerified: Boolean(row.userEmailVerified),
       },
     };

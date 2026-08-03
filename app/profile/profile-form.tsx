@@ -11,7 +11,7 @@ import { Button } from '../shared/button.tsx';
 import { ErrorMessage } from '../shared/error-message.tsx';
 import { FileField, TextField } from '../shared/field.tsx';
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 export type ProfileFormProps = {
   user: User;
@@ -38,12 +38,12 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     });
 
-    const imageField = profileForm.field('image');
-    addEventListeners(imageField, handle.signal, {
+    const avatarField = profileForm.field('avatar');
+    addEventListeners(avatarField, handle.signal, {
       change() {
         if (previewUrl) URL.revokeObjectURL(previewUrl);
 
-        const file = imageField.value;
+        const file = avatarField.value;
         previewUrl = file?.size ? URL.createObjectURL(file) : undefined;
 
         handle.update();
@@ -54,7 +54,7 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
       const { errors, pending } = profileForm.state;
 
       const user = handle.props.user;
-      const userImage = previewUrl ?? user.image;
+      const userAvatar = previewUrl ?? user.avatar;
 
       return (
         <form
@@ -63,14 +63,14 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
         >
           <label mix={styles.avatarField}>
             <Avatar
-              src={userImage}
+              src={userAvatar}
               alt={user.name}
               size={64}
               fallback={user.name.at(0)}
             />
-            <FileField field={imageField} accept="image/*" />
-            {errors.image && (
-              <span mix={styles.imageError}>{errors.image}</span>
+            <FileField field={avatarField} accept="image/*" />
+            {errors.avatar && (
+              <span mix={styles.avatarError}>{errors.avatar}</span>
             )}
           </label>
 
@@ -99,7 +99,7 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
 
 export const updateProfileSchema = f.object({
   name: f.field(s.string().pipe(minLength(1))),
-  image: f.file(
+  avatar: f.file(
     s
       .optional(s.instanceof_(File))
       .transform((file) => {
@@ -107,8 +107,8 @@ export const updateProfileSchema = f.object({
         return file;
       })
       .refine(
-        (file) => file === undefined || file.size <= MAX_IMAGE_BYTES,
-        'Image must be less than 5MB',
+        (file) => file === undefined || file.size <= MAX_AVATAR_BYTES,
+        'Avatar must be less than 5MB',
       ),
   ),
 });
@@ -124,7 +124,7 @@ const styles = {
     marginBottom: '0.25rem',
     cursor: 'pointer',
   }),
-  imageError: css({
+  avatarError: css({
     marginTop: '0.5rem',
     fontSize: '0.875rem',
     textAlign: 'center',

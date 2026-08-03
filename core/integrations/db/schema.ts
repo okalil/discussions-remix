@@ -6,7 +6,7 @@ export const users = table({
     id: c.integer().primaryKey().autoIncrement(),
     email: c.varchar(255).notNull().unique(),
     name: c.varchar(255).notNull(),
-    image: c.varchar(1024).nullable(),
+    avatar: c.varchar(1024).nullable(),
     email_verified: c.boolean().notNull().default(false),
   },
   primaryKey: 'id',
@@ -70,7 +70,7 @@ export const discussions = table({
   columns: {
     id: c.integer().primaryKey().autoIncrement(),
     title: c.varchar(255).notNull(),
-    body: c.text().notNull(),
+    content: c.text().notNull(),
     category_id: c
       .integer()
       .notNull()
@@ -91,7 +91,7 @@ export const comments = table({
   name: 'comments',
   columns: {
     id: c.integer().primaryKey().autoIncrement(),
-    body: c.text().notNull(),
+    content: c.text().notNull(),
     author_id: c
       .integer()
       .notNull()

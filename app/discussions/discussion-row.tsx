@@ -43,7 +43,7 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
         </div>
 
         <Avatar
-          src={discussion.author.image}
+          src={discussion.author.avatar}
           alt={`${discussion.author.name}'s avatar`}
           fallback={discussion.author.name.at(0)}
           size={36}

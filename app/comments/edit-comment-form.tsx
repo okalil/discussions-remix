@@ -4,23 +4,24 @@ import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { addEventListeners, clientEntry, css, on } from 'remix/ui';
 
+import type { CommentSummaryDto } from '../../core/comment.types.ts';
 import { routes } from '../routes.ts';
 import { Button } from '../shared/button.tsx';
 import { TextAreaField } from '../shared/field.tsx';
 
 type EditCommentFormProps = {
-  id: number;
-  body: string;
+  comment: CommentSummaryDto;
 };
 
 export const EditCommentForm = clientEntry<EditCommentFormProps>(
   import.meta.url,
   function EditCommentForm(handle) {
+    const { comment } = handle.props;
     const editCommentForm = new Form({
       method: 'put',
-      action: routes.comments.edit.href({ id: handle.props.id }),
+      action: routes.comments.edit.href({ id: comment.id }),
       schema: editCommentSchema,
-      draft: () => [['body', handle.props.body]],
+      draft: () => [['content', comment.content]],
     });
     addEventListeners(editCommentForm, handle.signal, {
       statechange: () => handle.update(),
@@ -32,7 +33,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
       return (
         <form mix={[styles.form, form(editCommentForm)]}>
           <TextAreaField
-            field={editCommentForm.field('body')}
+            field={editCommentForm.field('content')}
             label="Write"
             placeholder="Write your comment here..."
             rows={4}
@@ -70,7 +71,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
 );
 
 export const editCommentSchema = f.object({
-  body: f.field(s.string().pipe(minLength(1))),
+  content: f.field(s.string().pipe(minLength(1))),
 });
 
 const styles = {

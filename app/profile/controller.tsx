@@ -36,7 +36,7 @@ export default createController(routes.profile, {
       }
 
       const data = validation.value;
-      const fileKey = await userService.uploadUserImage(user.id, data.image);
+      const fileKey = await userService.uploadUserAvatar(user.id, data.avatar);
       await userService.updateUser(user.id, data.name, fileKey);
 
       session.flash('success', 'Successfully updated!');

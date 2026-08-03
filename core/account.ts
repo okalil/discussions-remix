@@ -203,7 +203,7 @@ export class AccountService {
         {
           email: providerUser.email,
           name: providerUser.name,
-          image: providerUser.image,
+          avatar: providerUser.avatar,
           email_verified: providerUser.emailVerified ?? false,
         },
         { returnRow: true },

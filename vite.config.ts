@@ -33,15 +33,10 @@ export default defineConfig({
         dependsOn: ['db:migrate'],
         command: 'vp dev --host',
       },
-      'db:generate': {
-        command: 'node db/generate-migrations.ts',
-      },
       'db:migrate': {
-        dependsOn: ['db:generate'],
         command: 'wrangler d1 migrations apply DB --local',
       },
       'db:migrate:remote': {
-        dependsOn: ['db:generate'],
         command: 'wrangler d1 migrations apply DB --remote',
       },
       'db:reset': {

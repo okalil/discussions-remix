@@ -3,11 +3,11 @@ export type User = {
   name: string;
   email: string;
   emailVerified: boolean;
-  image?: string;
+  avatar?: string;
 };
 
 export type PublicUserDto = {
   id: number;
   name: string;
-  image: string | null;
+  avatar: string | null;
 };
