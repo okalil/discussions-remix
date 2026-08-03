@@ -48,7 +48,7 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
             type="submit"
             variant="primary"
             pending={pending}
-            disabled={!submitDisabled}
+            disabled={submitDisabled}
             mix={styles.submit}
           >
             Comment
