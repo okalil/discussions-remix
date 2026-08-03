@@ -1,15 +1,15 @@
-import { FieldChangeEvent, Form, form } from '@discussions/form';
+import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css, on } from 'remix/ui';
+import { addEventListeners, clientEntry, css } from 'remix/ui';
 
 import type { User } from '../../core/user.types.ts';
 import { Avatar } from '../shared/avatar.tsx';
 import { Button } from '../shared/button.tsx';
 import { ErrorMessage } from '../shared/error-message.tsx';
-import { TextField } from '../shared/field.tsx';
+import { FileField, TextField } from '../shared/field.tsx';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
@@ -38,9 +38,20 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     });
 
+    const imageField = profileForm.field('image');
+    addEventListeners(imageField, handle.signal, {
+      change() {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+
+        const file = imageField.value;
+        previewUrl = file?.size ? URL.createObjectURL(file) : undefined;
+
+        handle.update();
+      },
+    });
+
     return () => {
       const { errors, pending } = profileForm.state;
-      const imageField = profileForm.field('image');
 
       const user = handle.props.user;
       const userImage = previewUrl ?? user.image;
@@ -57,27 +68,9 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
               size={64}
               fallback={user.name.at(0)}
             />
-            <input
-              type="file"
-              name={imageField.name}
-              accept="image/*"
-              mix={[
-                styles.fileInput,
-                on('change', (e) => {
-                  e.currentTarget.dispatchEvent(new FieldChangeEvent());
-
-                  const file = e.currentTarget.files?.item(0);
-                  if (previewUrl) URL.revokeObjectURL(previewUrl);
-
-                  if (!file || !file.size) return;
-
-                  previewUrl = URL.createObjectURL(file);
-                  handle.update();
-                }),
-              ]}
-            />
-            {imageField.error && (
-              <span mix={styles.imageError}>{imageField.error}</span>
+            <FileField field={imageField} accept="image/*" />
+            {errors.image && (
+              <span mix={styles.imageError}>{errors.image}</span>
             )}
           </label>
 
@@ -130,9 +123,6 @@ const styles = {
     placeItems: 'center',
     marginBottom: '0.25rem',
     cursor: 'pointer',
-  }),
-  fileInput: css({
-    display: 'none',
   }),
   imageError: css({
     marginTop: '0.5rem',

@@ -1,6 +1,10 @@
-import { FieldChangeEvent, type FormFieldRef } from '@discussions/form';
-import { css, on, type Handle } from 'remix/ui';
-import { jsx, type RemixElement } from 'remix/ui/jsx-runtime';
+import { type Field as FormField } from '@discussions/form';
+import { css, on, ref, type Handle } from 'remix/ui';
+import {
+  jsx,
+  type Props as ElementProps,
+  type RemixElement,
+} from 'remix/ui/jsx-runtime';
 import {
   Option,
   Select,
@@ -49,12 +53,9 @@ export function Field(handle: Handle<FieldProps>) {
 
 type FormFieldProps<P, Extra = object> = P &
   Extra & {
-    field: FormFieldRef;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any Remix component doesn't support generics
+    field: FormField<any>;
   };
-
-function dispatchFieldChange(e: Event & { currentTarget: HTMLElement }) {
-  e.currentTarget.dispatchEvent(new FieldChangeEvent());
-}
 
 type TextFieldProps = FormFieldProps<InputProps, { label: string }>;
 export function TextField(handle: Handle<TextFieldProps>) {
@@ -66,7 +67,13 @@ export function TextField(handle: Handle<TextFieldProps>) {
           {...props}
           name={field.name}
           defaultValue={String(field.value ?? '')}
-          mix={[mix, on('input', dispatchFieldChange)]}
+          mix={[
+            mix,
+            ref((node) => field.commit(new FormData(node.form!))),
+            on('input', (e) =>
+              field.commit(new FormData(e.currentTarget.form!)),
+            ),
+          ]}
         />
       </Field>
     );
@@ -83,7 +90,13 @@ export function TextAreaField(handle: Handle<TextAreaFieldProps>) {
           {...props}
           name={field.name}
           defaultValue={String(field.value ?? '')}
-          mix={[mix, on('input', dispatchFieldChange)]}
+          mix={[
+            mix,
+            ref((node) => field.commit(new FormData(node.form!))),
+            on('input', (e) =>
+              field.commit(new FormData(e.currentTarget.form!)),
+            ),
+          ]}
         />
       </Field>
     );
@@ -104,7 +117,14 @@ export function SelectField(handle: Handle<SelectFieldProps>) {
           name={field.name}
           defaultLabel={label}
           defaultValue={String(field.value ?? '')}
-          mix={[mix, selectStyle, onSelectChange(dispatchFieldChange)]}
+          mix={[
+            mix,
+            selectStyle,
+            ref((node) => field.commit(new FormData(node.form!))),
+            onSelectChange((e) =>
+              field.commit(new FormData(e.currentTarget.form!)),
+            ),
+          ]}
           {...props}
         >
           {options.map((optionProps) => (
@@ -112,6 +132,27 @@ export function SelectField(handle: Handle<SelectFieldProps>) {
           ))}
         </Select>
       </Field>
+    );
+  };
+}
+
+type FileInputProps = Pick<ElementProps<'input'>, 'accept' | 'mix'>;
+type FileFieldProps = FormFieldProps<FileInputProps>;
+export function FileField(handle: Handle<FileFieldProps>) {
+  return () => {
+    const { field, ...props } = handle.props;
+    return (
+      <input
+        {...props}
+        type="file"
+        name={field.name}
+        mix={[
+          css({ display: 'none' }),
+          on('change', (e) =>
+            field.commit(new FormData(e.currentTarget.form!)),
+          ),
+        ]}
+      />
     );
   };
 }

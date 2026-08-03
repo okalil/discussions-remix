@@ -1,21 +1,38 @@
-import { on, type Dispatched } from 'remix/ui';
+import { TypedEventTarget } from 'remix/ui';
 
-const FIELD_CHANGE_EVENT = 'field:change' as const;
+import type { Form } from './form.ts';
+import type { FormDataEntryOf, FormFieldName } from './types.ts';
 
-export class FieldChangeEvent extends Event {
-  constructor() {
-    super(FIELD_CHANGE_EVENT, { bubbles: true, cancelable: true });
+export type FieldEventMap = {
+  change: Event;
+};
+
+export class Field<
+  Output,
+  Name extends FormFieldName<Output> = FormFieldName<Output>,
+> extends TypedEventTarget<FieldEventMap> {
+  readonly name: Name;
+  readonly #form: Form<Output>;
+
+  constructor(form: Form<Output>, name: Name) {
+    super();
+    this.#form = form;
+    this.name = name;
   }
-}
 
-type FieldChangeHandler<target extends HTMLElement> = (
-  event: Dispatched<FieldChangeEvent, target>,
-  signal: AbortSignal,
-) => void | Promise<void>;
+  get value(): FormDataEntryOf<Output[Name]> | null {
+    return this.#form.formData.get(this.name) as FormDataEntryOf<
+      Output[Name]
+    > | null;
+  }
 
-export function onFieldChange<target extends HTMLElement>(
-  handler: FieldChangeHandler<target>,
-  captureBoolean?: boolean,
-) {
-  return on(FIELD_CHANGE_EVENT as never, handler as never, captureBoolean);
+  get error(): string | undefined {
+    return this.#form.state.errors[this.name];
+  }
+
+  commit(source: FormData) {
+    this.#form.formData = source;
+    this.dispatchEvent(new Event('change'));
+    this.#form.dispatchEvent(new Event('fieldchange'));
+  }
 }

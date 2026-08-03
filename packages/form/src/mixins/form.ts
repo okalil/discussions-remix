@@ -1,37 +1,46 @@
-import { createMixin, on } from 'remix/ui';
+import { addEventListeners, createMixin, on, ref } from 'remix/ui';
 import { jsx } from 'remix/ui/jsx-runtime';
 
-import { onFieldChange } from '../field.ts';
 import { isFormValidationError, type Form } from '../form.ts';
 
 const formMixin = createMixin<
   HTMLFormElement,
   [Form<unknown>, { replace?: boolean }]
 >((handle) => {
-  return (instance, options, { key, ...props }) => {
+  return (form, options, { key, ...props }) => {
     return jsx(
       handle.element,
       {
         ...props,
-        action: instance.action,
-        method: instance.method,
+        action: form.action,
+        method: form.method,
         noValidate: true,
         mix: [
+          ref<HTMLFormElement>((node, signal) => {
+            form.formData = new FormData(node);
+            addEventListeners(form, signal, {
+              fieldchange: () => {
+                if (form.state.attempts) {
+                  form.validate();
+                }
+              },
+            });
+          }),
           on<HTMLFormElement>('submit', async (e, signal) => {
             e.preventDefault();
 
             const formElement = e.currentTarget;
-            instance.formData = new FormData(formElement);
+            form.formData = new FormData(formElement);
 
             try {
-              const response = await instance.submit({ signal });
+              const response = await form.submit({ signal });
               if (response.redirected) {
                 syncNavigationState(response.url, options.replace);
                 handle.frame.src = response.url;
               }
               if (response.ok) {
                 requestAnimationFrame(() => {
-                  instance.reset();
+                  form.reset();
                   formElement.reset();
                 });
               }
@@ -45,12 +54,6 @@ const formMixin = createMixin<
               }
 
               throw error;
-            }
-          }),
-          onFieldChange<HTMLFormElement>((e) => {
-            instance.formData = new FormData(e.currentTarget);
-            if (instance.state.attempts) {
-              instance.validate();
             }
           }),
         ],

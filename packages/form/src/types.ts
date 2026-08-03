@@ -3,12 +3,6 @@ import type { FormDataSource } from 'remix/data-schema/form-data';
 
 export type FormFieldName<Output> = Extract<keyof Output, string>;
 
-export type FormFieldRef = {
-  name: string;
-  value: FormDataEntryValue | null;
-  error: string | undefined;
-};
-
 /**
  * Raw FormData entry type for a parsed field value.
  * File (or File[]) outputs map to File; everything else maps to string.

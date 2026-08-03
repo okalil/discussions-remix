@@ -2,12 +2,12 @@ import * as s from 'remix/data-schema';
 import type { FormDataSource } from 'remix/data-schema/form-data';
 import { TypedEventTarget } from 'remix/ui';
 
+import { Field } from './field.ts';
 import type {
   ErrorsOf,
   FormDraft,
   FormErrors,
   FormFieldName,
-  FormFieldRef,
   FormInternalState,
   FormPropGetter,
   FormSubmitOptions,
@@ -17,6 +17,7 @@ import { toErrors, toFormData } from './utils.ts';
 
 type FormEventMap = {
   statechange: Event;
+  fieldchange: Event;
   submitcomplete: FormSubmitCompleteEvent;
 };
 
@@ -52,6 +53,7 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     submission: null,
   };
   #formData = new FormData();
+  #fields = new Map<string, Field<Output, FormFieldName<Output>>>();
   #submitAbortController: SubmitAbortController | null = null;
 
   get action() {
@@ -88,12 +90,13 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     this.dispatchEvent(new Event('statechange'));
   }
 
-  field<Name extends FormFieldName<Output>>(name: Name): FormFieldRef {
-    return {
-      name,
-      value: this.#formData.get(name),
-      error: this.state.errors[name],
-    };
+  field<Name extends FormFieldName<Output>>(name: Name): Field<Output, Name> {
+    let field = this.#fields.get(name);
+    if (!field) {
+      field = new Field(this, name);
+      this.#fields.set(name, field);
+    }
+    return field as Field<Output, Name>;
   }
 
   validate() {

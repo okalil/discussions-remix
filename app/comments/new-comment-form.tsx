@@ -27,12 +27,18 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
       submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
     });
 
+    const bodyField = newCommentForm.field('body');
+    addEventListeners(bodyField, handle.signal, {
+      change: () => handle.update(),
+    });
+
     return () => {
       const { pending } = newCommentForm.state;
+      const submitDisabled = !bodyField.value;
       return (
         <form mix={[styles.form, form(newCommentForm)]}>
           <TextAreaField
-            field={newCommentForm.field('body')}
+            field={bodyField}
             label="Write"
             placeholder="Write your comment here..."
             rows={4}
@@ -42,6 +48,7 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
             type="submit"
             variant="primary"
             pending={pending}
+            disabled={!submitDisabled}
             mix={styles.submit}
           >
             Comment
