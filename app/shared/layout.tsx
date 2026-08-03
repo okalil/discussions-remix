@@ -29,13 +29,13 @@ export function Layout(handle: Handle<LayoutProps>) {
               <div mix={styles.actions}>
                 <a
                   href={routes.auth.login.index.href()}
-                  mix={button({ variant: 'default' })}
+                  mix={[button({ variant: 'default' }), styles.headerButton]}
                 >
                   Login
                 </a>
                 <a
                   href={routes.auth.register.index.href()}
-                  mix={button({ variant: 'default' })}
+                  mix={[button({ variant: 'default' }), styles.headerButton]}
                 >
                   Sign Up
                 </a>
