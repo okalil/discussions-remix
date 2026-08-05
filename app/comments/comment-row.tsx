@@ -1,10 +1,11 @@
-import { addEventListeners, clientEntry, css, on } from 'remix/ui';
+import { clientEntry, css, on } from 'remix/ui';
 import * as menu from 'remix/ui/menu/primitives';
 
 import type { CommentSummaryDto } from '../../core/comment.types.ts';
 import { Avatar } from '../shared/avatar.tsx';
 import { Button } from '../shared/button.tsx';
 import { Icon } from '../shared/icon.tsx';
+import { addEventListeners } from '../shared/utils/events.ts';
 import { DeleteComment } from './delete-comment.tsx';
 import { EditCommentForm } from './edit-comment-form.tsx';
 import { VoteComment } from './vote-comment.tsx';

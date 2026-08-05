@@ -2,12 +2,13 @@ import { Form, form } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css, on } from 'remix/ui';
+import { clientEntry, css, on } from 'remix/ui';
 
 import type { CommentSummaryDto } from '../../core/comment.types.ts';
 import { routes } from '../routes.ts';
 import { Button } from '../shared/button.tsx';
 import { TextAreaField } from '../shared/field.tsx';
+import { addEventListeners } from '../shared/utils/events.ts';
 
 type EditCommentFormProps = {
   comment: CommentSummaryDto;
@@ -23,6 +24,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
       schema: editCommentSchema,
       draft: () => [['content', comment.content]],
     });
+
     addEventListeners(editCommentForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => e.waitUntil(handle.frame.reload()),

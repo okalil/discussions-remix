@@ -3,13 +3,14 @@ import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css } from 'remix/ui';
+import { clientEntry, css } from 'remix/ui';
 
 import type { User } from '../../core/user.types.ts';
 import { Avatar } from '../shared/avatar.tsx';
 import { Button } from '../shared/button.tsx';
 import { ErrorMessage } from '../shared/error-message.tsx';
 import { FileField, TextField } from '../shared/field.tsx';
+import { addEventListeners } from '../shared/utils/events.ts';
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
@@ -28,26 +29,27 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
       draft: () => handle.props.draft,
       errors: () => handle.props.errors,
     });
+    const avatarField = profileForm.field('avatar');
+
+    let previewUrl: string | null = null;
+
     addEventListeners(profileForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
-
-    let previewUrl: string | undefined;
-    handle.signal.addEventListener('abort', () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    });
-
-    const avatarField = profileForm.field('avatar');
     addEventListeners(avatarField, handle.signal, {
       change() {
         if (previewUrl) URL.revokeObjectURL(previewUrl);
 
         const file = avatarField.value;
-        previewUrl = file?.size ? URL.createObjectURL(file) : undefined;
+        previewUrl = file?.size ? URL.createObjectURL(file) : null;
 
         handle.update();
       },
+    });
+
+    handle.signal.addEventListener('abort', () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     });
 
     return () => {

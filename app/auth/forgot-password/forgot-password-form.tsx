@@ -3,11 +3,12 @@ import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css } from 'remix/ui';
+import { clientEntry, css } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { TextField } from '../../shared/field.tsx';
+import { addEventListeners } from '../../shared/utils/events.ts';
 
 export type ForgotPasswordFormProps = {
   draft?: FormDraft;
@@ -23,6 +24,7 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
       draft: () => handle.props.draft,
       errors: () => handle.props.errors,
     });
+
     addEventListeners(forgotPasswordForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),

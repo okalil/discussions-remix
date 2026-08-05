@@ -3,12 +3,13 @@ import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css } from 'remix/ui';
+import { clientEntry, css } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { ErrorMessage } from '../../shared/error-message.tsx';
 import { TextField } from '../../shared/field.tsx';
+import { addEventListeners } from '../../shared/utils/events.ts';
 
 export type ResetPasswordFormProps = {
   token?: string | null;
@@ -25,6 +26,7 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
       draft: () => handle.props.draft ?? [['token', handle.props.token ?? '']],
       errors: () => handle.props.errors,
     });
+
     addEventListeners(resetPasswordForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),

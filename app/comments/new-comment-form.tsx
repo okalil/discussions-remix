@@ -2,11 +2,12 @@ import { Form, form } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css } from 'remix/ui';
+import { clientEntry, css } from 'remix/ui';
 
 import { routes } from '../routes.ts';
 import { Button } from '../shared/button.tsx';
 import { TextAreaField } from '../shared/field.tsx';
+import { addEventListeners } from '../shared/utils/events.ts';
 
 type NewCommentFormProps = {
   discussionId: number;
@@ -22,12 +23,12 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
       }),
       schema: newCommentSchema,
     });
+    const contentField = newCommentForm.field('content');
+
     addEventListeners(newCommentForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
     });
-
-    const contentField = newCommentForm.field('content');
     addEventListeners(contentField, handle.signal, {
       change: () => handle.update(),
     });

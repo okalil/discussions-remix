@@ -1,10 +1,11 @@
 import { Form } from '@discussions/form';
 import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
-import { addEventListeners, clientEntry, css, on } from 'remix/ui';
+import { clientEntry, css, on } from 'remix/ui';
 
 import { routes } from '../routes.ts';
 import { Icon } from '../shared/icon.tsx';
+import { addEventListeners } from '../shared/utils/events.ts';
 
 type VoteDiscussionProps = {
   id: number;
@@ -21,6 +22,7 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
       action: routes.discussions.vote.href({ id: handle.props.id }),
       schema: voteDiscussionSchema,
     });
+
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => e.waitUntil(handle.frame.reload()),

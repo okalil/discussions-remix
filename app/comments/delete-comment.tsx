@@ -1,8 +1,9 @@
 import { Form } from '@discussions/form';
-import { addEventListeners, clientEntry, on } from 'remix/ui';
+import { clientEntry, on } from 'remix/ui';
 
 import { routes } from '../routes.ts';
 import { Button } from '../shared/button.tsx';
+import { addEventListeners } from '../shared/utils/events.ts';
 
 type DeleteCommentProps = {
   id: number;
@@ -15,6 +16,7 @@ export const DeleteComment = clientEntry<DeleteCommentProps>(
       method: 'delete',
       action: routes.comments.destroy.href({ id: handle.props.id }),
     });
+
     addEventListeners(form, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => e.waitUntil(handle.frames.top.reload()),

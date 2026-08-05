@@ -1,4 +1,6 @@
-import { addEventListeners, clientEntry, css } from 'remix/ui';
+import { clientEntry, css } from 'remix/ui';
+
+import { addEventListeners } from './utils/events.ts';
 
 export const NavigationProgress = clientEntry(
   import.meta.url,

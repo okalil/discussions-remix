@@ -13,9 +13,11 @@ export const DiscussionLink = clientEntry<DiscussionLinkProps>(
     let openTimer: ReturnType<typeof setTimeout> | undefined;
     let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
-    handle.signal.addEventListener('abort', () => {
-      clearTimeout(openTimer);
-      clearTimeout(closeTimer);
+    handle.queueTask(() => {
+      handle.signal.addEventListener('abort', () => {
+        clearTimeout(openTimer);
+        clearTimeout(closeTimer);
+      });
     });
 
     function scheduleOpen() {

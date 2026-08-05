@@ -42,6 +42,7 @@ export const LoginForm = clientEntry<LoginFormProps>(
       draft: () => handle.props.draft,
       errors: () => handle.props.errors,
     });
+
     addEventListeners(loginForm, handle.signal, {
       statechange: () => handle.update(),
       submitcomplete: (e) => handle.frame.replace(e.response.body),

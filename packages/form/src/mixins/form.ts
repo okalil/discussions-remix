@@ -19,7 +19,7 @@ const formMixin = createMixin<
           ref<HTMLFormElement>((node, signal) => {
             form.formData = new FormData(node);
             addEventListeners(form, signal, {
-              fieldchange: () => {
+              fieldchange() {
                 if (form.state.attempts) {
                   form.validate();
                 }
