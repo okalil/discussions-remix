@@ -8,7 +8,7 @@ import { clientEntry, css } from 'remix/ui';
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { ErrorMessage } from '../../shared/error-message.tsx';
-import { TextField } from '../../shared/field.tsx';
+import { TextField } from '../../shared/forms/text-field.tsx';
 import { addEventListeners } from '../../shared/utils/events.ts';
 
 export type ResetPasswordFormProps = {

@@ -53,7 +53,7 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     submission: null,
   };
   #formData = new FormData();
-  #fields = new Map<string, Field<Output, FormFieldName<Output>>>();
+  #fields = new Map<string, Field<Output>>();
   #submitAbortController: SubmitAbortController | null = null;
 
   get action() {

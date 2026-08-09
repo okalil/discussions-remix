@@ -7,6 +7,13 @@ export type FieldEventMap = {
   change: Event;
 };
 
+export type FieldHandle = {
+  readonly name: string;
+  readonly value: string | File | null;
+  readonly error: string | undefined;
+  commit(source: FormData): void;
+};
+
 export class Field<
   Output,
   Name extends FormFieldName<Output> = FormFieldName<Output>,

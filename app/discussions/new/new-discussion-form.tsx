@@ -9,7 +9,9 @@ import { clientEntry, css } from 'remix/ui';
 import type { CategoryDto } from '../../../core/category.types.ts';
 import { Button } from '../../shared/button.tsx';
 import { ErrorMessage } from '../../shared/error-message.tsx';
-import { SelectField, TextAreaField, TextField } from '../../shared/field.tsx';
+import { SelectField } from '../../shared/forms/select-field.tsx';
+import { TextAreaField } from '../../shared/forms/text-area-field.tsx';
+import { TextField } from '../../shared/forms/text-field.tsx';
 import { addEventListeners } from '../../shared/utils/events.ts';
 
 export type NewDiscussionFormProps = {

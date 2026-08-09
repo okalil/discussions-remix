@@ -4,8 +4,8 @@ import type { CategoryDto } from '../../core/category.types.ts';
 import type { DiscussionSummaryDto } from '../../core/discussion.types.ts';
 import { routes } from '../routes.ts';
 import { button } from '../shared/button.tsx';
+import { input } from '../shared/forms/input.tsx';
 import { Icon } from '../shared/icon.tsx';
-import { Input } from '../shared/input.tsx';
 import { Layout } from '../shared/layout.tsx';
 import { Pagination } from '../shared/pagination.tsx';
 import { DiscussionRow } from './discussion-row.tsx';
@@ -45,11 +45,12 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
         <div mix={styles.root}>
           <div mix={styles.toolbar}>
             <form mix={styles.searchForm}>
-              <Input
+              <input
                 type="search"
                 name="q"
                 placeholder="Search all discussions"
                 defaultValue={filters.q}
+                mix={input()}
               />
             </form>
 

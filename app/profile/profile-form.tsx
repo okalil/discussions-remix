@@ -9,7 +9,8 @@ import type { User } from '../../core/user.types.ts';
 import { Avatar } from '../shared/avatar.tsx';
 import { Button } from '../shared/button.tsx';
 import { ErrorMessage } from '../shared/error-message.tsx';
-import { FileField, TextField } from '../shared/field.tsx';
+import { FileField } from '../shared/forms/file-field.tsx';
+import { TextField } from '../shared/forms/text-field.tsx';
 import { addEventListeners } from '../shared/utils/events.ts';
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;

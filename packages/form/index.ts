@@ -10,6 +10,6 @@ export {
   FormValidationError,
   isFormValidationError,
 } from './src/form.ts';
-export { Field } from './src/field.ts';
+export type { FieldHandle } from './src/field.ts';
 export { form } from './src/mixins/form.ts';
 export { toDraft, toErrors } from './src/utils.ts';

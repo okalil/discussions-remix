@@ -6,7 +6,7 @@ import { clientEntry, css } from 'remix/ui';
 
 import { routes } from '../routes.ts';
 import { Button } from '../shared/button.tsx';
-import { TextAreaField } from '../shared/field.tsx';
+import { TextAreaField } from '../shared/forms/text-area-field.tsx';
 import { addEventListeners } from '../shared/utils/events.ts';
 
 type NewCommentFormProps = {

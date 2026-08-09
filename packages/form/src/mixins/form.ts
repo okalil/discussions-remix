@@ -1,5 +1,4 @@
-import { addEventListeners, createMixin, on, ref } from 'remix/ui';
-import { jsx } from 'remix/ui/jsx-runtime';
+import { addEventListeners, attrs, createMixin, on, ref } from 'remix/ui';
 
 import { isFormValidationError, type Form } from '../form.ts';
 
@@ -7,59 +6,54 @@ const formMixin = createMixin<
   HTMLFormElement,
   [Form<unknown>, { replace?: boolean }]
 >((handle) => {
-  return (form, options, { key, ...props }) => {
-    return jsx(
-      handle.element,
-      {
-        ...props,
+  return (form, options) => {
+    return [
+      attrs({
         action: form.action,
         method: form.method,
         noValidate: true,
-        mix: [
-          ref<HTMLFormElement>((node, signal) => {
-            form.formData = new FormData(node);
-            addEventListeners(form, signal, {
-              fieldchange() {
-                if (form.state.attempts) {
-                  form.validate();
-                }
-              },
-            });
-          }),
-          on<HTMLFormElement>('submit', async (e, signal) => {
-            e.preventDefault();
-
-            const formElement = e.currentTarget;
-            form.formData = new FormData(formElement);
-
-            try {
-              const response = await form.submit({ signal });
-              if (response.redirected) {
-                syncNavigationState(response.url, options.replace);
-                handle.frame.src = response.url;
-              }
-              if (response.ok) {
-                requestAnimationFrame(() => {
-                  form.reset();
-                  formElement.reset();
-                });
-              }
-            } catch (error) {
-              if (isFormValidationError(error)) {
-                const fieldName = Object.keys(error.errors).find(
-                  (key) => key !== 'root',
-                );
-                if (fieldName) focusField(formElement, fieldName);
-                return;
-              }
-
-              throw error;
+      }),
+      ref<HTMLFormElement>((node, signal) => {
+        form.formData = new FormData(node);
+        addEventListeners(form, signal, {
+          fieldchange() {
+            if (form.state.attempts) {
+              form.validate();
             }
-          }),
-        ],
-      },
-      key,
-    );
+          },
+        });
+      }),
+      on<HTMLFormElement>('submit', async (e, signal) => {
+        e.preventDefault();
+
+        const formElement = e.currentTarget;
+        form.formData = new FormData(formElement);
+
+        try {
+          const response = await form.submit({ signal });
+          if (response.redirected) {
+            syncNavigationState(response.url, options.replace);
+            handle.frame.src = response.url;
+          }
+          if (response.ok) {
+            requestAnimationFrame(() => {
+              form.reset();
+              formElement.reset();
+            });
+          }
+        } catch (error) {
+          if (isFormValidationError(error)) {
+            const fieldName = Object.keys(error.errors).find(
+              (key) => key !== 'root',
+            );
+            if (fieldName) focusField(formElement, fieldName);
+            return;
+          }
+
+          throw error;
+        }
+      }),
+    ];
   };
 });
 
