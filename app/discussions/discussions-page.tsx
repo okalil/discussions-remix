@@ -125,11 +125,8 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
                   page={page}
                   pageHref={(targetPage) =>
                     routes.discussions.index.href(
-                      filters.category ? { category: filters.category } : null,
-                      {
-                        page: targetPage,
-                        q: filters.q,
-                      },
+                      { category: filters.category },
+                      { page: targetPage, q: filters.q },
                     )
                   }
                   totalPages={totalPages}

@@ -19,9 +19,8 @@ export default createController(routes.discussions, {
       discussionService,
     }) {
       const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
-      const limit = Math.max(1, Number(url.searchParams.get('limit')) || 20);
       const filters = {
-        q: url.searchParams.get('q') ?? '',
+        q: url.searchParams.get('q') ?? undefined,
         category: params.category,
       };
 
@@ -30,7 +29,7 @@ export default createController(routes.discussions, {
       const paginator = await discussionService.getDiscussions({
         ...filters,
         page,
-        limit,
+        limit: 20,
         currentUserId,
       });
 
