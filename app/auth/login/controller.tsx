@@ -4,6 +4,7 @@ import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
+import { rememberCookie } from '../../middleware/auth.ts';
 import { routes } from '../../routes.ts';
 import { LoginForm, loginSchema } from './login-form.tsx';
 import { LoginLayout } from './login-layout.tsx';
@@ -31,9 +32,11 @@ export default createController(routes.auth.login, {
         );
       }
 
-      const user = await context.accountService.getUserByCredentials(
-        validation.value,
-      );
+      const { email, password, remember } = validation.value;
+      const user = await context.accountService.getUserByCredentials({
+        email,
+        password,
+      });
       if (!user) {
         return context.render(
           <LoginLayout>
@@ -51,7 +54,15 @@ export default createController(routes.auth.login, {
       session.set('auth', userSession.id);
 
       session.flash('success', 'Signed in successfully!');
-      return redirect(routes.discussions.index.href());
+      return redirect(routes.discussions.index.href(), {
+        headers: {
+          'Set-Cookie': remember
+            ? await rememberCookie.serialize(userSession.id, {
+                expires: new Date(userSession.expires),
+              })
+            : await rememberCookie.serialize('', { maxAge: 0 }),
+        },
+      });
     },
   },
 });

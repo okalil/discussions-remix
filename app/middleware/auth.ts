@@ -1,8 +1,10 @@
+import { env } from 'cloudflare:workers';
 import {
   auth as authMiddleware,
   requireAuth as requireAuthMiddleware,
   createSessionAuthScheme,
 } from 'remix/auth-middleware';
+import { createCookie } from 'remix/cookie';
 import { redirect } from 'remix/response/redirect';
 import { Session } from 'remix/session';
 
@@ -29,6 +31,27 @@ export function auth() {
           session.unset('auth');
         },
       }),
+      {
+        name: 'remember',
+        async authenticate(context) {
+          const rememberId = await rememberCookie.parse(
+            context.headers.get('Cookie'),
+          );
+          if (!rememberId) return;
+
+          const sessionService = context.get(SessionService)!;
+          const userSession = await sessionService.getSession(rememberId);
+          if (!userSession) return;
+
+          const session = context.get(Session)!;
+          session.set('auth', userSession.id);
+
+          return {
+            status: 'success',
+            identity: userSession.user,
+          };
+        },
+      },
     ],
   });
 }
@@ -44,3 +67,11 @@ export function requireAuth() {
     },
   });
 }
+
+export const rememberCookie = createCookie('__remember', {
+  secrets: [env.SESSION_SECRET],
+  httpOnly: true,
+  secure: true,
+  sameSite: 'Lax',
+  path: '/',
+});

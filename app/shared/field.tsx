@@ -57,6 +57,12 @@ type FormFieldProps<P, Extra = object> = P &
     field: FormField<any>;
   };
 
+function getFormData(node: HTMLElement) {
+  const form = node.closest('form');
+  if (!form) throw new Error('Field must be inside a form');
+  return new FormData(form);
+}
+
 type TextFieldProps = FormFieldProps<InputProps, { label: string }>;
 export function TextField(handle: Handle<TextFieldProps>) {
   return () => {
@@ -69,10 +75,8 @@ export function TextField(handle: Handle<TextFieldProps>) {
           defaultValue={String(field.value ?? '')}
           mix={[
             mix,
-            ref((node) => field.commit(new FormData(node.form!))),
-            on('input', (e) =>
-              field.commit(new FormData(e.currentTarget.form!)),
-            ),
+            ref((node) => field.commit(getFormData(node))),
+            on('input', (e) => field.commit(getFormData(e.currentTarget))),
           ]}
         />
       </Field>
@@ -92,10 +96,8 @@ export function TextAreaField(handle: Handle<TextAreaFieldProps>) {
           defaultValue={String(field.value ?? '')}
           mix={[
             mix,
-            ref((node) => field.commit(new FormData(node.form!))),
-            on('input', (e) =>
-              field.commit(new FormData(e.currentTarget.form!)),
-            ),
+            ref((node) => field.commit(getFormData(node))),
+            on('input', (e) => field.commit(getFormData(e.currentTarget))),
           ]}
         />
       </Field>
@@ -120,10 +122,8 @@ export function SelectField(handle: Handle<SelectFieldProps>) {
           mix={[
             mix,
             selectStyle,
-            ref((node) => field.commit(new FormData(node.form!))),
-            onSelectChange((e) =>
-              field.commit(new FormData(e.currentTarget.form!)),
-            ),
+            ref((node) => field.commit(getFormData(node))),
+            onSelectChange((e) => field.commit(getFormData(e.currentTarget))),
           ]}
           {...props}
         >
@@ -132,6 +132,33 @@ export function SelectField(handle: Handle<SelectFieldProps>) {
           ))}
         </Select>
       </Field>
+    );
+  };
+}
+
+type CheckboxFieldProps = FormFieldProps<{ label: string; value?: string }>;
+export function CheckboxField(handle: Handle<CheckboxFieldProps>) {
+  return () => {
+    const { field, label, value = 'true', ...props } = handle.props;
+    return (
+      <div mix={styles.checkboxField}>
+        <input
+          {...props}
+          id={handle.id}
+          type="checkbox"
+          name={field.name}
+          value={value}
+          defaultChecked={field.value === value}
+          mix={[
+            styles.checkboxFieldInput,
+            ref((node) => field.commit(getFormData(node))),
+            on('change', (e) => field.commit(getFormData(e.currentTarget))),
+          ]}
+        />
+        <label htmlFor={handle.id} mix={styles.checkboxFieldLabel}>
+          {label}
+        </label>
+      </div>
     );
   };
 }
@@ -148,9 +175,7 @@ export function FileField(handle: Handle<FileFieldProps>) {
         name={field.name}
         mix={[
           css({ display: 'none' }),
-          on('change', (e) =>
-            field.commit(new FormData(e.currentTarget.form!)),
-          ),
+          on('change', (e) => field.commit(getFormData(e.currentTarget))),
         ]}
       />
     );
@@ -168,5 +193,20 @@ const styles = {
   error: css({
     fontSize: '0.875rem',
     color: '#dc2626',
+  }),
+
+  checkboxField: css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  }),
+  checkboxFieldLabel: css({
+    cursor: 'pointer',
+  }),
+  checkboxFieldInput: css({
+    width: '1rem',
+    height: '1rem',
+    accentColor: 'black',
+    border: '1px solid #e5e7eb',
   }),
 };

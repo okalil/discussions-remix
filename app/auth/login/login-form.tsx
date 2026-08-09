@@ -2,13 +2,14 @@ import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
 import * as s from 'remix/data-schema';
 import { email, minLength } from 'remix/data-schema/checks';
+import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 import { clientEntry, css } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { ErrorMessage } from '../../shared/error-message.tsx';
-import { TextField } from '../../shared/field.tsx';
+import { CheckboxField, TextField } from '../../shared/field.tsx';
 import { addEventListeners } from '../../shared/utils/events.ts';
 
 export type LoginFormProps = {
@@ -46,9 +47,16 @@ export const LoginForm = clientEntry<LoginFormProps>(
             type="password"
           />
 
-          <a href={routes.auth.forgotPassword.index.href()} mix={styles.link}>
-            Forgot Password?
-          </a>
+          <div mix={styles.row}>
+            <CheckboxField
+              field={loginForm.field('remember')}
+              label="Remember me"
+            />
+
+            <a href={routes.auth.forgotPassword.index.href()} mix={styles.link}>
+              Forgot Password?
+            </a>
+          </div>
 
           {errors.root && <ErrorMessage error={errors.root} />}
 
@@ -75,6 +83,7 @@ export const LoginForm = clientEntry<LoginFormProps>(
 export const loginSchema = f.object({
   email: f.field(s.string().pipe(email())),
   password: f.field(s.string().pipe(minLength(8))),
+  remember: f.field(s.defaulted(coerce.boolean(), false)),
 });
 
 const styles = {
@@ -94,6 +103,11 @@ const styles = {
       color: '#6366f1',
       textDecoration: 'underline',
     },
+  }),
+  row: css({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   }),
   footer: css({
     margin: 0,

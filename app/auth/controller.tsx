@@ -9,9 +9,6 @@ export default createController(routes.auth, {
       const userSessionId = session.get('auth') as string | null;
       if (userSessionId) await sessionService.deleteSession(userSessionId);
 
-      session.unset('auth');
-      session.regenerateId(true);
-
       return redirect(routes.auth.login.index.href());
     },
   },
