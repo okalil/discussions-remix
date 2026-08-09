@@ -202,6 +202,8 @@ const styles = {
   }),
   checkboxFieldLabel: css({
     cursor: 'pointer',
+    fontSize: '0.875rem',
+    color: '#374151',
   }),
   checkboxFieldInput: css({
     width: '1rem',
