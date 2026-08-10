@@ -1,6 +1,6 @@
 import { routes } from '../routes.ts';
 import {
-  SESSION_VERSION_COOKIE,
+  sessionVersionCookie,
   type ClientMessage,
   type ServerMessage,
 } from './protocol.ts';
@@ -25,7 +25,7 @@ export class FrameSocket {
   constructor() {
     cookieStore.addEventListener('change', (event) => {
       const touched = [...event.changed, ...event.deleted].some(
-        (cookie) => cookie.name === SESSION_VERSION_COOKIE,
+        (cookie) => cookie.name === sessionVersionCookie.name,
       );
       if (!touched) return;
       this.#reset();
@@ -173,7 +173,7 @@ export class FrameSocket {
 }
 
 function readSessionVersion() {
-  const prefix = `${SESSION_VERSION_COOKIE}=`;
+  const prefix = `${sessionVersionCookie.name}=`;
   for (const part of document.cookie.split(';')) {
     const trimmed = part.trim();
     if (trimmed.startsWith(prefix)) {

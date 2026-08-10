@@ -11,9 +11,7 @@ export default createController(routes.ws, {
         return new Response('Expected WebSocket upgrade', { status: 426 });
       }
 
-      const pair = new WebSocketPair();
-      const client = pair[0];
-      const server = pair[1];
+      const [client, server] = Object.values(new WebSocketPair());
 
       server.accept();
       server.addEventListener('message', async (event) => {

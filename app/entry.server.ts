@@ -17,6 +17,7 @@ import { auth } from './middleware/auth.ts';
 import { render } from './middleware/render.ts';
 import { services } from './middleware/services.ts';
 import { session } from './middleware/session.ts';
+import { sessionVersion } from './middleware/session-version.ts';
 import profileController from './profile/controller.tsx';
 import { routes } from './routes.ts';
 import uploadsController from './uploads/controller.tsx';
@@ -29,6 +30,7 @@ const router = createRouter({
     services(),
     formData(),
     session(),
+    sessionVersion(),
     auth(),
     render(),
     asyncContext(),

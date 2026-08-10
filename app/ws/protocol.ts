@@ -1,5 +1,12 @@
-/** Readable change-detection cookie; must match session middleware. */
-export const SESSION_VERSION_COOKIE = '__sv';
+import { createCookie } from 'remix/cookie';
+
+/** Readable change-detection cookie for frame WebSocket reconnects. Not a secret. */
+export const sessionVersionCookie = createCookie('__sv', {
+  httpOnly: false,
+  secure: true,
+  sameSite: 'Lax',
+  path: '/',
+});
 
 export type ClientMessage =
   | { type: 'resolve'; id: string; src: string; target?: string }
