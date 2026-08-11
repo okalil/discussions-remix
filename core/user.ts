@@ -13,15 +13,19 @@ export class UserService {
   }
 
   async updateUser(userId: number, name: string, avatar?: string) {
-    await this.db.update(schema.users, userId, { name, avatar });
+    const changes = stripUndefined({ name, avatar });
+    await this.db.update(schema.users, userId, changes);
   }
 
-  async uploadUserAvatar(userId: number, file?: unknown) {
-    if (!file || !(file instanceof File)) return;
-    if (!file.name) return;
-
+  async uploadUserAvatar(userId: number, file: File) {
     const key = `avatars/${userId}_${Date.now()}`;
     await this.storage.set(key, file);
     return key;
   }
+}
+
+function stripUndefined<T extends Record<string, unknown>>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => value !== undefined),
+  ) as T;
 }

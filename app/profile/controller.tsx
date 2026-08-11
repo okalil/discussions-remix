@@ -36,8 +36,10 @@ export default createController(routes.profile, {
       }
 
       const data = validation.value;
-      const fileKey = await userService.uploadUserAvatar(user.id, data.avatar);
-      await userService.updateUser(user.id, data.name, fileKey);
+      const avatar = data.avatar
+        ? await userService.uploadUserAvatar(user.id, data.avatar)
+        : undefined;
+      await userService.updateUser(user.id, data.name, avatar);
 
       session.flash('success', 'Successfully updated!');
       return redirect(routes.profile.index.href());
