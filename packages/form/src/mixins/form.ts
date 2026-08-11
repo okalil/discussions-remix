@@ -4,7 +4,7 @@ import { isFormValidationError, type Form } from '../form.ts';
 
 const formMixin = createMixin<
   HTMLFormElement,
-  [Form<unknown>, { replace?: boolean }]
+  [Form<unknown>, { history?: NavigationHistoryBehavior }]
 >((handle) => {
   return (form, options) => {
     return [
@@ -13,13 +13,33 @@ const formMixin = createMixin<
         method: form.method,
         noValidate: true,
       }),
-      ref<HTMLFormElement>((node, signal) => {
-        form.formData = new FormData(node);
+      ref<HTMLFormElement>((formElement, signal) => {
+        form.formData = new FormData(formElement);
         addEventListeners(form, signal, {
           fieldchange() {
             if (form.state.attempts) {
               form.validate();
             }
+          },
+          reset() {
+            formElement.reset();
+          },
+        });
+        addEventListeners(window.navigation, signal, {
+          navigate(e) {
+            if (!e.canIntercept) return;
+            e.intercept({
+              handler() {
+                window.navigation.updateCurrentEntry({
+                  state: {
+                    $rmx: true,
+                    resetScroll: true,
+                    src: e.destination.url,
+                    target: undefined,
+                  },
+                });
+              },
+            });
           },
         });
       }),
@@ -32,15 +52,12 @@ const formMixin = createMixin<
         try {
           const response = await form.submit({ signal });
           if (response.redirected) {
-            syncNavigationState(response.url, options.replace);
+            window.navigation.navigate(response.url, {
+              history: options.history,
+            });
             handle.frame.src = response.url;
           }
-          if (response.ok) {
-            requestAnimationFrame(() => {
-              form.reset();
-              formElement.reset();
-            });
-          }
+          if (response.ok) requestAnimationFrame(() => form.reset());
         } catch (error) {
           if (isFormValidationError(error)) {
             const fieldName = Object.keys(error.errors).find(
@@ -59,26 +76,9 @@ const formMixin = createMixin<
 
 export function form<Output>(
   instance: Form<Output>,
-  options?: { replace?: boolean },
+  options?: { history?: NavigationHistoryBehavior },
 ) {
   return formMixin(instance as Form<unknown>, options ?? {});
-}
-
-function syncNavigationState(url: string, replace?: boolean) {
-  const navigationState = {
-    $rmx: true,
-    resetScroll: true,
-    src: url,
-    target: undefined,
-  };
-  if (replace) {
-    history.replaceState(navigationState, '', url);
-  } else {
-    history.pushState(navigationState, '', url);
-  }
-  window.navigation.updateCurrentEntry({
-    state: navigationState,
-  });
 }
 
 function focusField(formElement: HTMLFormElement, fieldName: string) {

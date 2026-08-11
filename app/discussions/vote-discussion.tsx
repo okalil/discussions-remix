@@ -68,10 +68,6 @@ export const voteDiscussionSchema = f.object({
 });
 
 const styles = {
-  form: css({
-    display: 'grid',
-    placeContent: 'center',
-  }),
   button: css({
     display: 'flex',
     alignItems: 'center',

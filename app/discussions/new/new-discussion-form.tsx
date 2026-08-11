@@ -38,7 +38,9 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
     return () => {
       const { errors, pending } = newDiscussionForm.state;
       return (
-        <form mix={[styles.form, form(newDiscussionForm, { replace: true })]}>
+        <form
+          mix={[styles.form, form(newDiscussionForm, { history: 'replace' })]}
+        >
           <TextField
             field={newDiscussionForm.field('title')}
             label="Title"

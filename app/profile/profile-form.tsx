@@ -62,7 +62,7 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
       return (
         <form
           encType="multipart/form-data"
-          mix={[styles.form, form(profileForm, { replace: true })]}
+          mix={[styles.form, form(profileForm, { history: 'replace' })]}
         >
           <label mix={styles.avatarField}>
             <Avatar
@@ -106,11 +106,11 @@ export const updateProfileSchema = f.object({
     s
       .optional(s.instanceof_(File))
       .transform((file) => {
-        if (!file?.size || !file.name) return undefined;
+        if (!file?.size || !file.name) return null;
         return file;
       })
       .refine(
-        (file) => file === undefined || file.size <= MAX_AVATAR_BYTES,
+        (file) => !file || file.size <= MAX_AVATAR_BYTES,
         'Avatar must be less than 5MB',
       ),
   ),

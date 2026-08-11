@@ -19,6 +19,7 @@ type FormEventMap = {
   statechange: Event;
   fieldchange: Event;
   submitcomplete: FormSubmitCompleteEvent;
+  reset: Event;
 };
 
 type FormOptions<Output> = {
@@ -88,6 +89,7 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     this.#state.errors = {};
     this.#state.attempts = 0;
     this.dispatchEvent(new Event('statechange'));
+    this.dispatchEvent(new Event('reset'));
   }
 
   field<Name extends FormFieldName<Output>>(name: Name): Field<Output, Name> {
