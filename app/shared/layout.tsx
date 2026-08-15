@@ -1,4 +1,4 @@
-import { getContext } from 'remix/async-context-middleware';
+import { getContext } from 'remix/middleware/async-context';
 import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../routes.ts';

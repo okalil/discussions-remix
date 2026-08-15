@@ -50,6 +50,7 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
                 name="q"
                 placeholder="Search all discussions"
                 defaultValue={filters.q}
+                data-key={filters.q ?? ''}
                 mix={input()}
               />
             </form>
@@ -127,7 +128,7 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
                   pageHref={(targetPage) =>
                     routes.discussions.index.href(
                       { category: filters.category },
-                      { page: targetPage, q: filters.q },
+                      { searchParams: { page: targetPage, q: filters.q } },
                     )
                   }
                   totalPages={totalPages}

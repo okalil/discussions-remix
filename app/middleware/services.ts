@@ -6,18 +6,10 @@ import { CategoryService } from '../../core/category.ts';
 import { CommentService } from '../../core/comment.ts';
 import { DiscussionService } from '../../core/discussion.ts';
 import { GithubAuthProvider } from '../../core/integrations/auth/providers/github.ts';
-import {
-  createDatabase,
-  createD1DatabaseAdapter,
-} from '../../core/integrations/db.ts';
-import {
-  createMailer,
-  createResendMailerAdapter,
-} from '../../core/integrations/mailer.ts';
-import {
-  createR2FileStorage,
-  type FileStorage,
-} from '../../core/integrations/storage.ts';
+import { createD1Database } from '../../core/integrations/db/d1.ts';
+import { createResendMailer } from '../../core/integrations/mailer/resend.ts';
+import type { FileStorage } from '../../core/integrations/storage.ts';
+import { createR2FileStorage } from '../../core/integrations/storage/r2.ts';
 import { SessionService } from '../../core/session.ts';
 import { UserService } from '../../core/user.ts';
 
@@ -25,8 +17,8 @@ const Storage = createContextKey<FileStorage>();
 
 export function services(): Middleware<ServicesContextTransform> {
   return async (context, next) => {
-    const db = createDatabase(createD1DatabaseAdapter(env.DB));
-    const mailer = createMailer(createResendMailerAdapter(env.RESEND_API_KEY), {
+    const db = createD1Database(env.DB);
+    const mailer = createResendMailer(env.RESEND_API_KEY, {
       site: env.SITE_URL,
       production: import.meta.env.PROD,
     });

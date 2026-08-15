@@ -1,13 +1,6 @@
 import { createElement, type ComponentType, type ReactElement } from 'react';
 import { render } from 'react-email';
 
-export { createResendMailerAdapter } from './mailer/resend.ts';
-
-export interface Mailer {
-  readonly config: MailerConfig;
-  send<P extends MailerTemplateProps>(message: MailerMessage<P>): Promise<void>;
-}
-
 export interface MailerConfig {
   site: string;
   production: boolean;
@@ -25,59 +18,63 @@ export interface MailerMessage<P extends MailerTemplateProps> {
   props: Omit<P, 'baseUrl'>;
 }
 
-export interface MailerAdapter {
-  send(message: {
-    from: string;
-    to: string;
-    subject: string;
-    react: ReactElement;
-  }): Promise<void>;
+/**
+ * Low-level contract that connects a {@link Mailer} to a delivery provider.
+ */
+export interface MailerTransport {
+  send(message: MailerTransportMessage): Promise<void>;
 }
 
+export type MailerTransportMessage = {
+  from: string;
+  to: string;
+  subject: string;
+  react: ReactElement;
+};
+
 /**
- * Creates a {@link Mailer} that injects shared config into templates and
- * delegates delivery to a {@link MailerAdapter}.
+ * High-level mailer used to render templates and send email.
  *
- * In non-production, emails are rendered and logged instead of sent.
- *
- * @example
- * ```ts
- * import { createMailer, createResendMailerAdapter } from './mailer.ts';
- *
- * export const mailer = createMailer(
- *   createResendMailerAdapter(env.RESEND_API_KEY),
- *   { siteUrl: env.SITE_URL },
- * );
- * ```
+ * Providers extend this class and provide a {@link MailerTransport} to the
+ * constructor. The transport owns delivery while this class injects shared
+ * config into templates. In non-production, emails are rendered and logged
+ * instead of sent.
  */
-export function createMailer(
-  adapter: MailerAdapter,
-  { site, production, from = 'me@mail.com' }: MailerConfig,
-): Mailer {
-  const config: MailerConfig = { site, production, from };
+export class Mailer {
+  readonly config: MailerConfig;
+  #transport: MailerTransport;
 
-  return {
-    config,
+  constructor(
+    transport: MailerTransport,
+    { site, production, from = 'me@mail.com' }: MailerConfig,
+  ) {
+    this.#transport = transport;
+    this.config = { site, production, from };
+  }
 
-    async send<P extends MailerTemplateProps>({
+  async send<P extends MailerTemplateProps>({
+    to,
+    subject,
+    template,
+    props,
+  }: MailerMessage<P>): Promise<void> {
+    const element = createElement(template, {
+      ...props,
+      baseUrl: this.config.site,
+    } as P);
+
+    if (!this.config.production) {
+      const html = await render(element);
+      const text = await render(element, { plainText: true });
+      console.log("Email you'd have sent: ", { to, subject, html, text });
+      return;
+    }
+
+    await this.#transport.send({
+      from: this.config.from!,
       to,
       subject,
-      template,
-      props,
-    }: MailerMessage<P>) {
-      const element = createElement(template, {
-        ...props,
-        baseUrl: config.site,
-      } as P);
-
-      if (!production) {
-        const html = await render(element);
-        const text = await render(element, { plainText: true });
-        console.log("Email you'd have sent: ", { to, subject, html, text });
-        return;
-      }
-
-      await adapter.send({ from, to, subject, react: element });
-    },
-  };
+      react: element,
+    });
+  }
 }

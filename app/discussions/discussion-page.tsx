@@ -107,7 +107,7 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                   <Frame
                     src={routes.comments.index.href(
                       { discussionId: discussion.id },
-                      { sort },
+                      { searchParams: { sort } },
                     )}
                     fallback={
                       <CommentsFallback

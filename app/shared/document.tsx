@@ -1,5 +1,5 @@
 import { mergeAssets } from '@pitlane/dev/runtime';
-import { getContext } from 'remix/async-context-middleware';
+import { getContext } from 'remix/middleware/async-context';
 import type { Session } from 'remix/session';
 import { css, type Handle, type RemixNode } from 'remix/ui';
 

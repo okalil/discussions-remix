@@ -5,14 +5,16 @@ run({
     const mod = await import(moduleUrl);
     return mod[exportName];
   },
-  async resolveFrame(src, signal, target) {
+  async resolveFrame(src, options) {
     const headers = new Headers({ accept: 'text/html' });
-    if (target) headers.set('x-remix-target', target);
+    if (options?.target) headers.set('x-remix-target', options.target);
 
     const response = await fetch(src, {
+      method: options?.method,
+      body: options?.formData,
       credentials: 'same-origin',
       headers,
-      signal,
+      signal: options?.signal,
     });
     return response.body ?? response.text();
   },

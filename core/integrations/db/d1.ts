@@ -1,57 +1,57 @@
 import {
+  Database,
   getTablePrimaryKey,
   type DataManipulationOperation,
   type DataManipulationRequest,
   type DataManipulationResult,
-  type DatabaseAdapter,
+  type DatabaseDriver,
+  type DatabaseOptions,
   type SqlStatement,
   type TableRef,
   type TransactionOptions,
   type TransactionToken,
 } from 'remix/data-table';
-import { createSqliteDatabaseAdapter } from 'remix/data-table-sqlite';
 
+import { compileSqliteOperation } from './sql-compiler.ts';
+
+type D1DatabaseClient = Env['DB'];
 type D1Value = ArrayBuffer | number | string | null;
 
-/**
- * Reuse the sqlite SQL compiler — D1 is SQLite under the hood.
- * The stub client is never executed; only `compileSql` is used.
- */
-const sqlCompiler = createSqliteDatabaseAdapter({
-  prepare() {
-    throw new Error('D1 adapter does not use the sync sqlite client');
-  },
-  exec() {
-    throw new Error('D1 adapter does not use the sync sqlite client');
-  },
+const d1Capabilities = Object.freeze({
+  returning: true,
+  savepoints: false,
+  upsert: true,
+  transactionalDdl: false,
+  migrationLock: false,
 });
-
 /**
- * `DatabaseAdapter` for Cloudflare D1.
+ * `DatabaseDriver` for Cloudflare D1.
  *
  * D1 does not support interactive `BEGIN` / `SAVEPOINT` through Worker bindings,
  * so `db.transaction()` is unsupported. Prefer single statements or `batch()`
  * at the binding level when you need atomic multi-statement writes.
+ *
+ * The D1 binding is caller-owned: `close()` is a no-op and `wipe()` is
+ * unavailable, matching sqlite's supplied-client lifecycle.
  */
-export class D1DatabaseAdapter implements DatabaseAdapter {
-  dialect = 'd1';
+class D1DatabaseDriver implements DatabaseDriver<'d1'> {
+  get dialect(): 'd1' {
+    return 'd1';
+  }
 
-  capabilities = {
-    returning: true,
-    savepoints: false,
-    upsert: true,
-    transactionalDdl: false,
-    migrationLock: false,
-  };
+  get capabilities() {
+    return d1Capabilities;
+  }
 
-  #database: D1Database;
+  #database: D1DatabaseClient;
 
-  constructor(database: D1Database) {
+  constructor(database: D1DatabaseClient) {
     this.#database = database;
   }
 
   compileSql(operation: DataManipulationOperation): SqlStatement[] {
-    return sqlCompiler.compileSql(operation);
+    const compiled = compileSqliteOperation(operation);
+    return [{ text: compiled.text, values: compiled.values }];
   }
 
   async execute(
@@ -157,7 +157,7 @@ export class D1DatabaseAdapter implements DatabaseAdapter {
     _options?: TransactionOptions,
   ): Promise<TransactionToken> {
     throw new Error(
-      'D1DatabaseAdapter does not support data-table interactive transactions',
+      'D1Database does not support data-table interactive transactions',
     );
   }
 
@@ -186,25 +186,47 @@ export class D1DatabaseAdapter implements DatabaseAdapter {
   ): Promise<void> {
     throwUnknownTransaction(token);
   }
+
+  async wipe(): Promise<void> {
+    throw new Error(
+      'D1 database wipe() is not supported; the Worker binding is caller-owned',
+    );
+  }
+
+  close(): void {
+    // Supplied D1 bindings remain caller-owned.
+  }
+}
+
+/** A {@link Database} backed by Cloudflare D1. */
+export class D1Database extends Database<'d1'> {
+  /**
+   * Creates a D1-backed database.
+   * @param database Cloudflare D1 Worker binding.
+   * @param options Database runtime options.
+   */
+  constructor(database: D1DatabaseClient, options: DatabaseOptions = {}) {
+    super(new D1DatabaseDriver(database), options);
+  }
 }
 
 /**
- * Creates a Cloudflare D1 `DatabaseAdapter` for use with `createDatabase`.
+ * Creates a Cloudflare D1-backed `Database`.
  *
  * @example
  * ```ts
- * import { createDatabase } from 'remix/data-table';
- * import { createD1DatabaseAdapter } from './db/d1.ts';
+ * import { createD1Database } from './db/d1.ts';
  *
- * export const db = createDatabase(createD1DatabaseAdapter(env.DB), {
+ * export const db = createD1Database(env.DB, {
  *   now: () => new Date().toISOString(),
  * });
  * ```
  */
-export function createD1DatabaseAdapter(
-  database: D1Database,
-): D1DatabaseAdapter {
-  return new D1DatabaseAdapter(database);
+export function createD1Database(
+  d1: D1DatabaseClient,
+  options: DatabaseOptions = {},
+): D1Database {
+  return new D1Database(d1, options);
 }
 
 function normalizeRows(rows: unknown[]): Record<string, unknown>[] {

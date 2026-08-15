@@ -3,3 +3,7 @@ packages:
 allowBuilds:
   esbuild: true
   workerd: true
+minimumReleaseAge: 0
+overrides:
+  '@remix-run/fetch-router': 0.21.0
+  vite: npm:@voidzero-dev/vite-plus-core@latest

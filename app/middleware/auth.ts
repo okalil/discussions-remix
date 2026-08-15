@@ -1,10 +1,10 @@
 import { env } from 'cloudflare:workers';
+import { createCookie } from 'remix/cookie';
 import {
   auth as authMiddleware,
   requireAuth as requireAuthMiddleware,
   createSessionAuthScheme,
-} from 'remix/auth-middleware';
-import { createCookie } from 'remix/cookie';
+} from 'remix/middleware/auth';
 import { redirect } from 'remix/response/redirect';
 import { Session } from 'remix/session';
 
@@ -62,7 +62,9 @@ export function requireAuth() {
       const session = context.get(Session)!;
       session.flash('error', 'Hold on! You need to log in first.');
       return redirect(
-        routes.auth.login.index.href(null, { returnTo: context.request.url }),
+        routes.auth.login.index.href(null, {
+          searchParams: { returnTo: context.request.url },
+        }),
       );
     },
   });
