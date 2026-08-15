@@ -119,7 +119,10 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
     return { valid: true as const, errors: null, data: result.value };
   }
 
-  async submit({ signal, handler }: FormSubmitOptions = {}): Promise<void> {
+  async submit({
+    signal,
+    handler,
+  }: FormSubmitOptions<Output> = {}): Promise<void> {
     const validation = this.#prepareSubmission();
     if (!validation.valid) {
       throw new FormValidationError(validation.errors);
@@ -127,8 +130,8 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
 
     this.#startSubmission(validation.data);
     try {
-      const submitHandler = handler ?? ((signal) => this.#fetch(signal));
-      await submitHandler(signal);
+      const submitHandler = handler ?? ((_, signal) => this.#fetch(signal));
+      await submitHandler(validation.data, signal);
       if (signal?.aborted) return;
 
       const event = new FormSubmitCompleteEvent();

@@ -83,9 +83,12 @@ export type FormState<Output> = FormInternalState<Output> & {
   pending: boolean;
 };
 
-export type FormSubmitHandler = (signal?: AbortSignal) => Promise<void>;
+export type FormSubmitHandler<Output = unknown> = (
+  data: Output,
+  signal?: AbortSignal,
+) => Promise<void>;
 
-export type FormSubmitOptions = {
+export type FormSubmitOptions<Output = unknown> = {
   signal?: AbortSignal;
-  handler?: FormSubmitHandler;
+  handler?: FormSubmitHandler<Output>;
 };

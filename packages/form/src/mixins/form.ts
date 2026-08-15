@@ -1,11 +1,19 @@
 import { addEventListeners, attrs, createMixin, on, ref } from 'remix/ui';
 
 import { isFormValidationError, type Form } from '../form.ts';
+import type { FormSubmitHandler } from '../types.ts';
 
-type FormMixinOptions = {
-  history?: NavigationHistoryBehavior;
-  navigate?: boolean;
-};
+type FormMixinOptions<Output = unknown> =
+  | {
+      navigate?: boolean;
+      history?: NavigationHistoryBehavior;
+      handler?: never;
+    }
+  | {
+      navigate?: never;
+      history?: never;
+      handler: FormSubmitHandler<Output>;
+    };
 
 const formMixin = createMixin<
   HTMLFormElement,
@@ -38,15 +46,15 @@ const formMixin = createMixin<
         const formElement = e.currentTarget;
         form.formData = new FormData(formElement);
 
-        const navigate = options.navigate ?? true;
+        const navigate = options.navigate ?? !options.handler;
         if (!navigate) e.preventDefault();
 
         try {
           await form.submit({
             signal,
             handler: navigate
-              ? (signal) => waitFormNavigation(formElement, signal)
-              : undefined,
+              ? (_, signal) => waitFormNavigation(formElement, signal)
+              : options.handler,
           });
           form.reset();
         } catch (error) {
@@ -64,9 +72,12 @@ const formMixin = createMixin<
 
 export function form<Output>(
   instance: Form<Output>,
-  options?: FormMixinOptions,
+  options?: FormMixinOptions<Output>,
 ) {
-  return formMixin(instance as Form<unknown>, options ?? {});
+  return formMixin(
+    instance as Form<unknown>,
+    (options ?? {}) as FormMixinOptions,
+  );
 }
 
 export async function waitFormNavigation(
