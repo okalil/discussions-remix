@@ -16,35 +16,41 @@ export const NavigationProgress = clientEntry(
       resetTimer = undefined;
     }
 
+    function startProgress() {
+      clearTimers();
+      progressTimer = setInterval(() => {
+        progress = Math.min(
+          progress + 0.05 * Math.pow(1 - Math.sqrt(progress), 2),
+          1,
+        );
+        handle.update();
+      }, 20);
+    }
+
+    function finishProgress() {
+      if (!progressTimer) return;
+      clearTimers();
+      progress = 1;
+      handle.update();
+      resetTimer = setTimeout(resetProgress, 400);
+    }
+
+    function resetProgress() {
+      clearTimers();
+      progress = 0;
+      handle.update();
+    }
+
     handle.signal.addEventListener('abort', clearTimers);
 
-    addEventListeners(handle.frame, handle.signal, {
-      reloadStart() {
-        if (!window.navigation.transition) return;
-
-        progressTimer = setInterval(() => {
-          progress = Math.min(
-            progress + 0.05 * Math.pow(1 - Math.sqrt(progress), 2),
-            1,
-          );
-          handle.update();
-        }, 20);
-        handle.update();
-      },
-      reloadComplete() {
-        if (!window.navigation.transition) return;
-
-        clearInterval(progressTimer);
-        progressTimer = undefined;
-
-        progress = 1;
-        handle.update();
-
-        resetTimer = setTimeout(() => {
-          progress = 0;
-          handle.update();
-        }, 400);
-      },
+    handle.queueTask(() => {
+      addEventListeners(window.navigation, handle.signal, {
+        navigate(event) {
+          if (isGetNavigation(event)) startProgress();
+        },
+        navigatesuccess: finishProgress,
+        navigateerror: resetProgress,
+      });
     });
 
     return () => (
@@ -56,6 +62,42 @@ export const NavigationProgress = clientEntry(
     );
   },
 );
+
+type SourceElementNavigateEvent = NavigateEvent & {
+  sourceElement?: EventTarget | null;
+};
+function isGetNavigation(event: Event) {
+  if (!(event instanceof NavigateEvent) || event.hashChange) return false;
+  if (event.formData != null) return false;
+  if (isInternalNavigationType(event.info)) return false;
+
+  const source = (event as SourceElementNavigateEvent).sourceElement;
+  const form = getSourceForm(source);
+  if (!form) return true;
+
+  const submitter =
+    source instanceof HTMLButtonElement || source instanceof HTMLInputElement
+      ? source
+      : null;
+  const method = submitter?.hasAttribute('formmethod')
+    ? submitter.formMethod
+    : form.method;
+  return method.toLowerCase() === 'get';
+}
+
+function isInternalNavigationType(info: unknown) {
+  return typeof info === 'object' && info != null && 'type' in info;
+}
+
+function getSourceForm(source: EventTarget | null | undefined) {
+  if (source instanceof HTMLFormElement) return source;
+  if (
+    source instanceof HTMLButtonElement ||
+    source instanceof HTMLInputElement
+  ) {
+    return source.form;
+  }
+}
 
 const styles = {
   root: css({
