@@ -19,3 +19,11 @@ export interface DeliverResetPasswordLinkDto {
   email: string;
   path: string;
 }
+
+export interface LinkProviderAccountDto {
+  provider: string;
+  providerAccountId: string;
+  email: string;
+  name: string;
+  avatar?: string | null;
+}

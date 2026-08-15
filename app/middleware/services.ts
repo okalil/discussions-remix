@@ -5,7 +5,6 @@ import { AccountService } from '../../core/account.ts';
 import { CategoryService } from '../../core/category.ts';
 import { CommentService } from '../../core/comment.ts';
 import { DiscussionService } from '../../core/discussion.ts';
-import { GithubAuthProvider } from '../../core/integrations/auth/providers/github.ts';
 import { createD1Database } from '../../core/integrations/db/d1.ts';
 import { createResendMailer } from '../../core/integrations/mailer/resend.ts';
 import type { FileStorage } from '../../core/integrations/storage.ts';
@@ -23,14 +22,11 @@ export function services(): Middleware<ServicesContextTransform> {
       production: import.meta.env.PROD,
     });
     const storage = createR2FileStorage(env.R2);
-    const authProviders = [
-      new GithubAuthProvider(env.GITHUB_CLIENT_ID, env.GITHUB_CLIENT_SECRET),
-    ];
 
     context.set(Storage, storage, {
       property: 'storage',
     });
-    context.set(AccountService, new AccountService(db, mailer, authProviders), {
+    context.set(AccountService, new AccountService(db, mailer), {
       property: 'accountService',
     });
     context.set(CategoryService, new CategoryService(db), {

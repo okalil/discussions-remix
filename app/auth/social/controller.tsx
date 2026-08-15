@@ -1,43 +1,43 @@
-import * as arctic from 'arctic';
-import { completeAuth } from 'remix/auth';
-import { createCookie } from 'remix/cookie';
+import { env } from 'cloudflare:workers';
+import {
+  completeAuth,
+  createGitHubAuthProvider,
+  finishExternalAuth,
+  startExternalAuth,
+} from 'remix/auth';
 import { redirect } from 'remix/response/redirect';
 import { createController } from 'remix/router';
 
 import { routes } from '../../routes.ts';
 
-const cookie = createCookie('state', {
-  secure: import.meta.env.PROD,
-  path: '/',
-  httpOnly: true,
-  maxAge: 10 * 60, // 10 min
-});
-
 export default createController(routes.auth.social, {
   actions: {
-    async start({ params, accountService }) {
-      const state = arctic.generateState();
-      const url = accountService.createProviderAuthorizationURL(
-        params.provider,
-        state,
-      );
-      return redirect(url, {
-        headers: [['set-cookie', await cookie.serialize(state)]],
-      });
+    async start(context) {
+      const provider = getSocialProvider(context.params.provider);
+      return startExternalAuth(provider, context);
     },
     async finish(context) {
-      const code = context.url.searchParams.get('code');
-      if (!code) throw new Response('Invalid Code', { status: 400 });
+      const provider = getSocialProvider(context.params.provider);
 
-      const state = context.url.searchParams.get('state');
-      const sessionState = await cookie.parse(context.headers.get('cookie'));
-      if (!state || state !== sessionState)
-        throw new Response('Invalid State', { status: 400 });
-
-      const user = await context.accountService.linkProviderAccount(
-        context.params.provider,
-        code,
+      const { result } = await finishExternalAuth(provider, context).catch(
+        (error) => {
+          console.error('OAuth callback failed', error);
+          throw new Response('Invalid OAuth callback', { status: 400 });
+        },
       );
+
+      const { account, profile } = result;
+      if (!profile.email) {
+        throw new Response('Email not found', { status: 400 });
+      }
+
+      const user = await context.accountService.linkProviderAccount({
+        provider: account.provider,
+        providerAccountId: account.providerAccountId,
+        email: profile.email,
+        name: profile.name || profile.login,
+        avatar: profile.avatar_url,
+      });
 
       const userSession = await context.sessionService.createSession(user.id);
       const session = completeAuth(context);
@@ -48,3 +48,23 @@ export default createController(routes.auth.social, {
     },
   },
 });
+
+function getSocialProvider(name: string) {
+  if (isSocialProvider(name)) return providers[name];
+  throw new Response('Invalid Provider', { status: 400 });
+}
+
+function isSocialProvider(name: string): name is keyof typeof providers {
+  return Object.hasOwn(providers, name);
+}
+
+const providers = {
+  github: createGitHubAuthProvider({
+    clientId: env.GITHUB_CLIENT_ID,
+    clientSecret: env.GITHUB_CLIENT_SECRET,
+    redirectUri: new URL(
+      routes.auth.social.finish.href({ provider: 'github' }),
+      env.SITE_URL,
+    ),
+  }),
+};

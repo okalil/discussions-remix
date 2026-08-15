@@ -5,9 +5,9 @@ import type {
   CreateCredentialsAccountDto,
   CredentialsDto,
   DeliverResetPasswordLinkDto,
+  LinkProviderAccountDto,
   ResetPasswordDto,
 } from './account.types.ts';
-import type { AuthProvider } from './integrations/auth/provider.ts';
 import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 import type { Mailer } from './integrations/mailer.ts';
@@ -15,17 +15,10 @@ import { ResetPasswordLink } from './integrations/mailer/templates/reset-passwor
 import { ResetPasswordSuccess } from './integrations/mailer/templates/reset-password-success.tsx';
 
 export class AccountService {
-  private providers: Map<string, AuthProvider> = new Map();
-
   constructor(
     private db: Database,
     private mailer: Mailer,
-    private authProviders: AuthProvider[],
-  ) {
-    this.providers = new Map(
-      authProviders.map((provider) => [provider.name, provider]),
-    );
-  }
+  ) {}
 
   /* CREDENTIAL ACCOUNT */
 
@@ -164,27 +157,19 @@ export class AccountService {
 
   /* PROVIDERS ACCOUNTS */
 
-  createProviderAuthorizationURL(provider: string, state: string) {
-    const providerApi = this.providers.get(provider);
-    if (!providerApi) throw new Error('Invalid Provider');
-
-    const url = providerApi.createAuthorizationURL(state);
-    return url;
-  }
-
-  async linkProviderAccount(provider: string, code: string) {
-    const providerApi = this.providers.get(provider);
-    if (!providerApi) throw new Error('Invalid Provider');
-
-    const accessToken = await providerApi.getAccessToken(code);
-    const providerUser = await providerApi.getUser(accessToken);
-
+  async linkProviderAccount({
+    provider,
+    providerAccountId,
+    email,
+    name,
+    avatar,
+  }: LinkProviderAccountDto) {
     let user = await this.db.findOne(schema.users, {
-      where: { email: providerUser.email },
+      where: { email },
     });
     const account = await this.db.findOne(schema.accounts, {
       where: {
-        provider_account_id: providerUser.id,
+        provider_account_id: providerAccountId,
         provider,
       },
     });
@@ -201,10 +186,10 @@ export class AccountService {
       user = await this.db.create(
         schema.users,
         {
-          email: providerUser.email,
-          name: providerUser.name,
-          avatar: providerUser.avatar,
-          email_verified: providerUser.emailVerified ?? false,
+          email,
+          name,
+          avatar,
+          email_verified: false,
         },
         { returnRow: true },
       );
@@ -215,8 +200,8 @@ export class AccountService {
       schema.accounts,
       {
         type: 'oauth',
-        provider: provider,
-        provider_account_id: providerUser.id,
+        provider,
+        provider_account_id: providerAccountId,
         user_id: user.id,
       },
       { returnRow: true },

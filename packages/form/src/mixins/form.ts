@@ -2,6 +2,12 @@ import { addEventListeners, attrs, createMixin, on, ref } from 'remix/ui';
 
 import { isFormValidationError, type Form } from '../form.ts';
 
+const formRedirectNavigationType = 'form-redirect';
+
+type FormRedirectNavigationInfo = {
+  type: typeof formRedirectNavigationType;
+};
+
 const formMixin = createMixin<
   HTMLFormElement,
   [Form<unknown>, { history?: NavigationHistoryBehavior }]
@@ -27,7 +33,8 @@ const formMixin = createMixin<
         });
         addEventListeners(window.navigation, signal, {
           navigate(e) {
-            if (!e.canIntercept) return;
+            if (!e.canIntercept || !isFormRedirectNavigationInfo(e.info))
+              return;
             e.intercept({
               handler() {
                 window.navigation.updateCurrentEntry({
@@ -54,6 +61,7 @@ const formMixin = createMixin<
           if (response.redirected) {
             window.navigation.navigate(response.url, {
               history: options.history,
+              info: { type: formRedirectNavigationType },
             });
             handle.frame.src = response.url;
           }
@@ -79,6 +87,17 @@ export function form<Output>(
   options?: { history?: NavigationHistoryBehavior },
 ) {
   return formMixin(instance as Form<unknown>, options ?? {});
+}
+
+function isFormRedirectNavigationInfo(
+  value: unknown,
+): value is FormRedirectNavigationInfo {
+  return (
+    typeof value === 'object' &&
+    value != null &&
+    'type' in value &&
+    value.type === formRedirectNavigationType
+  );
 }
 
 function focusField(formElement: HTMLFormElement, fieldName: string) {
