@@ -3,7 +3,6 @@ export type {
   FormErrors,
   FormValues,
   FormFieldName,
-  FormPropGetter,
 } from './src/types.ts';
 export {
   Form,

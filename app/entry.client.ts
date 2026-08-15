@@ -16,6 +16,6 @@ run({
       headers,
       signal: options?.signal,
     });
-    return response.body ?? response.text();
+    return response;
   },
 });

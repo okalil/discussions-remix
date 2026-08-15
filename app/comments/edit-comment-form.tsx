@@ -33,7 +33,7 @@ export const EditCommentForm = clientEntry<EditCommentFormProps>(
     return () => {
       const { pending } = editCommentForm.state;
       return (
-        <form mix={[styles.form, form(editCommentForm)]}>
+        <form mix={[styles.form, form(editCommentForm, { navigate: false })]}>
           <TextAreaField
             field={editCommentForm.field('content')}
             label="Write"

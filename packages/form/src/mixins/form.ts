@@ -2,22 +2,24 @@ import { addEventListeners, attrs, createMixin, on, ref } from 'remix/ui';
 
 import { isFormValidationError, type Form } from '../form.ts';
 
-const formRedirectNavigationType = 'form-redirect';
-
-type FormRedirectNavigationInfo = {
-  type: typeof formRedirectNavigationType;
+type FormMixinOptions = {
+  history?: NavigationHistoryBehavior;
+  navigate?: boolean;
 };
 
 const formMixin = createMixin<
   HTMLFormElement,
-  [Form<unknown>, { history?: NavigationHistoryBehavior }]
->((handle) => {
+  [Form<unknown>, FormMixinOptions]
+>(() => {
   return (form, options) => {
     return [
       attrs({
         action: form.action,
         method: form.method,
         noValidate: true,
+        ...(options.history == null || options.history === 'auto'
+          ? {}
+          : { 'rmx-history': options.history }),
       }),
       ref<HTMLFormElement>((formElement, signal) => {
         form.formData = new FormData(formElement);
@@ -31,50 +33,28 @@ const formMixin = createMixin<
             formElement.reset();
           },
         });
-        addEventListeners(window.navigation, signal, {
-          navigate(e) {
-            if (!e.canIntercept || !isFormRedirectNavigationInfo(e.info))
-              return;
-            e.intercept({
-              handler() {
-                window.navigation.updateCurrentEntry({
-                  state: {
-                    $rmx: true,
-                    resetScroll: true,
-                    src: e.destination.url,
-                    target: undefined,
-                  },
-                });
-              },
-            });
-          },
-        });
       }),
       on<HTMLFormElement>('submit', async (e, signal) => {
-        e.preventDefault();
-
         const formElement = e.currentTarget;
         form.formData = new FormData(formElement);
 
+        const navigate = options.navigate ?? true;
+        if (!navigate) e.preventDefault();
+
         try {
-          const response = await form.submit({ signal });
-          if (response.redirected) {
-            window.navigation.navigate(response.url, {
-              history: options.history,
-              info: { type: formRedirectNavigationType },
-            });
-            handle.frame.src = response.url;
-          }
-          if (response.ok) requestAnimationFrame(() => form.reset());
+          await form.submit({
+            signal,
+            handler: navigate
+              ? (signal) => waitFormNavigation(formElement, signal)
+              : undefined,
+          });
+          form.reset();
         } catch (error) {
           if (isFormValidationError(error)) {
-            const fieldName = Object.keys(error.errors).find(
-              (key) => key !== 'root',
-            );
-            if (fieldName) focusField(formElement, fieldName);
+            e.preventDefault();
+            focusFirstError(formElement, error.errors);
             return;
           }
-
           throw error;
         }
       }),
@@ -84,20 +64,77 @@ const formMixin = createMixin<
 
 export function form<Output>(
   instance: Form<Output>,
-  options?: { history?: NavigationHistoryBehavior },
+  options?: FormMixinOptions,
 ) {
   return formMixin(instance as Form<unknown>, options ?? {});
 }
 
-function isFormRedirectNavigationInfo(
-  value: unknown,
-): value is FormRedirectNavigationInfo {
+export async function waitFormNavigation(
+  formElement: HTMLFormElement,
+  signal?: AbortSignal,
+) {
+  await waitNavigation({
+    signal,
+    match: (event) => isSubmitFrom(event, formElement),
+  });
+  if (signal?.aborted) return;
+
+  let transition = window.navigation.transition;
+  if (!transition) {
+    await waitNavigation({ signal });
+    if (signal?.aborted) return;
+    transition = window.navigation.transition;
+  }
+
+  await transition?.finished;
+}
+
+type WaitNavigationOptions = {
+  signal?: AbortSignal;
+  match?: (event: NavigateEvent) => boolean;
+};
+function waitNavigation({ signal, match }: WaitNavigationOptions) {
+  return new Promise<void>((resolve) => {
+    if (signal?.aborted) {
+      resolve();
+      return;
+    }
+
+    const done = new AbortController();
+    done.signal.addEventListener('abort', () => resolve(), { once: true });
+    signal?.addEventListener('abort', () => done.abort(), {
+      once: true,
+      signal: done.signal,
+    });
+
+    window.navigation.addEventListener(
+      'navigate',
+      (event) => {
+        if (match && !match(event)) return;
+        done.abort();
+      },
+      { signal: done.signal },
+    );
+  });
+}
+
+type SourceElementNavigateEvent = NavigateEvent & {
+  sourceElement?: EventTarget | null;
+};
+function isSubmitFrom(event: NavigateEvent, formElement: HTMLFormElement) {
+  const source = (event as SourceElementNavigateEvent).sourceElement;
   return (
-    typeof value === 'object' &&
-    value != null &&
-    'type' in value &&
-    value.type === formRedirectNavigationType
+    source instanceof Element &&
+    (source === formElement || formElement.contains(source))
   );
+}
+
+function focusFirstError(
+  formElement: HTMLFormElement,
+  errors: Record<string, string>,
+) {
+  const fieldName = Object.keys(errors).find((key) => key !== 'root');
+  if (fieldName) focusField(formElement, fieldName);
 }
 
 function focusField(formElement: HTMLFormElement, fieldName: string) {

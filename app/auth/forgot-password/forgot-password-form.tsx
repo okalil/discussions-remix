@@ -27,7 +27,6 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
 
     addEventListeners(forgotPasswordForm, handle.signal, {
       statechange: () => handle.update(),
-      submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {

@@ -30,7 +30,6 @@ export const LoginForm = clientEntry<LoginFormProps>(
 
     addEventListeners(loginForm, handle.signal, {
       statechange: () => handle.update(),
-      submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
 
     return () => {

@@ -36,7 +36,6 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
 
     addEventListeners(profileForm, handle.signal, {
       statechange: () => handle.update(),
-      submitcomplete: (e) => handle.frame.replace(e.response.body),
     });
     addEventListeners(avatarField, handle.signal, {
       change() {

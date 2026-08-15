@@ -37,7 +37,7 @@ export const NewCommentForm = clientEntry<NewCommentFormProps>(
       const { pending } = newCommentForm.state;
       const submitDisabled = !contentField.value;
       return (
-        <form mix={[styles.form, form(newCommentForm)]}>
+        <form mix={[styles.form, form(newCommentForm, { navigate: false })]}>
           <TextAreaField
             field={contentField}
             label="Write"
