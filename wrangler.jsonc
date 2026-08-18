@@ -7,4 +7,28 @@
   "compatibility_date": "2026-04-02",
   "compatibility_flags": ["nodejs_compat"],
   "r2_buckets": [{ "binding": "R2", "bucket_name": "discussions-uploads" }],
+  "observability": {
+    "enabled": false,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1,
+    },
+  },
+  "secrets": {
+    "required": [
+      "DATABASE_URL",
+      "RESEND_API_KEY",
+      "GITHUB_CLIENT_ID",
+      "GITHUB_CLIENT_SECRET",
+      "SESSION_SECRET",
+    ],
+  },
 }
