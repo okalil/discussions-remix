@@ -13,11 +13,17 @@ import { routes } from '../../routes.ts';
 export default createController(routes.auth.social, {
   actions: {
     async start(context) {
-      const provider = getSocialProvider(context.params.provider);
+      const provider = getSocialProvider(
+        context.params.provider,
+        context.request,
+      );
       return startExternalAuth(provider, context);
     },
     async finish(context) {
-      const provider = getSocialProvider(context.params.provider);
+      const provider = getSocialProvider(
+        context.params.provider,
+        context.request,
+      );
 
       const { result } = await finishExternalAuth(provider, context).catch(
         (error) => {
@@ -49,8 +55,8 @@ export default createController(routes.auth.social, {
   },
 });
 
-function getSocialProvider(name: string) {
-  if (isSocialProvider(name)) return providers[name];
+function getSocialProvider(name: string, request: Request) {
+  if (isSocialProvider(name)) return providers[name](request);
   throw new Response('Invalid Provider', { status: 400 });
 }
 
@@ -59,12 +65,13 @@ function isSocialProvider(name: string): name is keyof typeof providers {
 }
 
 const providers = {
-  github: createGitHubAuthProvider({
-    clientId: env.GITHUB_CLIENT_ID,
-    clientSecret: env.GITHUB_CLIENT_SECRET,
-    redirectUri: new URL(
-      routes.auth.social.finish.href({ provider: 'github' }),
-      env.SITE_URL,
-    ),
-  }),
+  github: (request: Request) =>
+    createGitHubAuthProvider({
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+      redirectUri: new URL(
+        routes.auth.social.finish.href({ provider: 'github' }),
+        request.url,
+      ),
+    }),
 };

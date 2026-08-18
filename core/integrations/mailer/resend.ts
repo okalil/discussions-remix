@@ -50,7 +50,7 @@ export class ResendMailer extends Mailer {
  * import { createResendMailer } from './mailer/resend.ts';
  *
  * export const mailer = createResendMailer(env.RESEND_API_KEY, {
- *   site: env.SITE_URL,
+ *   site: new URL(request.url).origin,
  *   production: import.meta.env.PROD,
  * });
  * ```
