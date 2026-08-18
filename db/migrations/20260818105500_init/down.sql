@@ -1,0 +1,9 @@
+drop table if exists comment_votes;
+drop table if exists discussion_votes;
+drop table if exists comments;
+drop table if exists discussions;
+drop table if exists categories;
+drop table if exists verification_tokens;
+drop table if exists sessions;
+drop table if exists accounts;
+drop table if exists users;

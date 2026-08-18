@@ -11,6 +11,7 @@ import type {
   FormInternalState,
   FormPropGetter,
   FormSubmitOptions,
+  FormSubmitResult,
   TypedFormData,
 } from './types.ts';
 import { toErrors, toFormData } from './utils.ts';
@@ -55,6 +56,7 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   };
   #formData = new FormData();
   #fields = new Map<string, Field<Output>>();
+  #submissionId = 0;
 
   get action() {
     return this.#action;
@@ -122,25 +124,24 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   async submit({
     signal,
     handler,
-  }: FormSubmitOptions<Output> = {}): Promise<void> {
+  }: FormSubmitOptions<Output> = {}): Promise<FormSubmitResult> {
     const validation = this.#prepareSubmission();
     if (!validation.valid) {
       throw new FormValidationError(validation.errors);
     }
 
-    this.#startSubmission(validation.data);
+    const submissionId = this.#startSubmission(validation.data);
     try {
-      const submitHandler = handler ?? ((_, signal) => this.#fetch(signal));
-      await submitHandler(validation.data, signal);
-      if (signal?.aborted) return;
+      const submitHandler = handler ?? (() => this.#fetch(signal));
+      const result = await submitHandler(validation.data, signal);
+      signal?.throwIfAborted();
 
       const event = new FormSubmitCompleteEvent();
       this.dispatchEvent(event);
       await event.settle();
+      return result;
     } finally {
-      if (!signal?.aborted) {
-        this.#endSubmission();
-      }
+      this.#endSubmission(submissionId);
     }
   }
 
@@ -150,23 +151,26 @@ export class Form<Output> extends TypedEventTarget<FormEventMap> {
   }
 
   #startSubmission(data: Output) {
+    const id = ++this.#submissionId;
     this.#state.submission = { data };
     this.dispatchEvent(new Event('statechange'));
+    return id;
   }
 
-  #endSubmission() {
-    if (!this.#state.submission) return;
+  #endSubmission(id: number) {
+    if (id !== this.#submissionId || !this.#state.submission) return;
     this.#state.submission = null;
     this.dispatchEvent(new Event('statechange'));
   }
 
-  async #fetch(signal?: AbortSignal) {
+  async #fetch(signal?: AbortSignal): Promise<FormSubmitResult> {
     const method = this.method ?? 'get';
     const action = this.action ?? location.href;
     const supportsBody = method.toUpperCase() !== 'GET';
     const body = supportsBody ? this.#formData : undefined;
 
-    await fetch(action, { method, body, signal });
+    const response = await fetch(action, { method, body, signal });
+    return { ok: response.ok };
   }
 }
 

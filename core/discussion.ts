@@ -3,11 +3,12 @@ import { sql } from 'remix/data-table';
 import type {
   CreateDiscussionDto,
   DiscussionDetailDto,
+  DiscussionPageDto,
   DiscussionPreviewDto,
-  DiscussionSummaryDto,
   GetDiscussionsDto,
 } from './discussion.types.ts';
 import type { Database } from './integrations/db.ts';
+import { count, query, queryOne } from './integrations/db/query.ts';
 import { schema } from './integrations/db/schema.ts';
 import type { PublicUserDto } from './user.types.ts';
 
@@ -34,87 +35,71 @@ export class DiscussionService {
 
   async getDiscussions({
     currentUserId,
-    ...filters
-  }: GetDiscussionsDto): Promise<{
-    discussions: DiscussionSummaryDto[];
-    total: number;
-    limit: number;
-  }> {
-    const { category, page, limit, q } = filters;
+    page,
+    limit,
+    category,
+    q,
+  }: GetDiscussionsDto): Promise<DiscussionPageDto> {
     const offset = (page - 1) * limit;
     const categoryFilter = category ? sql`AND c.slug = ${category}` : sql``;
     const searchFilter = q
       ? sql`AND (d.title LIKE ${`%${q}%`} OR d.content LIKE ${`%${q}%`})`
       : sql``;
 
-    const [totalResult, discussionsResult] = await Promise.all([
-      this.db.exec(sql`
-        SELECT COUNT(d.id) AS total
-        FROM discussions d
-        LEFT JOIN categories c ON c.id = d.category_id
-        WHERE TRUE
-          ${categoryFilter}
-          ${searchFilter}
-      `),
-      this.db.exec(sql`
+    const rows = await query<DiscussionListRow>(
+      this.db,
+      sql`
+        WITH paged AS (
+          SELECT
+            d.id,
+            d.title,
+            d.created_at,
+            d.author_id,
+            (SELECT MAX(cm.created_at) FROM comments cm WHERE cm.discussion_id = d.id) AS last_comment_at,
+            COUNT(*) OVER() AS total
+          FROM discussions d
+          LEFT JOIN categories c ON c.id = d.category_id
+          WHERE TRUE
+            ${categoryFilter}
+            ${searchFilter}
+          ORDER BY last_comment_at DESC, d.created_at DESC
+          LIMIT ${limit} OFFSET ${offset}
+        )
         SELECT
-          d.id,
-          d.title,
-          d.created_at AS createdAt,
-          u.id AS authorId,
-          u.name AS authorName,
-          u.avatar AS authorAvatar,
-          COUNT(DISTINCT cm.id) AS commentsCount,
-          COUNT(DISTINCT dv.user_id) AS votesCount,
-          COUNT(CASE WHEN dv.user_id = ${currentUserId ?? 0} THEN 1 END) > 0 AS voted
-        FROM discussions d
-        LEFT JOIN users u ON u.id = d.author_id
-        LEFT JOIN categories c ON c.id = d.category_id
-        LEFT JOIN comments cm ON cm.discussion_id = d.id
-        LEFT JOIN discussion_votes dv ON dv.discussion_id = d.id
-        WHERE TRUE
-          ${categoryFilter}
-          ${searchFilter}
-        GROUP BY d.id
-        ORDER BY MAX(cm.created_at) DESC, d.created_at DESC
-        LIMIT ${limit} OFFSET ${offset}
-      `),
-    ]);
-
-    const total = Number(
-      (totalResult.rows?.at(0) as { total?: unknown } | undefined)?.total ?? 0,
+          p.id,
+          p.title,
+          p.created_at AS "createdAt",
+          p.total,
+          u.id AS "authorId",
+          u.name AS "authorName",
+          u.avatar AS "authorAvatar",
+          (SELECT COUNT(*) FROM comments cm WHERE cm.discussion_id = p.id) AS "commentsCount",
+          (SELECT COUNT(*) FROM discussion_votes dv WHERE dv.discussion_id = p.id) AS "votesCount",
+          EXISTS (
+            SELECT 1 FROM discussion_votes dv
+            WHERE dv.discussion_id = p.id AND dv.user_id = ${currentUserId ?? 0}
+          ) AS voted
+        FROM paged p
+        INNER JOIN users u ON u.id = p.author_id
+        ORDER BY p.last_comment_at DESC, p.created_at DESC
+      `,
     );
-    const discussions = (discussionsResult.rows ?? []).map((row) => {
-      const resultRow = row as {
-        id: number;
-        title: string;
-        createdAt: string;
-        authorId: number;
-        authorName: string;
-        authorAvatar: string | null;
-        commentsCount: number | string;
-        votesCount: number | string;
-        voted: boolean | number;
-      };
-
-      return {
-        id: resultRow.id,
-        title: resultRow.title,
-        createdAt: resultRow.createdAt,
-        author: {
-          id: resultRow.authorId,
-          name: resultRow.authorName,
-          avatar: resultRow.authorAvatar,
-        },
-        commentsCount: Number(resultRow.commentsCount ?? 0),
-        votesCount: Number(resultRow.votesCount ?? 0),
-        voted: Boolean(resultRow.voted),
-      };
-    });
 
     return {
-      discussions,
-      total,
+      discussions: rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        createdAt: row.createdAt,
+        author: {
+          id: row.authorId,
+          name: row.authorName,
+          avatar: row.authorAvatar,
+        },
+        commentsCount: count(row.commentsCount),
+        votesCount: count(row.votesCount),
+        voted: Boolean(row.voted),
+      })),
+      total: count(rows.at(0)?.total),
       limit,
     };
   }
@@ -123,142 +108,114 @@ export class DiscussionService {
     id: number,
     currentUserId?: number,
   ): Promise<DiscussionDetailDto | null> {
-    const result = await this.db.exec(sql`
-      SELECT
-        d.id,
-        d.title,
-        d.content,
-        d.created_at AS createdAt,
-        u.id AS authorId,
-        u.name AS authorName,
-        u.avatar AS authorAvatar,
-        c.emoji AS categoryEmoji,
-        c.title AS categoryTitle,
-        c.slug AS categorySlug,
-        COUNT(DISTINCT dv.user_id) AS votesCount,
-        COUNT(DISTINCT cm.id) AS commentsCount,
-        (
-          SELECT COUNT(DISTINCT participant.user_id)
-          FROM (
-            SELECT d.author_id AS user_id
-            UNION
-            SELECT c2.author_id AS user_id
-            FROM comments c2
-            WHERE c2.discussion_id = d.id
-          ) participant
-        ) AS participantsCount,
-        COUNT(CASE WHEN dv.user_id = ${currentUserId ?? 0} THEN 1 END) > 0 AS voted
-      FROM discussions d
-      LEFT JOIN users u ON u.id = d.author_id
-      LEFT JOIN categories c ON c.id = d.category_id
-      LEFT JOIN comments cm ON cm.discussion_id = d.id
-      LEFT JOIN discussion_votes dv ON dv.discussion_id = d.id
-      WHERE d.id = ${id}
-      GROUP BY d.id
-      LIMIT 1
-    `);
-    const discussion = result.rows?.at(0) as
-      | {
-          id: number;
-          title: string;
-          content: string;
-          createdAt: string;
-          authorId: number;
-          authorName: string;
-          authorAvatar: string | null;
-          categoryEmoji: string;
-          categoryTitle: string;
-          categorySlug: string;
-          votesCount: number | string;
-          commentsCount: number | string;
-          participantsCount: number | string;
-          voted: boolean | number;
-        }
-      | undefined;
-
-    if (!discussion) return null;
+    const row = await queryOne<DiscussionDetailRow>(
+      this.db,
+      sql`
+        SELECT
+          d.id,
+          d.title,
+          d.content,
+          d.created_at AS "createdAt",
+          u.id AS "authorId",
+          u.name AS "authorName",
+          u.avatar AS "authorAvatar",
+          c.emoji AS "categoryEmoji",
+          c.title AS "categoryTitle",
+          c.slug AS "categorySlug",
+          (SELECT COUNT(*) FROM comments cm WHERE cm.discussion_id = d.id) AS "commentsCount",
+          (SELECT COUNT(*) FROM discussion_votes dv WHERE dv.discussion_id = d.id) AS "votesCount",
+          EXISTS (
+            SELECT 1 FROM discussion_votes dv
+            WHERE dv.discussion_id = d.id AND dv.user_id = ${currentUserId ?? 0}
+          ) AS voted,
+          (
+            SELECT COUNT(*) FROM (
+              SELECT d.author_id
+              UNION
+              SELECT c2.author_id FROM comments c2 WHERE c2.discussion_id = d.id
+            ) p
+          ) AS "participantsCount"
+        FROM discussions d
+        INNER JOIN users u ON u.id = d.author_id
+        INNER JOIN categories c ON c.id = d.category_id
+        WHERE d.id = ${id}
+        LIMIT 1
+      `,
+    );
+    if (!row) return null;
 
     return {
-      id: discussion.id,
-      title: discussion.title,
-      content: discussion.content,
-      createdAt: discussion.createdAt,
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      createdAt: row.createdAt,
       author: {
-        id: discussion.authorId,
-        name: discussion.authorName,
-        avatar: discussion.authorAvatar,
+        id: row.authorId,
+        name: row.authorName,
+        avatar: row.authorAvatar,
       },
       category: {
-        emoji: discussion.categoryEmoji,
-        title: discussion.categoryTitle,
-        slug: discussion.categorySlug,
+        emoji: row.categoryEmoji,
+        title: row.categoryTitle,
+        slug: row.categorySlug,
       },
-      votesCount: Number(discussion.votesCount ?? 0),
-      commentsCount: Number(discussion.commentsCount ?? 0),
-      participantsCount: Number(discussion.participantsCount ?? 0),
-      voted: Boolean(discussion.voted),
+      votesCount: count(row.votesCount),
+      commentsCount: count(row.commentsCount),
+      participantsCount: count(row.participantsCount),
+      voted: Boolean(row.voted),
     };
   }
 
   async getDiscussionPreview(id: number): Promise<DiscussionPreviewDto | null> {
-    const [discussionResult, replyResult] = await Promise.all([
-      this.db.exec(sql`
-        SELECT id, title, content
-        FROM discussions
-        WHERE id = ${id}
-        LIMIT 1
-      `),
-      this.db.exec(sql`
+    const row = await queryOne<DiscussionPreviewRow>(
+      this.db,
+      sql`
         SELECT
-          c.content,
-          u.id AS authorId,
-          u.name AS authorName,
-          u.avatar AS authorAvatar
-        FROM comments c
+          d.id,
+          d.title,
+          d.content,
+          c.content AS "replyContent",
+          u.id AS "replyAuthorId",
+          u.name AS "replyAuthorName",
+          u.avatar AS "replyAuthorAvatar"
+        FROM discussions d
+        LEFT JOIN comments c ON c.id = (
+          SELECT c2.id FROM comments c2
+          WHERE c2.discussion_id = d.id
+          ORDER BY c2.created_at DESC
+          LIMIT 1
+        )
         LEFT JOIN users u ON u.id = c.author_id
-        WHERE c.discussion_id = ${id}
-        ORDER BY c.created_at DESC
+        WHERE d.id = ${id}
         LIMIT 1
-      `),
-    ]);
-    const discussionRow = discussionResult.rows?.at(0) as
-      | { id: number; title: string; content: string }
-      | undefined;
-    const replyRow = replyResult.rows?.at(0) as
-      | {
-          content: string;
-          authorId: number;
-          authorName: string;
-          authorAvatar: string | null;
-        }
-      | undefined;
+      `,
+    );
+    if (!row) return null;
 
-    if (!discussionRow) return null;
-
-    const discussion = {
-      ...discussionRow,
-      content: formatLargeText(discussionRow.content),
+    return {
+      id: row.id,
+      title: row.title,
+      content: truncate(row.content),
+      reply:
+        row.replyContent != null && row.replyAuthorId != null
+          ? {
+              content: truncate(row.replyContent),
+              author: {
+                id: row.replyAuthorId,
+                name: row.replyAuthorName ?? '',
+                avatar: row.replyAuthorAvatar,
+              },
+            }
+          : undefined,
     };
-
-    const reply = replyRow
-      ? {
-          content: formatLargeText(replyRow.content),
-          author: {
-            id: replyRow.authorId,
-            name: replyRow.authorName,
-            avatar: replyRow.authorAvatar,
-          },
-        }
-      : undefined;
-
-    return { ...discussion, reply };
   }
 
   async voteDiscussion(id: number, userId: number) {
-    await this.db.create(schema.discussionVotes, {
-      user_id: userId,
-      discussion_id: id,
-    });
+    await this.db.exec(sql`
+      INSERT INTO discussion_votes (user_id, discussion_id)
+      VALUES (${userId}, ${id})
+      ON CONFLICT (user_id, discussion_id) DO NOTHING
+    `);
   }
 
   async unvoteDiscussion(id: number, userId: number) {
@@ -268,21 +225,61 @@ export class DiscussionService {
   }
 
   async getParticipants(discussionId: number): Promise<PublicUserDto[]> {
-    const result = await this.db.exec(sql`
-      SELECT DISTINCT
-        u.id,
-        u.name,
-        u.avatar
-      FROM users u
-      INNER JOIN discussions d ON d.id = ${discussionId}
-      LEFT JOIN comments c ON c.discussion_id = ${discussionId}
-      WHERE d.author_id = u.id OR c.author_id = u.id
-    `);
-
-    return (result.rows ?? []) as PublicUserDto[];
+    return query<PublicUserDto>(
+      this.db,
+      sql`
+        SELECT u.id, u.name, u.avatar
+        FROM (
+          SELECT author_id AS id FROM discussions WHERE id = ${discussionId}
+          UNION
+          SELECT author_id FROM comments WHERE discussion_id = ${discussionId}
+        ) p
+        INNER JOIN users u ON u.id = p.id
+      `,
+    );
   }
 }
 
-function formatLargeText(text: string) {
+type DiscussionListRow = {
+  id: number;
+  title: string;
+  createdAt: string;
+  total: number | string;
+  authorId: number;
+  authorName: string;
+  authorAvatar: string | null;
+  commentsCount: number | string;
+  votesCount: number | string;
+  voted: boolean | number;
+};
+
+type DiscussionDetailRow = {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: string;
+  authorId: number;
+  authorName: string;
+  authorAvatar: string | null;
+  categoryEmoji: string;
+  categoryTitle: string;
+  categorySlug: string;
+  votesCount: number | string;
+  commentsCount: number | string;
+  participantsCount: number | string;
+  voted: boolean | number;
+};
+
+type DiscussionPreviewRow = {
+  id: number;
+  title: string;
+  content: string;
+  replyContent: string | null;
+  replyAuthorId: number | null;
+  replyAuthorName: string | null;
+  replyAuthorAvatar: string | null;
+};
+
+function truncate(text: string) {
   return text.length > 100 ? text.slice(0, 100) + '...' : text;
 }

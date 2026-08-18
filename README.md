@@ -96,3 +96,31 @@ if (!validation.success) {
 pnpm i
 vp run dev
 ```
+
+`vp run dev` applies Remix migrations, then starts the Vite dev server. Set `DATABASE_URL` in `.env` first.
+
+### Database
+
+The app talks to [Neon](https://neon.com) over the serverless driver (no Hyperdrive). Local development uses [Neon database branches](https://neon.com/guides/local-development-with-neon), not Docker Postgres.
+
+```sh
+# once per machine
+neon auth
+
+# once per working copy / feature
+neon branches create --name dev/your-name
+neon connection-string dev/your-name
+
+# put the printed URL in .env as DATABASE_URL, then:
+vp run db:migrate
+vp run db:status
+```
+
+Reset a branch to match its parent instead of wiping Postgres:
+
+```sh
+neon branches reset dev/your-name
+vp run db:migrate
+```
+
+`remix.json` points `remix db` at `DATABASE_URL`. Production: `wrangler secret put DATABASE_URL` with the Neon (pooled) connection string.

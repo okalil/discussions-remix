@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@remix-run/fetch-router': 0.21.0
   vite: npm:@voidzero-dev/vite-plus-core@latest
 
 importers:
@@ -15,6 +14,9 @@ importers:
       '@discussions/form':
         specifier: workspace:*
         version: link:packages/form
+      '@neondatabase/serverless':
+        specifier: ^1.1.0
+        version: 1.1.0
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
@@ -25,8 +27,8 @@ importers:
         specifier: ^6.9.0
         version: 6.9.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(supports-color@10.2.2)
       remix:
-        specifier: ^3.0.0-beta.6
-        version: 3.0.0-beta.6(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
+        specifier: ^3.0.0-beta.10
+        version: 3.0.0-beta.10(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0)
       resend:
         specifier: ^6.17.2
         version: 6.17.2(@react-email/render@2.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
@@ -39,13 +41,19 @@ importers:
         version: 1.48.0(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.12)(typescript@7.0.2))(wrangler@4.115.0)
       '@pitlane/dev':
         specifier: ^0.1.1
-        version: 0.1.1(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.12)(typescript@7.0.2))(remix@3.0.0-beta.6(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2))
+        version: 0.1.1(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.12)(typescript@7.0.2))(remix@3.0.0-beta.10(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0))
       '@types/node':
         specifier: latest
         version: 26.2.0
+      '@types/pg':
+        specifier: ^8.23.1
+        version: 8.23.1
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
+      pg:
+        specifier: ^8.23.0
+        version: 8.23.0
       typescript:
         specifier: latest
         version: 7.0.2
@@ -65,8 +73,8 @@ importers:
   packages/form:
     dependencies:
       remix:
-        specifier: ^3.0.0-beta.6
-        version: 3.0.0-beta.6(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
+        specifier: ^3.0.0-beta.10
+        version: 3.0.0-beta.10(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0)
 
 packages:
 
@@ -682,6 +690,10 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
+
+  '@neondatabase/serverless@1.1.0':
+    resolution: {integrity: sha512-r3ZZhRjEcfEdKIZnoB1RusNgvHuaBRqfCzV4Gi+5A9yUX0S4HTws/ASWqt13wL4y4I+0rqsWGdA2w7EQXHi3+Q==}
+    engines: {node: '>=19.0.0'}
 
   '@oxc-minify/binding-android-arm-eabi@0.121.0':
     resolution: {integrity: sha512-RcQXLj3JLLVm41n80/6+7OUion2PSQWOH5EUvlD9kCWSF1fWLXCNX1A6t/+nFNjeyaCXZ3YbIWwCTiGXhxxHEw==}
@@ -1634,8 +1646,8 @@ packages:
   '@remix-run/auth@0.2.7':
     resolution: {integrity: sha512-OWjt1KP8H5/kPRwDghOsilIKESBb2hg5DJQkmprXYx3xB0WZEphRHPp4ASqC6LXEu+mOfgxsHky7G8jJxWZSgw==}
 
-  '@remix-run/cli@0.4.0':
-    resolution: {integrity: sha512-zkLBHgvR9qXnbd7j14WxEk/GcnFTeaL/UB/H3dB/pikGxztBcD4sfo7M0szrh41bQSWLLA7HA2bYntTjtf6bCg==}
+  '@remix-run/cli@0.5.0':
+    resolution: {integrity: sha512-WADo/un4eIakPvtLAp27fPnT+DbAKWNuUqFzqtHhEbrSltFLtPqgZ8vQd3DWWbdrr5oqILTd27iKTfO4KNszJw==}
     engines: {node: '>=24.3.0'}
 
   '@remix-run/compression-middleware@0.1.13':
@@ -1733,9 +1745,6 @@ packages:
   '@remix-run/render-middleware@0.1.5':
     resolution: {integrity: sha512-D3FO4P9Ixzk8XWlguEvyKRY1tFQ7mv8Fu5uDcaSBEOV0M+B4SweNgrpbZ/5xpmHzp8sEful6RLKUwoyJ+6JRmA==}
 
-  '@remix-run/response@0.3.7':
-    resolution: {integrity: sha512-f3VWP4NNxgBt+oJfRbgqLYaMXonMdeHhbzAyLfqMzZAwe/ukUwwGoTtER2xlRPDxFlr9Tqa3NFC8PrSmp+rfmA==}
-
   '@remix-run/response@0.3.8':
     resolution: {integrity: sha512-ydrfv+ykKBRQg6DTHU0mSbxbOcWc3m1O7UVivO5Rgrp+K1u4Z3nqbhaMDkHbCPEFhuv1sKlQwS0Z5ClO/jGAiQ==}
 
@@ -1759,8 +1768,8 @@ packages:
   '@remix-run/session@0.4.2':
     resolution: {integrity: sha512-NGzu6/gC5xD/tq40W0WqzTt4JhCdSCIwDHM1aa13JBqb4Ml/Mb0kmXqjfOe/gBYfu6AA11nRQ/BJyr+VduTodA==}
 
-  '@remix-run/static-middleware@0.4.13':
-    resolution: {integrity: sha512-32oI2hbVR+GN/sduxOZSY1WNaEasKDm7X7o79eBGG5E78dV5mi0ijGLldHfAEazyRQyqeYzvG292RWUfkFJetA==}
+  '@remix-run/static-middleware@0.4.14':
+    resolution: {integrity: sha512-kfz94iBjwFTeORQjs/V/9Pp4pAfJAz9EGlDB7Sh9VvAbG8wggsPs84pFgIIm5xy6Os7ey9OEeQXeLSm70TIzQg==}
 
   '@remix-run/tar-parser@0.7.1':
     resolution: {integrity: sha512-NZKTuA66rj0zqpljWAb6v147cNu5BtRCiv8FY5kn64ZPvLmoI62Ehm2hoUh0g0wJHeCNmgS5QZg1xhw6FX67SA==}
@@ -1780,8 +1789,8 @@ packages:
   '@remix-run/ui-hmr@0.1.0':
     resolution: {integrity: sha512-9hV0iNWBSjCmrA6b9/8uG7qWSHPXyy5XuIzfMayIH661YfmKuBFchkOIiTenadaI4g7ZxCBT+igh/HtRvyxS4Q==}
 
-  '@remix-run/ui@0.5.0':
-    resolution: {integrity: sha512-Cc8GZcXMp/E/3xy6yUTPqCOgVo34GH9OHMM4mdx4RMadCK7C/XzAOJHqLWX1d+yEMl0d1YUK0WV3ZyzFVTOC/w==}
+  '@remix-run/ui@0.7.0':
+    resolution: {integrity: sha512-SPgbmHOnHAGxZiyJhW7wxGBnk7lYdY5GlYj1Chj5hpHH+3IAChpCcwUwniqbN8Wddwf6G4oitN/YhGFarqPIUg==}
 
   '@rolldown/pluginutils@1.0.0-beta.55':
     resolution: {integrity: sha512-vajw/B3qoi7aYnnD4BQ4VoCcXQWnF0roSwE2iynbNxgW4l9mFwtLmLmUhpDdcTBfKyZm1p/T0D13qG94XBLohA==}
@@ -1841,6 +1850,9 @@ packages:
 
   '@types/node@26.2.0':
     resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
+
+  '@types/pg@8.23.1':
+    resolution: {integrity: sha512-fKVHpikPdg4GKks3JuLEhvwSyvwzF23hnabPy6DD8ljVbC7+6J5dQzdv4arV6jqq57djnMgs1HKBxX4P8aBI3A==}
 
   '@types/react@19.2.17':
     resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
@@ -2876,6 +2888,40 @@ packages:
   peberminta@0.9.0:
     resolution: {integrity: sha512-XIxfHpEuSJbITd1H3EeQwpcZbTLHc+VVr8ANI9t5sit565tsI4/xK3KWTUFE2e6QiangUkh3B0jihzmGnNrRsQ==}
 
+  pg-cloudflare@1.4.0:
+    resolution: {integrity: sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A==}
+
+  pg-connection-string@2.14.0:
+    resolution: {integrity: sha512-XwWDGcLRGCXAR8F/AM5bG7Q+A3Wm2s6QeEjlOKZLlH3UYcguiqCWKyWXVag5TLTIjR7oOJUY8kcADaZgWPyLeg==}
+
+  pg-int8@1.0.1:
+    resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
+    engines: {node: '>=4.0.0'}
+
+  pg-pool@3.14.0:
+    resolution: {integrity: sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==}
+    peerDependencies:
+      pg: '>=8.0'
+
+  pg-protocol@1.16.0:
+    resolution: {integrity: sha512-sILXutLVjCLjcDuOmvhX5e2Z4cS5qG/6Bu3VkpFwdf/633ElGLpEh9bgmuI5I4sqKqkifQiGyiCcx1HdtrK7tg==}
+
+  pg-types@2.2.0:
+    resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
+    engines: {node: '>=4'}
+
+  pg@8.23.0:
+    resolution: {integrity: sha512-Ip2EQCngowJLGOfCwkFhPXU7/ljlhn6Rxlmy4XYfL2Y+vyRM59+8uR2xqRWKdYmbXmxCFOAmKxBuSUCdF34qLg==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      pg-native: '>=3.0.1'
+    peerDependenciesMeta:
+      pg-native:
+        optional: true
+
+  pgpass@1.0.5:
+    resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -2897,6 +2943,22 @@ packages:
   postcss@8.5.24:
     resolution: {integrity: sha512-8RyVklq0owXUTa4xlpzu4l9AaVKIdQvAcOHZWaMh98HgySsUtxRVf/chRe3dsSLqb6i40BzGRzEUddRaI+9TSw==}
     engines: {node: ^10 || ^12 || >=14}
+
+  postgres-array@2.0.0:
+    resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
+    engines: {node: '>=4'}
+
+  postgres-bytea@1.0.1:
+    resolution: {integrity: sha512-5+5HqXnsZPE65IJZSMkZtURARZelel2oXUEO8rH83VS/hxH5vv1uHquPg5wZs8yMAfdv971IU+kcPUczi7NVBQ==}
+    engines: {node: '>=0.10.0'}
+
+  postgres-date@1.0.7:
+    resolution: {integrity: sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==}
+    engines: {node: '>=0.10.0'}
+
+  postgres-interval@1.2.0:
+    resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
+    engines: {node: '>=0.10.0'}
 
   prettier@3.9.5:
     resolution: {integrity: sha512-/FVl766LpUfB5vXgCYOYa0MeV/441Ia99AeICQIQFTY/Nw0roZwULcXpku5i1/m5kt/baz+s4Zogspd839HSMg==}
@@ -2943,8 +3005,8 @@ packages:
     resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
     engines: {node: '>= 20.19.0'}
 
-  remix@3.0.0-beta.6:
-    resolution: {integrity: sha512-a2f2mc+rdK0rqX2qp2vB5WvZXhS18OzjNRvWUyNDl3XPvGXN94nImz+1ZqH6AZIlB+fL/l9txPDj7ylCIdag3Q==}
+  remix@3.0.0-beta.10:
+    resolution: {integrity: sha512-qEXAacXMwf0lEYC/6vTAiCCk0zDyhMbPgFeSwKSWC9zJeSseG9Tmnjd8vt7OySmETe0FfauNwP7K2d261BIwRg==}
     engines: {node: '>=24.3.0'}
     hasBin: true
     peerDependencies:
@@ -3017,6 +3079,10 @@ packages:
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
+
+  split2@4.2.0:
+    resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
+    engines: {node: '>= 10.x'}
 
   srvx@0.9.8:
     resolution: {integrity: sha512-RZaxTKJEE/14HYn8COLuUOJAt0U55N9l1Xf6jj+T0GoA01EUH1Xz5JtSUOI+EHn+AEgPCVn7gk6jHJffrr06fQ==}
@@ -3235,6 +3301,10 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+
+  xtend@4.0.2:
+    resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
+    engines: {node: '>=0.4'}
 
   yoctocolors@2.1.2:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
@@ -3660,6 +3730,8 @@ snapshots:
       '@emnapi/runtime': 1.11.2
       '@tybys/wasm-util': 0.10.3
     optional: true
+
+  '@neondatabase/serverless@1.1.0': {}
 
   '@oxc-minify/binding-android-arm-eabi@0.121.0':
     optional: true
@@ -4127,12 +4199,12 @@ snapshots:
 
   '@oxlint/plugins@1.73.0': {}
 
-  '@pitlane/dev@0.1.1(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.12)(typescript@7.0.2))(remix@3.0.0-beta.6(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2))':
+  '@pitlane/dev@0.1.1(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.12)(typescript@7.0.2))(remix@3.0.0-beta.10(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0))':
     dependencies:
       '@hiogawa/vite-plugin-fullstack': 0.0.11(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.12)(typescript@7.0.2))
       magic-string: 0.30.21
       oxc-parser: 0.141.0
-      remix: 3.0.0-beta.6(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
+      remix: 3.0.0-beta.10(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0)
       vite: '@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.23.12)(typescript@7.0.2)'
 
   '@polka/url@1.0.0-next.29': {}
@@ -4196,11 +4268,11 @@ snapshots:
       '@remix-run/fetch-router': 0.21.0
       '@remix-run/session': 0.4.2
 
-  '@remix-run/cli@0.4.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)':
+  '@remix-run/cli@0.5.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0)':
     dependencies:
       '@remix-run/data-table': 0.4.0
       '@remix-run/data-table-mysql': 0.5.0
-      '@remix-run/data-table-postgres': 0.5.0
+      '@remix-run/data-table-postgres': 0.5.0(pg@8.23.0)
       '@remix-run/data-table-sqlite': 0.6.0
       '@remix-run/terminal': 0.1.1
       '@remix-run/test': 0.6.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
@@ -4245,9 +4317,11 @@ snapshots:
     dependencies:
       '@remix-run/data-table': 0.4.0
 
-  '@remix-run/data-table-postgres@0.5.0':
+  '@remix-run/data-table-postgres@0.5.0(pg@8.23.0)':
     dependencies:
       '@remix-run/data-table': 0.4.0
+    optionalDependencies:
+      pg: 8.23.0
 
   '@remix-run/data-table-sqlite@0.6.0':
     dependencies:
@@ -4334,12 +4408,6 @@ snapshots:
     dependencies:
       '@remix-run/fetch-router': 0.21.0
 
-  '@remix-run/response@0.3.7':
-    dependencies:
-      '@remix-run/headers': 0.21.1
-      '@remix-run/html-template': 0.3.1
-      '@remix-run/mime': 0.4.2
-
   '@remix-run/response@0.3.8':
     dependencies:
       '@remix-run/headers': 0.21.1
@@ -4364,13 +4432,13 @@ snapshots:
 
   '@remix-run/session@0.4.2': {}
 
-  '@remix-run/static-middleware@0.4.13':
+  '@remix-run/static-middleware@0.4.14':
     dependencies:
       '@remix-run/fetch-router': 0.21.0
       '@remix-run/fs': 0.4.6
       '@remix-run/html-template': 0.3.1
       '@remix-run/mime': 0.4.2
-      '@remix-run/response': 0.3.7
+      '@remix-run/response': 0.3.8
 
   '@remix-run/tar-parser@0.7.1': {}
 
@@ -4403,7 +4471,7 @@ snapshots:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@remix-run/ui@0.5.0':
+  '@remix-run/ui@0.7.0':
     dependencies:
       '@types/dom-navigation': 1.0.7
 
@@ -4466,6 +4534,12 @@ snapshots:
   '@types/node@26.2.0':
     dependencies:
       undici-types: 8.3.0
+
+  '@types/pg@8.23.1':
+    dependencies:
+      '@types/node': 26.2.0
+      pg-protocol: 1.16.0
+      pg-types: 2.2.0
 
   '@types/react@19.2.17':
     dependencies:
@@ -5389,6 +5463,41 @@ snapshots:
 
   peberminta@0.9.0: {}
 
+  pg-cloudflare@1.4.0:
+    optional: true
+
+  pg-connection-string@2.14.0: {}
+
+  pg-int8@1.0.1: {}
+
+  pg-pool@3.14.0(pg@8.23.0):
+    dependencies:
+      pg: 8.23.0
+
+  pg-protocol@1.16.0: {}
+
+  pg-types@2.2.0:
+    dependencies:
+      pg-int8: 1.0.1
+      postgres-array: 2.0.0
+      postgres-bytea: 1.0.1
+      postgres-date: 1.0.7
+      postgres-interval: 1.2.0
+
+  pg@8.23.0:
+    dependencies:
+      pg-connection-string: 2.14.0
+      pg-pool: 3.14.0(pg@8.23.0)
+      pg-protocol: 1.16.0
+      pg-types: 2.2.0
+      pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.4.0
+
+  pgpass@1.0.5:
+    dependencies:
+      split2: 4.2.0
+
   picocolors@1.1.1: {}
 
   picomatch@4.0.5: {}
@@ -5404,6 +5513,16 @@ snapshots:
       nanoid: 3.3.16
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  postgres-array@2.0.0: {}
+
+  postgres-bytea@1.0.1: {}
+
+  postgres-date@1.0.7: {}
+
+  postgres-interval@1.2.0:
+    dependencies:
+      xtend: 4.0.2
 
   prettier@3.9.5: {}
 
@@ -5464,14 +5583,14 @@ snapshots:
 
   readdirp@5.0.0: {}
 
-  remix@3.0.0-beta.6(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2):
+  remix@3.0.0-beta.10(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0):
     dependencies:
       '@remix-run/assert': 0.3.0
       '@remix-run/assets': 0.5.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
       '@remix-run/async-context-middleware': 0.3.5
       '@remix-run/auth': 0.2.7
       '@remix-run/auth-middleware': 0.2.5
-      '@remix-run/cli': 0.4.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
+      '@remix-run/cli': 0.5.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(pg@8.23.0)
       '@remix-run/compression-middleware': 0.1.13
       '@remix-run/cookie': 0.6.0
       '@remix-run/cop-middleware': 0.1.8
@@ -5480,7 +5599,7 @@ snapshots:
       '@remix-run/data-schema': 0.3.0
       '@remix-run/data-table': 0.4.0
       '@remix-run/data-table-mysql': 0.5.0
-      '@remix-run/data-table-postgres': 0.5.0
+      '@remix-run/data-table-postgres': 0.5.0(pg@8.23.0)
       '@remix-run/data-table-sqlite': 0.6.0
       '@remix-run/fetch-proxy': 0.8.5
       '@remix-run/fetch-router': 0.21.0
@@ -5506,12 +5625,14 @@ snapshots:
       '@remix-run/session-middleware': 0.4.0
       '@remix-run/session-storage-memcache': 0.1.2
       '@remix-run/session-storage-redis': 0.1.1
-      '@remix-run/static-middleware': 0.4.13
+      '@remix-run/static-middleware': 0.4.14
       '@remix-run/tar-parser': 0.7.1
       '@remix-run/terminal': 0.1.1
       '@remix-run/test': 0.6.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
-      '@remix-run/ui': 0.5.0
+      '@remix-run/ui': 0.7.0
       '@remix-run/ui-hmr': 0.1.0(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)
+    optionalDependencies:
+      pg: 8.23.0
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -5608,6 +5729,8 @@ snapshots:
       - utf-8-validate
 
   source-map-js@1.2.1: {}
+
+  split2@4.2.0: {}
 
   srvx@0.9.8: {}
 
@@ -5844,6 +5967,8 @@ snapshots:
   ws@8.21.0: {}
 
   ws@8.21.1: {}
+
+  xtend@4.0.2: {}
 
   yoctocolors@2.1.2: {}
 

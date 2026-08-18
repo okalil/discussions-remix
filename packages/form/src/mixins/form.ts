@@ -1,7 +1,7 @@
 import { addEventListeners, attrs, createMixin, on, ref } from 'remix/ui';
 
 import { isFormValidationError, type Form } from '../form.ts';
-import type { FormSubmitHandler } from '../types.ts';
+import type { FormSubmitHandler, FormSubmitResult } from '../types.ts';
 
 type FormMixinOptions<Output = unknown> =
   | {
@@ -50,13 +50,13 @@ const formMixin = createMixin<
         if (!navigate) e.preventDefault();
 
         try {
-          await form.submit({
+          const result = await form.submit({
             signal,
             handler: navigate
-              ? (_, signal) => waitFormNavigation(formElement, signal)
+              ? () => waitFormNavigation(formElement, signal)
               : options.handler,
           });
-          form.reset();
+          if (result.ok) form.reset();
         } catch (error) {
           if (isFormValidationError(error)) {
             e.preventDefault();
@@ -83,21 +83,98 @@ export function form<Output>(
 export async function waitFormNavigation(
   formElement: HTMLFormElement,
   signal?: AbortSignal,
-) {
-  await waitNavigation({
-    signal,
-    match: (event) => isSubmitFrom(event, formElement),
+): Promise<FormSubmitResult> {
+  const outcome = { redirected: false, failed: false };
+  const watch = new AbortController();
+  signal?.addEventListener('abort', () => watch.abort(), {
+    once: true,
+    signal: watch.signal,
   });
-  if (signal?.aborted) return;
 
-  let transition = window.navigation.transition;
-  if (!transition) {
-    await waitNavigation({ signal });
-    if (signal?.aborted) return;
+  window.navigation.addEventListener(
+    'navigate',
+    (event) => {
+      if (isServerRedirectNavigation(event)) outcome.redirected = true;
+    },
+    { signal: watch.signal },
+  );
+  window.navigation.addEventListener(
+    'navigateerror',
+    () => {
+      outcome.failed = true;
+    },
+    { signal: watch.signal },
+  );
+
+  try {
+    await waitNavigation({
+      signal,
+      match(event) {
+        const source = event.sourceElement;
+        return (
+          source instanceof Element &&
+          (source === formElement || formElement.contains(source))
+        );
+      },
+    });
+    if (signal?.aborted) return { ok: false };
+
+    await waitNavigationIdle(signal);
+    if (signal?.aborted || outcome.failed) return { ok: false };
+
+    // In-place action renders (4xx with errors) never start a redirect
+    // navigation. GET navigations have no action response to inspect.
+    if (formElement.method.toLowerCase() !== 'post') return { ok: true };
+    return { ok: outcome.redirected };
+  } finally {
+    watch.abort();
+  }
+}
+
+function isServerRedirectNavigation(event: NavigateEvent) {
+  const info = event.info;
+  return (
+    typeof info === 'object' &&
+    info != null &&
+    'type' in info &&
+    info.type === 'frame-redirect'
+  );
+}
+
+async function waitNavigationIdle(signal?: AbortSignal) {
+  // `navigation.transition` is assigned after the `navigate` event, once
+  // intercept() runs. Reading it in the event handler always sees `null`.
+  let transition =
+    window.navigation.transition ?? (await nextTransition(signal));
+
+  while (transition && !signal?.aborted) {
+    // Same-URL POSTs are often replaced; the cancelled transition rejects.
+    // Server redirects start a successor before this one settles.
+    await transition.finished.catch(() => {});
     transition = window.navigation.transition;
   }
+}
 
-  await transition?.finished;
+function nextTransition(signal?: AbortSignal) {
+  return new Promise<NavigationTransition | null>((resolve) => {
+    if (signal?.aborted) {
+      resolve(null);
+      return;
+    }
+
+    const done = new AbortController();
+    const finish = () => {
+      done.abort();
+      resolve(window.navigation.transition);
+    };
+
+    const timer = setTimeout(finish, 0);
+    done.signal.addEventListener('abort', () => clearTimeout(timer));
+    signal?.addEventListener('abort', finish, {
+      once: true,
+      signal: done.signal,
+    });
+  });
 }
 
 type WaitNavigationOptions = {
@@ -127,17 +204,6 @@ function waitNavigation({ signal, match }: WaitNavigationOptions) {
       { signal: done.signal },
     );
   });
-}
-
-type SourceElementNavigateEvent = NavigateEvent & {
-  sourceElement?: EventTarget | null;
-};
-function isSubmitFrom(event: NavigateEvent, formElement: HTMLFormElement) {
-  const source = (event as SourceElementNavigateEvent).sourceElement;
-  return (
-    source instanceof Element &&
-    (source === formElement || formElement.contains(source))
-  );
 }
 
 function focusFirstError(

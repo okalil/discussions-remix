@@ -4,7 +4,7 @@ import * as menu from 'remix/ui/menu/primitives';
 import type { CommentSummaryDto } from '../../core/comment.types.ts';
 import { Avatar } from '../shared/avatar.tsx';
 import { Button } from '../shared/button.tsx';
-import { Icon } from '../shared/icon.tsx';
+import { DotsIcon } from '../shared/icons/dots-icon.tsx';
 import { addEventListeners } from '../shared/utils/events.ts';
 import { DeleteComment } from './delete-comment.tsx';
 import { EditCommentForm } from './edit-comment-form.tsx';
@@ -82,7 +82,7 @@ export const CommentRow = clientEntry<CommentRowProps>(
                       menu.trigger({ placement: 'bottom-end', offset: 4 }),
                     ]}
                   >
-                    <Icon name="dots" size={20} />
+                    <DotsIcon size={20} />
                   </button>
                   <div mix={[styles.menuContent, menu.popover()]}>
                     <div

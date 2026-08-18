@@ -2,6 +2,7 @@ import { sql } from 'remix/data-table';
 
 import type { CommentSummaryDto } from './comment.types.ts';
 import type { Database } from './integrations/db.ts';
+import { count, query } from './integrations/db/query.ts';
 import { schema } from './integrations/db/schema.ts';
 
 export class CommentService {
@@ -12,67 +13,56 @@ export class CommentService {
     userId = 0,
     sort = 'oldest',
   ): Promise<CommentSummaryDto[]> {
+    const voterId = userId ?? 0;
     const orderBy =
       sort === 'newest'
         ? sql`c.created_at DESC`
         : sort === 'top'
-          ? sql`COUNT(comment_votes.user_id) DESC`
+          ? sql`(SELECT COUNT(*) FROM comment_votes cv WHERE cv.comment_id = c.id) DESC`
           : sql`c.created_at ASC`;
 
-    const result = await this.db.exec(sql`
-      SELECT
-        c.id,
-        c.content,
-        c.author_id AS authorId,
-        c.discussion_id AS discussionId,
-        c.created_at AS createdAt,
-        u.name AS authorName,
-        u.avatar AS authorAvatar,
-        COUNT(DISTINCT comment_votes.user_id) AS votesCount,
-        COUNT(CASE WHEN comment_votes.user_id = ${userId} THEN 1 END) > 0 AS voted,
-        c.author_id = ${userId} AS isCommentAuthor,
-        c.author_id = d.author_id AS isDiscussionAuthor
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      LEFT JOIN discussions d ON d.id = ${discussionId}
-      LEFT JOIN comment_votes ON comment_votes.comment_id = c.id
-      WHERE c.discussion_id = ${discussionId}
-      GROUP BY c.id
-      ORDER BY ${orderBy}
-    `);
+    const rows = await query<CommentRow>(
+      this.db,
+      sql`
+        SELECT
+          c.id,
+          c.content,
+          c.author_id AS "authorId",
+          c.discussion_id AS "discussionId",
+          c.created_at AS "createdAt",
+          u.name AS "authorName",
+          u.avatar AS "authorAvatar",
+          (SELECT COUNT(*) FROM comment_votes cv WHERE cv.comment_id = c.id) AS "votesCount",
+          EXISTS (
+            SELECT 1 FROM comment_votes cv
+            WHERE cv.comment_id = c.id AND cv.user_id = ${voterId}
+          ) AS voted,
+          c.author_id = ${voterId} AS "isCommentAuthor",
+          c.author_id = d.author_id AS "isDiscussionAuthor"
+        FROM comments c
+        INNER JOIN users u ON u.id = c.author_id
+        INNER JOIN discussions d ON d.id = c.discussion_id
+        WHERE c.discussion_id = ${discussionId}
+        ORDER BY ${orderBy}
+      `,
+    );
 
-    return (result.rows ?? []).map((row) => {
-      const comment = row as {
-        id: number;
-        content: string;
-        authorId: number;
-        discussionId: number;
-        createdAt: string;
-        authorName: string;
-        authorAvatar: string | null;
-        votesCount: number | string;
-        voted: boolean | number;
-        isCommentAuthor: boolean | number;
-        isDiscussionAuthor: boolean | number;
-      };
-
-      return {
-        id: comment.id,
-        content: comment.content,
-        authorId: comment.authorId,
-        discussionId: comment.discussionId,
-        createdAt: comment.createdAt,
-        author: {
-          id: comment.authorId,
-          name: comment.authorName,
-          avatar: comment.authorAvatar,
-        },
-        votesCount: Number(comment.votesCount ?? 0),
-        voted: Boolean(comment.voted),
-        isCommentAuthor: Boolean(comment.isCommentAuthor),
-        isDiscussionAuthor: Boolean(comment.isDiscussionAuthor),
-      };
-    });
+    return rows.map((row) => ({
+      id: row.id,
+      content: row.content,
+      authorId: row.authorId,
+      discussionId: row.discussionId,
+      createdAt: row.createdAt,
+      author: {
+        id: row.authorId,
+        name: row.authorName,
+        avatar: row.authorAvatar,
+      },
+      votesCount: count(row.votesCount),
+      voted: Boolean(row.voted),
+      isCommentAuthor: Boolean(row.isCommentAuthor),
+      isDiscussionAuthor: Boolean(row.isDiscussionAuthor),
+    }));
   }
 
   async createComment(discussionId: number, content: string, userId: number) {
@@ -91,37 +81,41 @@ export class CommentService {
     await this.db.updateMany(
       schema.comments,
       { content },
-      {
-        where: {
-          id,
-          author_id: userId,
-        },
-      },
+      { where: { id, author_id: userId } },
     );
   }
 
   async deleteComment(id: number, userId: number) {
     await this.db.deleteMany(schema.comments, {
-      where: {
-        id,
-        author_id: userId,
-      },
+      where: { id, author_id: userId },
     });
   }
 
   async voteComment(id: number, userId: number) {
-    await this.db.create(schema.commentVotes, {
-      user_id: userId,
-      comment_id: id,
-    });
+    await this.db.exec(sql`
+      INSERT INTO comment_votes (user_id, comment_id)
+      VALUES (${userId}, ${id})
+      ON CONFLICT (user_id, comment_id) DO NOTHING
+    `);
   }
 
   async unvoteComment(id: number, userId: number) {
     await this.db.deleteMany(schema.commentVotes, {
-      where: {
-        comment_id: id,
-        user_id: userId,
-      },
+      where: { comment_id: id, user_id: userId },
     });
   }
 }
+
+type CommentRow = {
+  id: number;
+  content: string;
+  authorId: number;
+  authorName: string;
+  authorAvatar: string | null;
+  discussionId: number;
+  createdAt: string;
+  votesCount: number | string;
+  voted: boolean | number;
+  isCommentAuthor: boolean | number;
+  isDiscussionAuthor: boolean | number;
+};

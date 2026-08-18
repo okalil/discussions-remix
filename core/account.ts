@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
+import { sql } from 'remix/data-table';
 
 import type {
   CreateCredentialsAccountDto,
@@ -9,6 +10,7 @@ import type {
   ResetPasswordDto,
 } from './account.types.ts';
 import type { Database } from './integrations/db.ts';
+import { queryOne } from './integrations/db/query.ts';
 import { schema } from './integrations/db/schema.ts';
 import type { Mailer } from './integrations/mailer.ts';
 import { ResetPasswordLink } from './integrations/mailer/templates/reset-password-link.tsx';
@@ -23,18 +25,19 @@ export class AccountService {
   /* CREDENTIAL ACCOUNT */
 
   async getUserByCredentials({ email, password }: CredentialsDto) {
-    const user = await this.db.findOne(schema.users, { where: { email } });
-    if (!user) return null;
-
-    const account = await this.db.findOne(schema.accounts, {
-      where: { type: 'credential', user_id: user.id },
-    });
-    if (!account?.password) return null;
-
-    const isValid = await this.verifyPassword(password, account.password);
-    if (!isValid) return null;
-
-    return user;
+    const row = await queryOne<UserIdAndPasswordRow>(
+      this.db,
+      sql`
+        SELECT u.id, a.password
+        FROM users u
+        INNER JOIN accounts a ON a.user_id = u.id AND a.type = 'credential'
+        WHERE u.email = ${email}
+        LIMIT 1
+      `,
+    );
+    if (!row?.password) return null;
+    if (!(await this.verifyPassword(password, row.password))) return null;
+    return { id: row.id };
   }
 
   async createCredentialAccount({
@@ -44,18 +47,19 @@ export class AccountService {
   }: CreateCredentialsAccountDto) {
     const hashedPassword = await this.hashPassword(password);
 
-    const user = await this.db.create(
-      schema.users,
-      { email, name },
-      { returnRow: true },
-    );
-    await this.db.create(schema.accounts, {
-      type: 'credential',
-      password: hashedPassword,
-      user_id: user.id,
+    return this.db.transaction(async (db) => {
+      const user = await db.create(
+        schema.users,
+        { email, name },
+        { returnRow: true },
+      );
+      await db.create(schema.accounts, {
+        type: 'credential',
+        password: hashedPassword,
+        user_id: user.id,
+      });
+      return user;
     });
-
-    return user;
   }
 
   async deliverResetPasswordLink({ email, path }: DeliverResetPasswordLinkDto) {
@@ -181,32 +185,33 @@ export class AccountService {
       throw new Error('Email already in use by an unverified account');
     }
 
-    // If user is not found, create a new one
-    if (!user) {
-      user = await this.db.create(
-        schema.users,
-        {
-          email,
-          name,
-          avatar,
-          email_verified: false,
-        },
-        { returnRow: true },
-      );
-    }
+    return this.db.transaction(async (db) => {
+      if (!user) {
+        user = await db.create(
+          schema.users,
+          {
+            email,
+            name,
+            avatar,
+            email_verified: false,
+          },
+          { returnRow: true },
+        );
+      }
 
-    // Create provider account
-    await this.db.create(
-      schema.accounts,
-      {
+      await db.create(schema.accounts, {
         type: 'oauth',
         provider,
         provider_account_id: providerAccountId,
         user_id: user.id,
-      },
-      { returnRow: true },
-    );
+      });
 
-    return user;
+      return user;
+    });
   }
 }
+
+type UserIdAndPasswordRow = {
+  id: number;
+  password: string | null;
+};

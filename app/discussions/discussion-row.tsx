@@ -3,7 +3,7 @@ import { css, type Handle } from 'remix/ui';
 import type { DiscussionSummaryDto } from '../../core/discussion.types.ts';
 import { routes } from '../routes.ts';
 import { Avatar } from '../shared/avatar.tsx';
-import { Icon } from '../shared/icon.tsx';
+import { ChatIcon } from '../shared/icons/chat-icon.tsx';
 import { DiscussionLink } from './discussion-link.tsx';
 import { VoteDiscussion } from './vote-discussion.tsx';
 
@@ -54,7 +54,7 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
           aria-label={`${discussion.commentsCount} comments`}
           mix={styles.comments}
         >
-          <Icon name="chat" size={16} />
+          <ChatIcon size={16} />
           {discussion.commentsCount}
         </a>
       </li>

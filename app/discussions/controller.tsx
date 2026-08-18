@@ -1,5 +1,4 @@
-import { toErrors } from '@discussions/form';
-import { parseSafe } from 'remix/data-schema';
+import { parse } from 'remix/data-schema';
 import { createController } from 'remix/router';
 
 import { routes } from '../routes.ts';
@@ -25,6 +24,7 @@ export default createController(routes.discussions, {
       };
 
       const currentUserId = auth.ok ? auth.identity.id : undefined;
+
       const categories = await categoryService.getCategories();
       const paginator = await discussionService.getDiscussions({
         ...filters,
@@ -50,13 +50,16 @@ export default createController(routes.discussions, {
       const currentUserId = auth.ok ? auth.identity.id : undefined;
       const sort = url.searchParams.get('sort') || 'oldest';
 
-      const [discussion, participants] = await Promise.all([
-        discussionService.getDiscussion(discussionId, currentUserId),
-        discussionService.getParticipants(discussionId),
-      ]);
+      const discussion = await discussionService.getDiscussion(
+        discussionId,
+        currentUserId,
+      );
       if (!discussion) {
         return new Response('Not found', { status: 404 });
       }
+
+      const participants =
+        await discussionService.getParticipants(discussionId);
 
       return render(
         <DiscussionPage
@@ -67,28 +70,6 @@ export default createController(routes.discussions, {
         />,
       );
     },
-    async vote({ params, formData, auth, discussionService }) {
-      if (!auth.ok) return Response.json(auth.error, { status: 401 });
-
-      const validation = parseSafe(voteDiscussionSchema, formData);
-      if (!validation.success) {
-        return Response.json(
-          { errors: toErrors(validation.issues) },
-          { status: 422 },
-        );
-      }
-
-      const discussionId = Number(params.id);
-      const currentUserId = auth.identity.id;
-      const voted = validation.value.voted;
-      if (voted) {
-        await discussionService.voteDiscussion(discussionId, currentUserId);
-      } else {
-        await discussionService.unvoteDiscussion(discussionId, currentUserId);
-      }
-
-      return Response.json({ ok: true });
-    },
     async preview({ render, params, discussionService }) {
       const discussionId = Number(params.id);
       const discussion =
@@ -96,6 +77,21 @@ export default createController(routes.discussions, {
       if (!discussion) return new Response('Not found', { status: 404 });
 
       return render(<DiscussionPreview discussion={discussion} />);
+    },
+    async vote({ params, formData, auth, discussionService }) {
+      if (!auth.ok) return Response.json(auth.error, { status: 401 });
+
+      const data = parse(voteDiscussionSchema, formData);
+
+      const discussionId = Number(params.id);
+      const currentUserId = auth.identity.id;
+      if (data.voted) {
+        await discussionService.voteDiscussion(discussionId, currentUserId);
+      } else {
+        await discussionService.unvoteDiscussion(discussionId, currentUserId);
+      }
+
+      return new Response(null, { status: 204 });
     },
   },
 });

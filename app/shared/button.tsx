@@ -1,7 +1,7 @@
 import { css, type Handle, type RemixNode } from 'remix/ui';
 import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
 
-import { Icon } from './icon.tsx';
+import { SpinnerIcon } from './icons/spinner-icon.tsx';
 
 type ButtonProps = ElementProps<'button'> & {
   variant: ButtonMixinProps['variant'];
@@ -17,11 +17,7 @@ export function Button(handle: Handle<ButtonProps>) {
 
     return (
       <button mix={[button({ variant }), mix]} disabled={isDisabled} {...props}>
-        {pending ? (
-          <Icon name="spinner" size={16} mix={styles.spinner} />
-        ) : (
-          children
-        )}
+        {pending ? <SpinnerIcon size={16} mix={styles.spinner} /> : children}
       </button>
     );
   };

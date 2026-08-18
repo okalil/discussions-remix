@@ -1,6 +1,7 @@
 import { sql } from 'remix/data-table';
 
 import type { Database } from './integrations/db.ts';
+import { queryOne } from './integrations/db/query.ts';
 import { schema } from './integrations/db/schema.ts';
 
 const expirationTime = 1000 * 60 * 60 * 24 * 30; // 30 days
@@ -22,35 +23,24 @@ export class SessionService {
 
   async getSession(sessionId: string) {
     const now = new Date().toISOString();
-    const result = await this.db.exec(sql`
-      SELECT
-        s.id AS sessionId,
-        s.user_id AS sessionUserId,
-        s.expires AS sessionExpires,
-        u.id AS userId,
-        u.email AS userEmail,
-        u.name AS userName,
-        u.avatar AS userAvatar,
-        u.email_verified AS userEmailVerified
-      FROM sessions s
-      INNER JOIN users u ON u.id = s.user_id
-      WHERE s.id = ${sessionId} AND s.expires > ${now}
-      LIMIT 1
-    `);
-
-    const row = result.rows?.at(0) as
-      | {
-          sessionId: string;
-          sessionUserId: number;
-          sessionExpires: string;
-          userId: number;
-          userEmail: string;
-          userName: string;
-          userAvatar: string | null;
-          userEmailVerified: boolean | number;
-        }
-      | undefined;
-
+    const row = await queryOne<SessionRow>(
+      this.db,
+      sql`
+        SELECT
+          s.id AS "sessionId",
+          s.user_id AS "sessionUserId",
+          s.expires AS "sessionExpires",
+          u.id AS "userId",
+          u.email AS "userEmail",
+          u.name AS "userName",
+          u.avatar AS "userAvatar",
+          u.email_verified AS "userEmailVerified"
+        FROM sessions s
+        INNER JOIN users u ON u.id = s.user_id
+        WHERE s.id = ${sessionId} AND s.expires > ${now}
+        LIMIT 1
+      `,
+    );
     if (!row) return undefined;
 
     return {
@@ -71,3 +61,14 @@ export class SessionService {
     await this.db.delete(schema.sessions, sessionId);
   }
 }
+
+type SessionRow = {
+  sessionId: string;
+  sessionUserId: number;
+  sessionExpires: string;
+  userId: number;
+  userEmail: string;
+  userName: string;
+  userAvatar: string | null;
+  userEmailVerified: boolean | number;
+};

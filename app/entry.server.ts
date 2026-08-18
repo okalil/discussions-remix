@@ -1,5 +1,6 @@
 import { asyncContext } from 'remix/middleware/async-context';
 import { formData } from 'remix/middleware/form-data';
+import { logger } from 'remix/middleware/logger';
 import { staticFiles } from 'remix/middleware/static';
 import { createRouter, type RouterContext } from 'remix/router';
 
@@ -23,6 +24,7 @@ import uploadsController from './uploads/controller.tsx';
 const router = createRouter({
   middleware: [
     staticFiles('./public', { index: false }),
+    logger({ format: '%method %path %status (%duration ms)' }),
     services(),
     formData(),
     session(),

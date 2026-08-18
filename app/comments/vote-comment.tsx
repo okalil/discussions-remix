@@ -4,7 +4,7 @@ import * as f from 'remix/data-schema/form-data';
 import { clientEntry, css, on } from 'remix/ui';
 
 import { routes } from '../routes.ts';
-import { Icon } from '../shared/icon.tsx';
+import { ArrowUpIcon } from '../shared/icons/arrow-up-icon.tsx';
 import { addEventListeners } from '../shared/utils/events.ts';
 
 type VoteCommentProps = {
@@ -55,7 +55,7 @@ export const VoteComment = clientEntry<VoteCommentProps>(
             }),
           ]}
         >
-          <Icon name="arrow-up" size={16} />
+          <ArrowUpIcon size={16} />
           {votesCount}
         </button>
       );

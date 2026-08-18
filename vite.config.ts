@@ -1,10 +1,16 @@
 import { cloudflare } from '@cloudflare/vite-plugin';
 import { remix } from '@pitlane/dev';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { defineConfig } from 'vite-plus';
 
-// Load .env into the dev-server process so request middleware (like the
-// database) can read it. Production reads real environment variables.
+const root = path.dirname(fileURLToPath(import.meta.url));
+const remixCLI = (command: string) =>
+  `node --env-file-if-exists=.env ${path.join(root, 'node_modules/remix/dist/cli-entry.js')} ${command}`;
+
+// Load .env into the Vite process (`vp dev`). `vp run` tasks are separate
+// processes and must load `.env` themselves (see remixCLI).
 try {
   process.loadEnvFile('.env');
 } catch {
@@ -21,6 +27,13 @@ export default defineConfig({
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     devtoolsJson(),
   ],
+  resolve: {
+    alias: {
+      // Workerd cannot open a TCP `pg` socket. Alias the driver Remix's
+      // postgres adapter imports so the Worker uses Neon's serverless Pool.
+      pg: path.join(root, 'core/integrations/db/pg-shim.ts'),
+    },
+  },
   server: {
     port: 44100,
   },
@@ -34,14 +47,10 @@ export default defineConfig({
         command: 'vp dev --host',
       },
       'db:migrate': {
-        command: 'wrangler d1 migrations apply DB --local',
+        command: remixCLI('db migrate'),
       },
-      'db:migrate:remote': {
-        command: 'wrangler d1 migrations apply DB --remote',
-      },
-      'db:reset': {
-        command: 'rm -rf .wrangler/state/v3/d1',
-        cache: false,
+      'db:status': {
+        command: remixCLI('db status'),
       },
       typecheck: {
         command: 'tsc',

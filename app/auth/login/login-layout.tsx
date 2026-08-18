@@ -3,7 +3,7 @@ import { css, type Handle, type RemixNode } from 'remix/ui';
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { Document } from '../../shared/document.tsx';
-import { Icon } from '../../shared/icon.tsx';
+import { GithubIcon } from '../../shared/icons/github-icon.tsx';
 import { AuthLayout } from '../auth-layout.tsx';
 
 type LoginLayoutProps = {
@@ -21,7 +21,7 @@ export function LoginLayout(handle: Handle<LoginLayoutProps>) {
             rmx-document=""
           >
             <Button type="submit" variant="primary" mix={styles.githubButton}>
-              <Icon name="github" size={20} />
+              <GithubIcon size={20} />
               Continue with Github
             </Button>
           </form>

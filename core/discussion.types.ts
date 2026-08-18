@@ -16,6 +16,12 @@ export interface CreateDiscussionDto {
   authorId: number;
 }
 
+export type DiscussionPageDto = {
+  discussions: DiscussionSummaryDto[];
+  total: number;
+  limit: number;
+};
+
 export type DiscussionSummaryDto = {
   id: number;
   title: string;

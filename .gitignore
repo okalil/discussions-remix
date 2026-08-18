@@ -6,5 +6,6 @@ data.db
 data.db-*
 .DS_Store
 .wrangler
+.dev.vars
 worker-configuration.d.ts
 dist

@@ -5,7 +5,7 @@ import type { DiscussionSummaryDto } from '../../core/discussion.types.ts';
 import { routes } from '../routes.ts';
 import { button } from '../shared/button.tsx';
 import { input } from '../shared/forms/input.tsx';
-import { Icon } from '../shared/icon.tsx';
+import { DiscussionIcon } from '../shared/icons/discussion-icon.tsx';
 import { Layout } from '../shared/layout.tsx';
 import { Pagination } from '../shared/pagination.tsx';
 import { DiscussionRow } from './discussion-row.tsx';
@@ -76,7 +76,7 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
                     !filters.category && styles.navLinkActive,
                   ]}
                 >
-                  <Icon name="discussion" size={16} />
+                  <DiscussionIcon size={16} />
                   <span mix={styles.navLabel}>View all discussions</span>
                 </a>
                 {categories.map((it) => (

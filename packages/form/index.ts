@@ -1,8 +1,8 @@
 export type {
   FormDraft,
   FormErrors,
-  FormValues,
   FormFieldName,
+  FormSubmitResult,
 } from './src/types.ts';
 export {
   Form,

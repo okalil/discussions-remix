@@ -1,5 +1,4 @@
-import { toErrors } from '@discussions/form';
-import { parseSafe } from 'remix/data-schema';
+import { parse } from 'remix/data-schema';
 import { createController } from 'remix/router';
 
 import { routes } from '../routes.ts';
@@ -26,44 +25,32 @@ export default createController(routes.comments, {
     async new({ params, formData, auth, commentService }) {
       if (!auth.ok) return Response.json(auth.error, { status: 401 });
 
-      const validation = parseSafe(newCommentSchema, formData);
-      if (!validation.success) {
-        return Response.json(
-          { errors: toErrors(validation.issues) },
-          { status: 422 },
-        );
-      }
+      const data = parse(newCommentSchema, formData);
 
       const discussionId = Number(params.discussionId);
       const currentUserId = auth.identity.id;
-      const comment = await commentService.createComment(
+      await commentService.createComment(
         discussionId,
-        validation.value.content,
+        data.content,
         currentUserId,
       );
 
-      return Response.json({ comment });
+      return Response.json(null, { status: 201 });
     },
     async edit({ params, formData, auth, commentService }) {
       if (!auth.ok) return Response.json(auth.error, { status: 401 });
 
-      const validation = parseSafe(editCommentSchema, formData);
-      if (!validation.success) {
-        return Response.json(
-          { errors: toErrors(validation.issues) },
-          { status: 422 },
-        );
-      }
+      const data = parse(editCommentSchema, formData);
 
       const commentId = Number(params.id);
       const currentUserId = auth.identity.id;
       await commentService.updateComment(
         commentId,
-        validation.value.content,
+        data.content,
         currentUserId,
       );
 
-      return Response.json({ ok: true });
+      return new Response(null, { status: 204 });
     },
     async destroy({ params, auth, commentService }) {
       if (!auth.ok) return Response.json(auth.error, { status: 401 });
@@ -71,28 +58,23 @@ export default createController(routes.comments, {
       const commentId = Number(params.id);
       const currentUserId = auth.identity.id;
       await commentService.deleteComment(commentId, currentUserId);
-      return Response.json({ ok: true });
+
+      return new Response(null, { status: 204 });
     },
     async vote({ params, formData, auth, commentService }) {
       if (!auth.ok) return Response.json(auth.error, { status: 401 });
 
-      const validation = parseSafe(voteCommentSchema, formData);
-      if (!validation.success) {
-        return Response.json(
-          { errors: toErrors(validation.issues) },
-          { status: 422 },
-        );
-      }
+      const data = parse(voteCommentSchema, formData);
 
       const commentId = Number(params.id);
       const currentUserId = auth.identity.id;
-      if (validation.value.voted) {
+      if (data.voted) {
         await commentService.voteComment(commentId, currentUserId);
       } else {
         await commentService.unvoteComment(commentId, currentUserId);
       }
 
-      return Response.json({ ok: true });
+      return new Response(null, { status: 204 });
     },
   },
 });

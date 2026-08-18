@@ -9,7 +9,8 @@ export type FieldEventMap = {
 
 export type FieldHandle = {
   readonly name: string;
-  readonly value: string | File | null;
+  readonly value: FormDataEntryValue | null;
+  readonly values: FormDataEntryValue[];
   readonly error: string | undefined;
   commit(source: FormData): void;
 };
@@ -31,6 +32,12 @@ export class Field<
     return this.#form.formData.get(this.name) as FormDataEntryOf<
       Output[Name]
     > | null;
+  }
+
+  get values(): FormDataEntryOf<Output[Name]>[] {
+    return this.#form.formData.getAll(this.name) as FormDataEntryOf<
+      Output[Name]
+    >[];
   }
 
   get error(): string | undefined {
