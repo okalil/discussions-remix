@@ -12,30 +12,19 @@ export default createController(routes.ws, {
       }
 
       const [client, server] = Object.values(new WebSocketPair());
+      const inflight = new Map<string, AbortController>();
 
       server.accept();
-      server.addEventListener('message', async (event) => {
+      server.addEventListener('message', (event) => {
         const message = JSON.parse(String(event.data)) as ClientMessage;
 
+        if (message.type === 'abort') {
+          inflight.get(message.id)?.abort();
+          return;
+        }
+
         if (message.type === 'resolve') {
-          const { id, src, target } = message;
-          try {
-            const response = await resolveFrame(router, request, src, target);
-            send({
-              type: 'frame',
-              id,
-              status: response.status,
-              url: response.url,
-              body: await response.text(),
-            });
-          } catch (error) {
-            send({
-              type: 'error',
-              id,
-              message:
-                error instanceof Error ? error.message : 'Frame resolve failed',
-            });
-          }
+          void handleResolve(message);
         }
       });
 
@@ -44,7 +33,92 @@ export default createController(routes.ws, {
         webSocket: client,
       });
 
+      async function handleResolve(message: Extract<ClientMessage, { type: 'resolve' }>) {
+        const { id, src, target } = message;
+        const abort = new AbortController();
+        inflight.set(id, abort);
+
+        if (request.signal.aborted) {
+          abort.abort(request.signal.reason);
+        } else {
+          request.signal.addEventListener('abort', () => abort.abort(), {
+            once: true,
+          });
+        }
+
+        try {
+          const response = await resolveFrame(
+            router,
+            request,
+            src,
+            target,
+            abort.signal,
+          );
+          if (abort.signal.aborted) return;
+
+          send({
+            type: 'frame-start',
+            id,
+            status: response.status,
+            url: response.url,
+          });
+
+          await pipeBody(response.body, id, abort.signal);
+        } catch (error) {
+          if (abort.signal.aborted) return;
+          send({
+            type: 'error',
+            id,
+            message:
+              error instanceof Error ? error.message : 'Frame resolve failed',
+          });
+        } finally {
+          inflight.delete(id);
+        }
+      }
+
+      async function pipeBody(
+        body: ReadableStream<Uint8Array> | null,
+        id: string,
+        signal: AbortSignal,
+      ) {
+        if (!body) {
+          if (!signal.aborted) send({ type: 'frame-end', id });
+          return;
+        }
+
+        const reader = body.getReader();
+        const decoder = new TextDecoder();
+
+        try {
+          while (!signal.aborted) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (signal.aborted) break;
+
+            const text = decoder.decode(value, { stream: true });
+            if (text) send({ type: 'frame-chunk', id, body: text });
+          }
+
+          if (signal.aborted) return;
+
+          const rest = decoder.decode();
+          if (rest) send({ type: 'frame-chunk', id, body: rest });
+          send({ type: 'frame-end', id });
+        } catch (error) {
+          if (signal.aborted) return;
+          throw error;
+        } finally {
+          try {
+            reader.releaseLock();
+          } catch {
+            // Reader already released if the stream cancelled.
+          }
+        }
+      }
+
       function send(message: ServerMessage) {
+        if (server.readyState !== WebSocket.OPEN) return;
         server.send(JSON.stringify(message));
       }
     },
@@ -55,7 +129,8 @@ async function resolveFrame(
   router: Pick<Router, 'fetch'>,
   request: Request,
   src: string,
-  target?: string,
+  target: string | undefined,
+  signal: AbortSignal,
 ) {
   const url = new URL(src, request.url);
 
@@ -66,12 +141,11 @@ async function resolveFrame(
   if (cookie) headers.set('Cookie', cookie);
   if (target) headers.set('x-remix-target', target);
 
-  const response = await router.fetch(
+  return router.fetch(
     new Request(url, {
       method: 'GET',
       headers,
-      signal: request.signal,
+      signal,
     }),
   );
-  return response;
 }

@@ -7,19 +7,20 @@ import {
 
 type FrameBody = ReadableStream<Uint8Array>;
 
-const FLUSH_MARKER_RE = /<!--\s*rmx:flush\s+(document|fragment)\s*-->/;
+type PendingFrame = {
+  resolve: (body: FrameBody | null) => void;
+  reject: (error: Error) => void;
+  finish: () => void;
+  controller: ReadableStreamDefaultController<Uint8Array> | null;
+};
+
+const encoder = new TextEncoder();
 
 export class FrameSocket {
   #ws: WebSocket | null = null;
   #sv = '';
   #ready: Promise<WebSocket | null> | null = null;
-  #pending = new Map<
-    string,
-    {
-      resolve: (body: FrameBody | null) => void;
-      reject: (error: Error) => void;
-    }
-  >();
+  #pending = new Map<string, PendingFrame>();
   #nextId = 0;
 
   constructor() {
@@ -51,21 +52,35 @@ export class FrameSocket {
 
     return new Promise<FrameBody | null>((resolve, reject) => {
       const onAbort = () => {
+        const entry = this.#pending.get(id);
         this.#pending.delete(id);
-        ws.send(JSON.stringify({ type: 'abort', id } satisfies ClientMessage));
-        reject(signal?.reason ?? new DOMException('Aborted', 'AbortError'));
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'abort', id } satisfies ClientMessage));
+        }
+        const error =
+          signal?.reason ?? new DOMException('Aborted', 'AbortError');
+        if (entry?.controller) {
+          try {
+            entry.controller.error(error);
+          } catch {
+            // Stream already closed.
+          }
+        } else {
+          reject(error);
+        }
       };
 
       signal?.addEventListener('abort', onAbort, { once: true });
 
       this.#pending.set(id, {
-        resolve: (body) => {
-          signal?.removeEventListener('abort', onAbort);
-          resolve(body);
-        },
+        controller: null,
+        resolve,
         reject: (error) => {
           signal?.removeEventListener('abort', onAbort);
           reject(error);
+        },
+        finish: () => {
+          signal?.removeEventListener('abort', onAbort);
         },
       });
 
@@ -120,7 +135,7 @@ export class FrameSocket {
 
       ws.addEventListener('close', () => {
         if (this.#ws === ws) this.#ws = null;
-        this.#flushPending(null);
+        this.#flushPending();
         settle(null);
       });
 
@@ -140,13 +155,25 @@ export class FrameSocket {
     this.#ready = null;
     this.#sv = '';
     if (ws && ws.readyState < WebSocket.CLOSING) ws.close();
-    this.#flushPending(null);
+    this.#flushPending();
   }
 
-  #flushPending(body: FrameBody | null) {
+  #flushPending() {
     const pending = [...this.#pending.values()];
     this.#pending.clear();
-    for (const entry of pending) entry.resolve(body);
+    const error = new Error('WebSocket closed');
+    for (const entry of pending) {
+      if (entry.controller) {
+        try {
+          entry.controller.error(error);
+        } catch {
+          // Stream already closed.
+        }
+      } else {
+        entry.resolve(null);
+      }
+      entry.finish();
+    }
   }
 
   #onMessage(raw: string) {
@@ -159,17 +186,61 @@ export class FrameSocket {
 
     const entry = this.#pending.get(message.id);
     if (!entry) return;
-    this.#pending.delete(message.id);
 
-    if (message.type === 'frame') {
-      // Remix document navigations need a stream + flush marker, not a bare
-      // HTML string (that path skips head stylesheet handling).
-      entry.resolve(toHtmlStream(withDocumentFlush(message.body)));
+    if (message.type === 'frame-start') {
+      if (entry.controller) return;
+      const stream = new ReadableStream<Uint8Array>({
+        start: (controller) => {
+          entry.controller = controller;
+        },
+      });
+      entry.resolve(stream);
       return;
     }
 
-    entry.reject(new Error(message.message));
+    if (message.type === 'frame-chunk') {
+      if (!entry.controller || !message.body) return;
+      entry.controller.enqueue(encoder.encode(message.body));
+      return;
+    }
+
+    this.#pending.delete(message.id);
+
+    if (message.type === 'frame-end') {
+      if (entry.controller) {
+        try {
+          entry.controller.close();
+        } catch {
+          // Stream already closed.
+        }
+      } else {
+        entry.resolve(emptyHtmlStream());
+      }
+      entry.finish();
+      return;
+    }
+
+    const error = new Error(message.message);
+    if (entry.controller) {
+      try {
+        entry.controller.error(error);
+      } catch {
+        // Stream already closed.
+      }
+      entry.finish();
+      return;
+    }
+
+    entry.reject(error);
   }
+}
+
+function emptyHtmlStream(): FrameBody {
+  return new ReadableStream({
+    start(controller) {
+      controller.close();
+    },
+  });
 }
 
 function readSessionVersion() {
@@ -181,22 +252,4 @@ function readSessionVersion() {
     }
   }
   return '';
-}
-
-function withDocumentFlush(html: string) {
-  if (FLUSH_MARKER_RE.test(html)) return html;
-  if (/<html[\s>]/i.test(html)) {
-    return `${html}<!-- rmx:flush document -->`;
-  }
-  return html;
-}
-
-function toHtmlStream(html: string): ReadableStream<Uint8Array> {
-  const bytes = new TextEncoder().encode(html);
-  return new ReadableStream({
-    start(controller) {
-      controller.enqueue(bytes);
-      controller.close();
-    },
-  });
 }

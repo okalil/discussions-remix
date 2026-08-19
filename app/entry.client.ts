@@ -13,18 +13,19 @@ run({
     for (const transport of transports) {
       const start = performance.now();
       const response = await transport.resolve(src, options);
-      const end = performance.now();
+      const ttfb = performance.now() - start;
 
       if (!response) continue;
 
-      const method = options?.method ?? 'GET';
-      const path = src.replace(window.location.origin, '');
-      const duration = end - start;
-      console.log(
-        `${method} ${path} [transport: ${transport.name}] (${duration.toFixed()} ms)`,
-      );
-
-      return response;
+      return withBodyTiming(response, () => {
+        const total = performance.now() - start;
+        const method = options?.method ?? 'GET';
+        const path = src.replace(window.location.origin, '');
+        const prefix = `${method} ${path} [transport: ${transport.name}]`;
+        console.log(
+          `${prefix} (ttfb ${ttfb.toFixed()} ms, body ${total.toFixed()} ms)`,
+        );
+      });
     }
     throw new Error('Failed to resolve frame');
   },
@@ -67,3 +68,57 @@ const transports = [
     },
   },
 ];
+
+function withBodyTiming<T>(response: T, onComplete: () => void): T {
+  if (response instanceof ReadableStream) {
+    return tapStreamComplete(response, onComplete) as T;
+  }
+
+  if (response instanceof Response) {
+    if (!response.body) {
+      onComplete();
+      return response;
+    }
+    return new Response(
+      tapStreamComplete(response.body, onComplete),
+      response,
+    ) as T;
+  }
+
+  onComplete();
+  return response;
+}
+
+function tapStreamComplete(
+  stream: ReadableStream<Uint8Array>,
+  onComplete: () => void,
+) {
+  let settled = false;
+  const complete = () => {
+    if (settled) return;
+    settled = true;
+    onComplete();
+  };
+
+  const reader = stream.getReader();
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          complete();
+          controller.close();
+          return;
+        }
+        controller.enqueue(value);
+      } catch (error) {
+        complete();
+        controller.error(error);
+      }
+    },
+    cancel(reason) {
+      complete();
+      return reader.cancel(reason);
+    },
+  });
+}

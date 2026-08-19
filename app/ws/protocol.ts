@@ -13,5 +13,7 @@ export type ClientMessage =
   | { type: 'abort'; id: string };
 
 export type ServerMessage =
-  | { type: 'frame'; id: string; status: number; url: string; body: string }
+  | { type: 'frame-start'; id: string; status: number; url: string }
+  | { type: 'frame-chunk'; id: string; body: string }
+  | { type: 'frame-end'; id: string }
   | { type: 'error'; id: string; message: string };
