@@ -13,10 +13,6 @@ import { routes } from './routes.ts';
 
 const router = createRouter({
   routes,
-  routesDirectory: './routes',
-  routesModules: import.meta.glob('./routes/**/controller.{ts,tsx}', {
-    eager: true,
-  }),
   middleware: [
     staticFiles('./public', { index: false }),
     logger({ format: '%method %path %status (%duration ms)' }),

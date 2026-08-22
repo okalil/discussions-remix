@@ -10,6 +10,8 @@ import { Route, type RouteMap } from 'remix/routes';
 
 type RouterMiddleware = NonNullable<RouterOptions['middleware']>;
 
+const actionsDirectory = 'actions';
+
 export type RouteModule = {
   default?: {
     route: RouteMap;
@@ -29,13 +31,15 @@ export function createRouter<
 >(
   options: RouterOptions<context, middleware> & {
     routes: RouteMap;
-    routesDirectory: string;
-    routesModules: Record<string, RouteModule>;
   },
 ): Router<MiddlewareContext<middleware, context>> {
-  const { routes, routesDirectory, routesModules, ...routerOptions } = options;
+  const { routes, ...routerOptions } = options;
   const router = remixCreateRouter(
     routerOptions as RouterOptions<context, middleware>,
+  );
+  const routesModules = import.meta.glob<RouteModule>(
+    '/app/actions/**/controller.{ts,tsx}',
+    { eager: true },
   );
 
   const mapped = new Set<RouteMap>();
@@ -46,7 +50,7 @@ export function createRouter<
       throw new Error(`${file} must default-export a controller`);
     }
 
-    const keys = toKeys(file, routesDirectory);
+    const keys = toKeys(file);
     const node = lookup(file, routes, keys);
 
     if (controller.route !== node) {
@@ -62,25 +66,20 @@ export function createRouter<
     mapped.add(node);
   }
 
-  requireControllers(routes, mapped, routesDirectory);
+  requireControllers(routes, mapped);
   return router;
 }
 
-function toKeys(file: string, routesDirectory: string) {
-  const base = routesDirectory.replace(/^\.\//, '').replace(/\/$/, '');
-  let path = file.replace(/^\.\//, '');
-
-  if (base !== '' && base !== '.') {
-    const prefix = `${base}/`;
-    if (!path.startsWith(prefix)) {
-      throw new Error(
-        `${file} is outside routesDirectory '${routesDirectory}'`,
-      );
-    }
-    path = path.slice(prefix.length);
+function toKeys(file: string) {
+  const normalized = file.replaceAll('\\', '/');
+  const prefix = `/${actionsDirectory}/`;
+  const index = `/${normalized}`.lastIndexOf(prefix);
+  if (index === -1) {
+    throw new Error(`${file} is not under '${actionsDirectory}/'`);
   }
 
-  return path
+  return `/${normalized}`
+    .slice(index + prefix.length)
     .split('/')
     .slice(0, -1)
     .filter(Boolean)
@@ -117,7 +116,6 @@ function camelToKebab(segment: string) {
 function requireControllers(
   map: RouteMap,
   mapped: Set<RouteMap>,
-  routesDirectory: string,
   keys: string[] = [],
 ) {
   const leaves: string[] = [];
@@ -125,20 +123,18 @@ function requireControllers(
   for (const key of Object.keys(map)) {
     const child = map[key];
     if (child instanceof Route) leaves.push(key);
-    else requireControllers(child, mapped, routesDirectory, [...keys, key]);
+    else requireControllers(child, mapped, [...keys, key]);
   }
 
   if (leaves.length > 0 && !mapped.has(map)) {
     const name = keys.length === 0 ? 'routes' : `routes.${keys.join('.')}`;
     throw new Error(
-      `Missing controller for ${name} (${leaves.join(', ')}). Expected ${controllerFile(keys, routesDirectory)}`,
+      `Missing controller for ${name} (${leaves.join(', ')}). Expected ${controllerFile(keys)}`,
     );
   }
 }
 
-function controllerFile(keys: string[], routesDirectory: string) {
-  const base = routesDirectory.replace(/^\.\//, '').replace(/\/$/, '');
-  const root = base === '' || base === '.' ? '.' : `./${base}`;
-  if (keys.length === 0) return `${root}/controller.tsx`;
-  return `${root}/${keys.map(camelToKebab).join('/')}/controller.tsx`;
+function controllerFile(keys: string[]) {
+  if (keys.length === 0) return `./${actionsDirectory}/controller.tsx`;
+  return `./${actionsDirectory}/${keys.map(camelToKebab).join('/')}/controller.tsx`;
 }
