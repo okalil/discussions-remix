@@ -1,5 +1,5 @@
+import { createController } from '@discussions/router';
 import { redirect } from 'remix/response/redirect';
-import { createController } from 'remix/router';
 
 import { routes } from '../routes.ts';
 

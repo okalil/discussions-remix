@@ -1,3 +1,4 @@
+import { createController } from '@discussions/router';
 import { env } from 'cloudflare:workers';
 import {
   completeAuth,
@@ -6,7 +7,6 @@ import {
   startExternalAuth,
 } from 'remix/auth';
 import { redirect } from 'remix/response/redirect';
-import { createController } from 'remix/router';
 
 import { routes } from '../../routes.ts';
 

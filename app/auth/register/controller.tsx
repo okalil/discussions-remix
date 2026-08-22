@@ -1,8 +1,8 @@
 import { toDraft, toErrors } from '@discussions/form';
+import { createController } from '@discussions/router';
 import { completeAuth } from 'remix/auth';
 import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
-import { createController } from 'remix/router';
 
 import { routes } from '../../routes.ts';
 import { RegisterForm, registerSchema } from './register-form.tsx';

@@ -1,5 +1,5 @@
+import { createController } from '@discussions/router';
 import { parse } from 'remix/data-schema';
-import { createController } from 'remix/router';
 
 import { routes } from '../routes.ts';
 import { DiscussionPage } from './discussion-page.tsx';

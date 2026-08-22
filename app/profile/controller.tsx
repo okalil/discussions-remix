@@ -1,7 +1,7 @@
 import { toDraft, toErrors } from '@discussions/form';
+import { createController } from '@discussions/router';
 import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
-import { createController } from 'remix/router';
 
 import { requireAuth } from '../middleware/auth.ts';
 import { routes } from '../routes.ts';
