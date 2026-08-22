@@ -1,0 +1,97 @@
+import { createController } from '@discussions/router';
+import { parse } from 'remix/data-schema';
+
+import { routes } from '../../routes.ts';
+import { DiscussionPage } from './discussion-page.tsx';
+import { DiscussionPreview } from './discussion-preview.tsx';
+import { DiscussionsPage } from './discussions-page.tsx';
+import { voteDiscussionSchema } from './vote-discussion.tsx';
+
+export default createController(routes.discussions, {
+  actions: {
+    async index({
+      render,
+      url,
+      params,
+      auth,
+      categoryService,
+      discussionService,
+    }) {
+      const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
+      const filters = {
+        q: url.searchParams.get('q') ?? undefined,
+        category: params.category,
+      };
+
+      const currentUserId = auth.ok ? auth.identity.id : undefined;
+
+      const categories = await categoryService.getCategories();
+      const paginator = await discussionService.getDiscussions({
+        ...filters,
+        page,
+        limit: 20,
+        currentUserId,
+      });
+
+      return render(
+        <DiscussionsPage
+          categories={categories}
+          discussions={paginator.discussions}
+          total={paginator.total}
+          limit={paginator.limit}
+          page={page}
+          filters={filters}
+          authenticated={auth.ok}
+        />,
+      );
+    },
+    async show({ render, url, params, auth, discussionService }) {
+      const discussionId = Number(params.id);
+      const currentUserId = auth.ok ? auth.identity.id : undefined;
+      const sort = url.searchParams.get('sort') || 'oldest';
+
+      const discussion = await discussionService.getDiscussion(
+        discussionId,
+        currentUserId,
+      );
+      if (!discussion) {
+        return new Response('Not found', { status: 404 });
+      }
+
+      const participants =
+        await discussionService.getParticipants(discussionId);
+
+      return render(
+        <DiscussionPage
+          discussion={discussion}
+          participants={participants}
+          sort={sort}
+          authenticated={auth.ok}
+        />,
+      );
+    },
+    async preview({ render, params, discussionService }) {
+      const discussionId = Number(params.id);
+      const discussion =
+        await discussionService.getDiscussionPreview(discussionId);
+      if (!discussion) return new Response('Not found', { status: 404 });
+
+      return render(<DiscussionPreview discussion={discussion} />);
+    },
+    async vote({ params, formData, auth, discussionService }) {
+      if (!auth.ok) return Response.json(auth.error, { status: 401 });
+
+      const data = parse(voteDiscussionSchema, formData);
+
+      const discussionId = Number(params.id);
+      const currentUserId = auth.identity.id;
+      if (data.voted) {
+        await discussionService.voteDiscussion(discussionId, currentUserId);
+      } else {
+        await discussionService.unvoteDiscussion(discussionId, currentUserId);
+      }
+
+      return new Response(null, { status: 204 });
+    },
+  },
+});

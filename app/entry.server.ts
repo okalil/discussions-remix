@@ -13,8 +13,8 @@ import { routes } from './routes.ts';
 
 const router = createRouter({
   routes,
-  routesDirectory: '.',
-  routesModules: import.meta.glob('./**/controller.{ts,tsx}', {
+  routesDirectory: './routes',
+  routesModules: import.meta.glob('./routes/**/controller.{ts,tsx}', {
     eager: true,
   }),
   middleware: [

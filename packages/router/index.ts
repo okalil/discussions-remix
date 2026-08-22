@@ -1,13 +1,14 @@
 import {
   createController as remixCreateController,
   createRouter as remixCreateRouter,
-  type Middleware,
   type MiddlewareContext,
   type RequestContext,
   type Router,
   type RouterOptions,
 } from 'remix/router';
 import { Route, type RouteMap } from 'remix/routes';
+
+type RouterMiddleware = NonNullable<RouterOptions['middleware']>;
 
 export type RouteModule = {
   default?: {
@@ -24,7 +25,7 @@ export const createController: typeof remixCreateController = (
 
 export function createRouter<
   context extends RequestContext = RequestContext,
-  const middleware extends readonly Middleware<any>[] = [],
+  const middleware extends RouterMiddleware = [],
 >(
   options: RouterOptions<context, middleware> & {
     routes: RouteMap;
