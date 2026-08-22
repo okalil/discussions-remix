@@ -8,9 +8,11 @@ import {
 } from 'remix/auth';
 import { redirect } from 'remix/response/redirect';
 
+import type { Controller } from './+controller';
+
 import { routes } from '../../../routes.ts';
 
-export default createController(routes.auth.social, {
+export default (createController as Controller)({
   actions: {
     async start(context) {
       const provider = getSocialProvider(

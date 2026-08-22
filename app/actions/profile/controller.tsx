@@ -3,12 +3,14 @@ import { createController } from '@discussions/router';
 import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 
+import type { Controller } from './+controller';
+
 import { requireAuth } from '../../middleware/auth.ts';
 import { routes } from '../../routes.ts';
 import { ProfileForm, updateProfileSchema } from './profile-form.tsx';
 import { ProfileLayout } from './profile-layout.tsx';
 
-export default createController(routes.profile, {
+export default (createController as Controller)({
   middleware: [requireAuth()],
   actions: {
     async index({ render, auth }) {

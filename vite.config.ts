@@ -43,7 +43,7 @@ export default defineConfig({
   run: {
     tasks: {
       dev: {
-        dependsOn: ['db:migrate'],
+        dependsOn: ['db:migrate', 'typegen'],
         command: 'vp dev --host',
       },
       'db:migrate': {
@@ -52,19 +52,34 @@ export default defineConfig({
       'db:status': {
         command: remixCLI('db status'),
       },
+      typegen: {
+        command: 'node --experimental-strip-types packages/router/typegen.ts',
+      },
       typecheck: {
+        dependsOn: ['typegen'],
         command: 'tsc',
         cache: false,
       },
     },
   },
   fmt: {
-    ignorePatterns: ['node_modules', 'dist/**'],
+    ignorePatterns: [
+      'node_modules',
+      'dist/**',
+      '.remix/**',
+    ],
     printWidth: 80,
     singleQuote: true,
     sortImports: {
+      customGroups: [
+        {
+          groupName: 'generated-controller',
+          elementNamePattern: ['./+controller', './+controller.ts'],
+        },
+      ],
       groups: [
         ['value-builtin', 'value-external', 'type-builtin', 'type-external'],
+        'generated-controller',
         ['value-internal', 'type-internal'],
         [
           'value-parent',
@@ -79,7 +94,11 @@ export default defineConfig({
     },
   },
   lint: {
-    ignorePatterns: ['node_modules', 'dist/**'],
+    ignorePatterns: [
+      'node_modules',
+      'dist/**',
+      '.remix/**',
+    ],
     plugins: ['typescript', 'unicorn', 'oxc'],
     categories: {
       correctness: 'error',

@@ -1,13 +1,14 @@
 import { createController } from '@discussions/router';
 import { parse } from 'remix/data-schema';
 
-import { routes } from '../../routes.ts';
+import type { Controller } from './+controller';
+
 import { Comments } from './comments.tsx';
 import { editCommentSchema } from './edit-comment-form.tsx';
 import { newCommentSchema } from './new-comment-form.tsx';
 import { voteCommentSchema } from './vote-comment.tsx';
 
-export default createController(routes.comments, {
+export default (createController as Controller)({
   actions: {
     async index({ render, url, params, auth, commentService }) {
       const discussionId = Number(params.discussionId);

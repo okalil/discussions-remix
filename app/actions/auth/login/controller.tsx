@@ -4,12 +4,14 @@ import { completeAuth } from 'remix/auth';
 import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 
+import type { Controller } from './+controller';
+
 import { rememberCookie } from '../../../middleware/auth.ts';
 import { routes } from '../../../routes.ts';
 import { LoginForm, loginSchema } from './login-form.tsx';
 import { LoginLayout } from './login-layout.tsx';
 
-export default createController(routes.auth.login, {
+export default (createController as Controller)({
   actions: {
     async index({ render }) {
       return render(

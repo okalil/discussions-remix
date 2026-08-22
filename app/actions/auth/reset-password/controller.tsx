@@ -3,6 +3,8 @@ import { createController } from '@discussions/router';
 import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 
+import type { Controller } from './+controller';
+
 import { routes } from '../../../routes.ts';
 import {
   ResetPasswordForm,
@@ -10,7 +12,7 @@ import {
 } from './reset-password-form.tsx';
 import { ResetPasswordLayout } from './reset-password-layout.tsx';
 
-export default createController(routes.auth.resetPassword, {
+export default (createController as Controller)({
   actions: {
     async index({ render, url }) {
       const token = url.searchParams.get('token');

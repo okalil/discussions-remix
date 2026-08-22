@@ -4,11 +4,13 @@ import { completeAuth } from 'remix/auth';
 import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 
+import type { Controller } from './+controller';
+
 import { routes } from '../../../routes.ts';
 import { RegisterForm, registerSchema } from './register-form.tsx';
 import { RegisterLayout } from './register-layout.tsx';
 
-export default createController(routes.auth.register, {
+export default (createController as Controller)({
   actions: {
     async index({ render }) {
       return render(

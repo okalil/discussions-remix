@@ -1,13 +1,14 @@
 import { createController } from '@discussions/router';
 import { parse } from 'remix/data-schema';
 
-import { routes } from '../../routes.ts';
+import type { Controller } from './+controller';
+
 import { DiscussionPage } from './discussion-page.tsx';
 import { DiscussionPreview } from './discussion-preview.tsx';
 import { DiscussionsPage } from './discussions-page.tsx';
 import { voteDiscussionSchema } from './vote-discussion.tsx';
 
-export default createController(routes.discussions, {
+export default (createController as Controller)({
   actions: {
     async index({
       render,

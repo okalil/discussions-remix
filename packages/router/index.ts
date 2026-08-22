@@ -1,29 +1,43 @@
 import {
-  createController as remixCreateController,
   createRouter as remixCreateRouter,
+  type Controller,
   type MiddlewareContext,
   type RequestContext,
   type Router,
   type RouterOptions,
+  type RouterTypes,
 } from 'remix/router';
 import { Route, type RouteMap } from 'remix/routes';
 
-type RouterMiddleware = NonNullable<RouterOptions['middleware']>;
+import { actionsDirectory, toKeys } from './keys.ts';
 
-const actionsDirectory = 'actions';
+type RouterMiddleware = NonNullable<RouterOptions['middleware']>;
 
 type RouteModule = {
   default?: {
-    route: RouteMap;
     actions: Record<string, unknown>;
     middleware?: unknown;
   };
 };
 
-export const createController: typeof remixCreateController = (
-  route,
-  controller,
-) => Object.assign(remixCreateController(route, controller), { route });
+type DefaultContext = RouterTypes extends {
+  context: infer context extends RequestContext<any, any>;
+}
+  ? context
+  : RequestContext;
+
+export type AnyMiddleware = NonNullable<
+  Controller<RouteMap, DefaultContext>['middleware']
+>[number];
+
+export type ControllerFor<
+  routes extends RouteMap,
+  middleware extends readonly AnyMiddleware[] = [],
+> = Controller<routes, DefaultContext, middleware>;
+
+export function createController<controller>(controller: controller) {
+  return controller;
+}
 
 export function createRouter<
   context extends RequestContext = RequestContext,
@@ -52,12 +66,6 @@ export function createRouter<
     const keys = toKeys(file);
     const node = lookup(file, routes, keys);
 
-    if (controller.route !== node) {
-      throw new Error(
-        `${file} must createController for routes.${keys.join('.')}`,
-      );
-    }
-
     (router.map as (route: RouteMap, controller: object) => void)(
       node,
       controller,
@@ -67,24 +75,6 @@ export function createRouter<
 
   requireControllers(routes, mapped);
   return router;
-}
-
-function toKeys(file: string) {
-  const normalized = file.replaceAll('\\', '/');
-  const prefix = `/${actionsDirectory}/`;
-  const index = `/${normalized}`.lastIndexOf(prefix);
-  if (index === -1) {
-    throw new Error(`${file} is not under '${actionsDirectory}/'`);
-  }
-
-  return `/${normalized}`
-    .slice(index + prefix.length)
-    .split('/')
-    .slice(0, -1)
-    .filter(Boolean)
-    .map((segment) =>
-      segment.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase()),
-    );
 }
 
 function lookup(file: string, routes: RouteMap, keys: string[]) {

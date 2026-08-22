@@ -3,6 +3,8 @@ import { createController } from '@discussions/router';
 import { parseSafe } from 'remix/data-schema';
 import { redirect } from 'remix/response/redirect';
 
+import type { Controller } from './+controller';
+
 import { requireAuth } from '../../../middleware/auth.ts';
 import { routes } from '../../../routes.ts';
 import {
@@ -11,7 +13,7 @@ import {
 } from './new-discussion-form.tsx';
 import { NewDiscussionLayout } from './new-discussion-layout.tsx';
 
-export default createController(routes.discussions.new, {
+export default (createController as Controller)({
   middleware: [requireAuth()],
   actions: {
     async index({ render, categoryService }) {

@@ -1,9 +1,11 @@
 import { createController } from '@discussions/router';
 import { redirect } from 'remix/response/redirect';
 
+import type { Controller } from './+controller';
+
 import { routes } from '../../routes.ts';
 
-export default createController(routes.auth, {
+export default (createController as Controller)({
   actions: {
     async logout({ session, sessionService }) {
       const userSessionId = session.get('auth') as string | null;

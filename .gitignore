@@ -9,3 +9,4 @@ data.db-*
 .dev.vars
 worker-configuration.d.ts
 dist
+.remix

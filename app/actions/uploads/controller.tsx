@@ -1,8 +1,8 @@
 import { createController } from '@discussions/router';
 
-import { routes } from '../../routes.ts';
+import type { Controller } from './+controller';
 
-export default createController(routes.uploads, {
+export default (createController as Controller)({
   actions: {
     async index({ storage, params }) {
       const file = await storage.get(params.key);
