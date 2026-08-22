@@ -31,11 +31,12 @@ const formMixin = createMixin<
       }),
       ref<HTMLFormElement>((formElement, signal) => {
         form.formData = new FormData(formElement);
+        form.dispatchEvent(new Event('statechange'));
+
         addEventListeners(form, signal, {
           fieldchange() {
-            if (form.state.attempts) {
-              form.validate();
-            }
+            form.formData = new FormData(formElement);
+            if (form.state.attempts) form.validate();
           },
           reset() {
             formElement.reset();

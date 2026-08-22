@@ -1,5 +1,5 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, ref, type Handle } from 'remix/ui';
+import { css, on, type Handle } from 'remix/ui';
 import {
   Option,
   Select,
@@ -19,10 +19,6 @@ type SelectFieldProps = Omit<SelectProps, 'defaultLabel'> & {
 export function SelectField(handle: Handle<SelectFieldProps>) {
   return () => {
     const { field, label, options, mix, ...props } = handle.props;
-    function commit(node: HTMLButtonElement) {
-      if (!node.form) return;
-      field.commit(new FormData(node.form));
-    }
     return (
       <FieldWrapper label={label} error={field.error}>
         <Select
@@ -32,8 +28,8 @@ export function SelectField(handle: Handle<SelectFieldProps>) {
           mix={[
             mix,
             css({ width: 'min(320px, 100%)' }),
-            ref((node) => commit(node)),
-            onSelectChange((e) => commit(e.currentTarget)),
+            onSelectChange(() => field.onChange()),
+            on('blur', () => field.onBlur()),
           ]}
           {...props}
         >

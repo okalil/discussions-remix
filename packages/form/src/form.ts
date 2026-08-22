@@ -19,6 +19,7 @@ import { toErrors, toFormData } from './utils.ts';
 type FormEventMap = {
   statechange: Event;
   fieldchange: Event;
+  fieldblur: Event;
   submitcomplete: FormSubmitCompleteEvent;
   reset: Event;
 };

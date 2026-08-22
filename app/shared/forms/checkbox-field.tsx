@@ -1,5 +1,5 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, on, ref, type Handle } from 'remix/ui';
+import { css, on, type Handle } from 'remix/ui';
 
 import { checkbox } from './checkbox.tsx';
 
@@ -12,10 +12,6 @@ type CheckboxFieldProps = {
 export function CheckboxField(handle: Handle<CheckboxFieldProps>) {
   return () => {
     const { field, label, value = 'true', ...props } = handle.props;
-    function commit(node: HTMLInputElement) {
-      if (!node.form) return;
-      field.commit(new FormData(node.form));
-    }
     return (
       <div mix={styles.root}>
         <input
@@ -26,8 +22,8 @@ export function CheckboxField(handle: Handle<CheckboxFieldProps>) {
           defaultChecked={field.value === value}
           mix={[
             checkbox(),
-            ref((node) => commit(node)),
-            on('change', (e) => commit(e.currentTarget)),
+            on('change', () => field.onChange()),
+            on('blur', () => field.onBlur()),
           ]}
         />
         <label htmlFor={handle.id} mix={styles.label}>

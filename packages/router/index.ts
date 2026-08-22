@@ -12,7 +12,7 @@ type RouterMiddleware = NonNullable<RouterOptions['middleware']>;
 
 const actionsDirectory = 'actions';
 
-export type RouteModule = {
+type RouteModule = {
   default?: {
     route: RouteMap;
     actions: Record<string, unknown>;
@@ -31,20 +31,19 @@ export function createRouter<
 >(
   options: RouterOptions<context, middleware> & {
     routes: RouteMap;
+    controllers: Record<string, unknown>;
   },
 ): Router<MiddlewareContext<middleware, context>> {
-  const { routes, ...routerOptions } = options;
+  const { routes, controllers, ...routerOptions } = options;
   const router = remixCreateRouter(
     routerOptions as RouterOptions<context, middleware>,
-  );
-  const routesModules = import.meta.glob<RouteModule>(
-    '/app/actions/**/controller.{ts,tsx}',
-    { eager: true },
   );
 
   const mapped = new Set<RouteMap>();
 
-  for (const [file, mod] of Object.entries(routesModules)) {
+  for (const [file, mod] of Object.entries(
+    controllers as Record<string, RouteModule>,
+  )) {
     const controller = mod.default;
     if (controller == null) {
       throw new Error(`${file} must default-export a controller`);

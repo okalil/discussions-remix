@@ -5,6 +5,7 @@ import type { FormDataEntryOf, FormFieldName } from './types.ts';
 
 export type FieldEventMap = {
   change: Event;
+  blur: Event;
 };
 
 export type FieldHandle = {
@@ -12,7 +13,8 @@ export type FieldHandle = {
   readonly value: FormDataEntryValue | null;
   readonly values: FormDataEntryValue[];
   readonly error: string | undefined;
-  commit(source: FormData): void;
+  onChange(): void;
+  onBlur(): void;
 };
 
 export class Field<
@@ -44,9 +46,13 @@ export class Field<
     return this.#form.state.errors[this.name];
   }
 
-  commit(source: FormData) {
-    this.#form.formData = source;
+  onChange() {
     this.dispatchEvent(new Event('change'));
     this.#form.dispatchEvent(new Event('fieldchange'));
+  }
+
+  onBlur() {
+    this.dispatchEvent(new Event('blur'));
+    this.#form.dispatchEvent(new Event('fieldblur'));
   }
 }
