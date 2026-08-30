@@ -1,5 +1,5 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, on, ref, type Handle } from 'remix/ui';
+import { css, on, type Handle } from 'remix/ui';
 import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
 
 import { FieldWrapper } from './field-wrapper.tsx';
@@ -13,22 +13,21 @@ type TextAreaFieldProps = ElementProps<'textarea'> & {
 export function TextAreaField(handle: Handle<TextAreaFieldProps>) {
   return () => {
     const { field, label, mix, ...props } = handle.props;
-    function commit(node: HTMLTextAreaElement) {
-      if (!node.form) return;
-      field.commit(new FormData(node.form));
-    }
+    const defaultValue = String(field.value ?? '');
     return (
       <FieldWrapper label={label} error={field.error}>
         <textarea
           {...props}
           name={field.name}
-          defaultValue={String(field.value ?? '')}
+          children={
+            defaultValue as unknown as ElementProps<'textarea'>['children']
+          }
           mix={[
             mix,
             input(),
             css({ resize: 'vertical' }),
-            ref((node) => commit(node)),
-            on('input', (e) => commit(e.currentTarget)),
+            on('input', () => field.onChange()),
+            on('blur', () => field.onBlur()),
           ]}
         />
       </FieldWrapper>

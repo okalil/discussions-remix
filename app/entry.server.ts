@@ -11,8 +11,13 @@ import { services } from './middleware/services.ts';
 import { session } from './middleware/session.ts';
 import { routes } from './routes.ts';
 
+const controllers = import.meta.glob('/app/actions/**/controller.{ts,tsx}', {
+  eager: true,
+});
+
 const router = createRouter({
   routes,
+  controllers,
   middleware: [
     staticFiles('./public', { index: false }),
     logger({ format: '%method %path %status (%duration ms)' }),

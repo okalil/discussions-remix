@@ -9,16 +9,16 @@ type FileFieldProps = Pick<ElementProps<'input'>, 'accept' | 'multiple'> & {
 export function FileField(handle: Handle<FileFieldProps>) {
   return () => {
     const { field, ...props } = handle.props;
-    function commit(node: HTMLInputElement) {
-      if (!node.form) return;
-      field.commit(new FormData(node.form));
-    }
     return (
       <input
         {...props}
         type="file"
         name={field.name}
-        mix={[styles.hidden, on('change', (e) => commit(e.currentTarget))]}
+        mix={[
+          styles.hidden,
+          on('change', () => field.onChange()),
+          on('blur', () => field.onBlur()),
+        ]}
       />
     );
   };
