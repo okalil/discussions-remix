@@ -21,8 +21,6 @@ export class Field<
   Output,
   Name extends FormFieldName<Output> = FormFieldName<Output>,
 > extends TypedEventTarget<FieldEventMap> {
-  declare readonly __eventMap: FieldEventMap;
-
   readonly name: Name;
   readonly #form: Form<Output>;
 

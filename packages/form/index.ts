@@ -6,6 +6,7 @@ export type {
 } from './src/types.ts';
 export {
   Form,
+  FormSubmitCompleteEvent,
   FormValidationError,
   isFormValidationError,
 } from './src/form.ts';

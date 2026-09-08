@@ -3,7 +3,6 @@ import { on, type Handle } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
-import { addEventListeners } from '../../shared/utils/events.ts';
 
 type DeleteCommentProps = {
   id: number;
@@ -15,9 +14,9 @@ export function DeleteComment(handle: Handle<DeleteCommentProps>) {
     action: routes.comments.destroy.href({ id: handle.props.id }),
   });
 
-  addEventListeners(form, handle.signal, {
-    statechange: () => handle.update(),
-    submitcomplete: (e) => e.waitUntil(handle.frames.top.reload()),
+  form.addEventListener('statechange', handle.update);
+  form.addEventListener('submitcomplete', (event) => {
+    event.waitUntil(handle.frames.top.reload());
   });
 
   return () => {

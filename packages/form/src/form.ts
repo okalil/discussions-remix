@@ -33,8 +33,6 @@ type FormOptions<Output> = {
 };
 
 export class Form<Output> extends TypedEventTarget<FormEventMap> {
-  declare readonly __eventMap: FormEventMap;
-
   readonly #action: string | undefined;
   readonly #method: string | undefined;
   readonly #schema: s.Schema<FormDataSource, Output> | undefined;

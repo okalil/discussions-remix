@@ -9,7 +9,6 @@ import { routes } from '../../../routes.ts';
 import { Button } from '../../../shared/button.tsx';
 import { ErrorMessage } from '../../../shared/error-message.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
-import { addEventListeners } from '../../../shared/utils/events.ts';
 
 export type ResetPasswordFormProps = {
   token?: string | null;
@@ -27,9 +26,7 @@ export const ResetPasswordForm = clientEntry<ResetPasswordFormProps>(
       errors: () => handle.props.errors,
     });
 
-    addEventListeners(resetPasswordForm, handle.signal, {
-      statechange: () => handle.update(),
-    });
+    resetPasswordForm.addEventListener('statechange', handle.update);
 
     return () => {
       const { errors, pending } = resetPasswordForm.state;

@@ -11,7 +11,6 @@ import { Button } from '../../shared/button.tsx';
 import { ErrorMessage } from '../../shared/error-message.tsx';
 import { FileField } from '../../shared/forms/file-field.tsx';
 import { TextField } from '../../shared/forms/text-field.tsx';
-import { addEventListeners } from '../../shared/utils/events.ts';
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
@@ -34,19 +33,17 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
 
     let previewUrl: string | null = null;
 
-    addEventListeners(profileForm, handle.signal, {
-      statechange: () => handle.update(),
-    });
-    addEventListeners(avatarField, handle.signal, {
-      change() {
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
+    function onAvatarChange() {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
 
-        const file = avatarField.value;
-        previewUrl = file?.size ? URL.createObjectURL(file) : null;
+      const file = avatarField.value;
+      previewUrl = file?.size ? URL.createObjectURL(file) : null;
 
-        handle.update();
-      },
-    });
+      handle.update();
+    }
+
+    profileForm.addEventListener('statechange', handle.update);
+    avatarField.addEventListener('change', onAvatarChange);
 
     handle.signal.addEventListener('abort', () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);

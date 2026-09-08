@@ -11,7 +11,6 @@ import { Button } from '../../../shared/button.tsx';
 import { ErrorMessage } from '../../../shared/error-message.tsx';
 import { CheckboxField } from '../../../shared/forms/checkbox-field.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
-import { addEventListeners } from '../../../shared/utils/events.ts';
 
 export type LoginFormProps = {
   draft?: FormDraft;
@@ -28,9 +27,7 @@ export const LoginForm = clientEntry<LoginFormProps>(
       errors: () => handle.props.errors,
     });
 
-    addEventListeners(loginForm, handle.signal, {
-      statechange: () => handle.update(),
-    });
+    loginForm.addEventListener('statechange', handle.update);
 
     return () => {
       const { errors, pending } = loginForm.state;

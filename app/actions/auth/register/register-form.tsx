@@ -9,7 +9,6 @@ import { routes } from '../../../routes.ts';
 import { Button } from '../../../shared/button.tsx';
 import { ErrorMessage } from '../../../shared/error-message.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
-import { addEventListeners } from '../../../shared/utils/events.ts';
 
 export type RegisterFormProps = {
   draft?: FormDraft;
@@ -26,9 +25,7 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
       errors: () => handle.props.errors,
     });
 
-    addEventListeners(registerForm, handle.signal, {
-      statechange: () => handle.update(),
-    });
+    registerForm.addEventListener('statechange', handle.update);
 
     return () => {
       const { errors, pending } = registerForm.state;

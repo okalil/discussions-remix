@@ -5,7 +5,6 @@ import type { CommentSummaryDto } from '../../../core/comment.types.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 import { Button } from '../../shared/button.tsx';
 import { DotsIcon } from '../../shared/icons/dots-icon.tsx';
-import { addEventListeners } from '../../shared/utils/events.ts';
 import { DeleteComment } from './delete-comment.tsx';
 import { EditCommentForm } from './edit-comment-form.tsx';
 import { VoteComment } from './vote-comment.tsx';
@@ -21,12 +20,16 @@ export const CommentRow = clientEntry<CommentRowProps>(
     let editing = false;
     let deleting = false;
 
-    addEventListeners(handle.frame, handle.signal, {
-      reloadComplete() {
-        editing = false;
-        deleting = false;
-        handle.update();
-      },
+    function onReloadComplete() {
+      editing = false;
+      deleting = false;
+      handle.update();
+    }
+
+    handle.frame.addEventListener('reloadComplete', onReloadComplete);
+
+    handle.signal.addEventListener('abort', () => {
+      handle.frame.removeEventListener('reloadComplete', onReloadComplete);
     });
 
     return () => {

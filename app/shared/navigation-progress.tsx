@@ -1,7 +1,5 @@
 import { clientEntry, css } from 'remix/ui';
 
-import { addEventListeners } from './utils/events.ts';
-
 export const NavigationProgress = clientEntry(
   import.meta.url,
   function NavigationProgress(handle) {
@@ -41,15 +39,23 @@ export const NavigationProgress = clientEntry(
       handle.update();
     }
 
-    handle.signal.addEventListener('abort', clearTimers);
+    function onNavigate(event: NavigateEvent) {
+      if (isGetNavigation(event)) startProgress();
+    }
 
     handle.queueTask(() => {
-      addEventListeners(window.navigation, handle.signal, {
-        navigate(event) {
-          if (isGetNavigation(event)) startProgress();
-        },
-        navigatesuccess: finishProgress,
-        navigateerror: resetProgress,
+      const { navigation } = window;
+      if (!navigation) return;
+
+      navigation.addEventListener('navigate', onNavigate);
+      navigation.addEventListener('navigatesuccess', finishProgress);
+      navigation.addEventListener('navigateerror', resetProgress);
+
+      handle.signal.addEventListener('abort', () => {
+        navigation.removeEventListener('navigate', onNavigate);
+        navigation.removeEventListener('navigatesuccess', finishProgress);
+        navigation.removeEventListener('navigateerror', resetProgress);
+        clearTimers();
       });
     });
 
@@ -66,8 +72,8 @@ export const NavigationProgress = clientEntry(
 type SourceElementNavigateEvent = NavigateEvent & {
   sourceElement?: EventTarget | null;
 };
-function isGetNavigation(event: Event) {
-  if (!(event instanceof NavigateEvent) || event.hashChange) return false;
+function isGetNavigation(event: NavigateEvent) {
+  if (event.hashChange) return false;
   if (event.formData != null) return false;
   if (isInternalNavigationType(event.info)) return false;
 

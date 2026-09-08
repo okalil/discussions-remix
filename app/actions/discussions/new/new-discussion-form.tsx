@@ -12,7 +12,6 @@ import { ErrorMessage } from '../../../shared/error-message.tsx';
 import { SelectField } from '../../../shared/forms/select-field.tsx';
 import { TextAreaField } from '../../../shared/forms/text-area-field.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
-import { addEventListeners } from '../../../shared/utils/events.ts';
 
 export type NewDiscussionFormProps = {
   categories: CategoryDto[];
@@ -30,9 +29,7 @@ export const NewDiscussionForm = clientEntry<NewDiscussionFormProps>(
       errors: () => handle.props.errors,
     });
 
-    addEventListeners(newDiscussionForm, handle.signal, {
-      statechange: () => handle.update(),
-    });
+    newDiscussionForm.addEventListener('statechange', handle.update);
 
     return () => {
       const { errors, pending } = newDiscussionForm.state;

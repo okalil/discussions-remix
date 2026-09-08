@@ -8,7 +8,6 @@ import type { CommentSummaryDto } from '../../../core/comment.types.ts';
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { TextAreaField } from '../../shared/forms/text-area-field.tsx';
-import { addEventListeners } from '../../shared/utils/events.ts';
 
 type EditCommentFormProps = {
   comment: CommentSummaryDto;
@@ -23,9 +22,9 @@ export function EditCommentForm(handle: Handle<EditCommentFormProps>) {
     draft: () => [['content', comment.content]],
   });
 
-  addEventListeners(editCommentForm, handle.signal, {
-    statechange: () => handle.update(),
-    submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
+  editCommentForm.addEventListener('statechange', handle.update);
+  editCommentForm.addEventListener('submitcomplete', (event) => {
+    event.waitUntil(handle.frame.reload());
   });
 
   return () => {

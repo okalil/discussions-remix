@@ -5,7 +5,6 @@ import { clientEntry, css, on } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { ArrowUpIcon } from '../../shared/icons/arrow-up-icon.tsx';
-import { addEventListeners } from '../../shared/utils/events.ts';
 
 type VoteDiscussionProps = {
   id: number;
@@ -23,9 +22,9 @@ export const VoteDiscussion = clientEntry<VoteDiscussionProps>(
       schema: voteDiscussionSchema,
     });
 
-    addEventListeners(form, handle.signal, {
-      statechange: () => handle.update(),
-      submitcomplete: (e) => e.waitUntil(handle.frame.reload()),
+    form.addEventListener('statechange', handle.update);
+    form.addEventListener('submitcomplete', (event) => {
+      event.waitUntil(handle.frame.reload());
     });
 
     return () => {

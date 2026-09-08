@@ -8,7 +8,6 @@ import { clientEntry, css } from 'remix/ui';
 import { routes } from '../../../routes.ts';
 import { Button } from '../../../shared/button.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
-import { addEventListeners } from '../../../shared/utils/events.ts';
 
 export type ForgotPasswordFormProps = {
   draft?: FormDraft;
@@ -25,9 +24,7 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
       errors: () => handle.props.errors,
     });
 
-    addEventListeners(forgotPasswordForm, handle.signal, {
-      statechange: () => handle.update(),
-    });
+    forgotPasswordForm.addEventListener('statechange', handle.update);
 
     return () => {
       const { pending } = forgotPasswordForm.state;
