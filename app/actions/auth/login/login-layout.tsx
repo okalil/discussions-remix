@@ -18,7 +18,7 @@ export function LoginLayout(handle: Handle<LoginLayoutProps>) {
           <form
             method="post"
             action={routes.auth.social.start.href({ provider: 'github' })}
-            rmx-document=""
+            data-rmx-document
           >
             <Button type="submit" variant="primary" mix={styles.githubButton}>
               <GithubIcon size={20} />

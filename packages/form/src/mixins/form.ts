@@ -1,4 +1,4 @@
-import { addEventListeners, attrs, createMixin, on, ref } from 'remix/ui';
+import { attrs, createMixin, on, ref } from 'remix/ui';
 
 import { isFormValidationError, type Form } from '../form.ts';
 import type { FormSubmitHandler, FormSubmitResult } from '../types.ts';
@@ -27,21 +27,27 @@ const formMixin = createMixin<
         noValidate: true,
         ...(options.history == null || options.history === 'auto'
           ? {}
-          : { 'rmx-history': options.history }),
+          : { 'data-rmx-history': options.history }),
       }),
       ref<HTMLFormElement>((formElement, signal) => {
         form.formData = new FormData(formElement);
         form.dispatchEvent(new Event('statechange'));
 
-        addEventListeners(form, signal, {
-          fieldchange() {
+        form.addEventListener(
+          'fieldchange',
+          () => {
             form.formData = new FormData(formElement);
             if (form.state.attempts) form.validate();
           },
-          reset() {
+          { signal },
+        );
+        form.addEventListener(
+          'reset',
+          () => {
             formElement.reset();
           },
-        });
+          { signal },
+        );
       }),
       on<HTMLFormElement>('submit', async (e, signal) => {
         const formElement = e.currentTarget;

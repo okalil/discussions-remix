@@ -50,7 +50,7 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
                 name="q"
                 placeholder="Search all discussions"
                 defaultValue={filters.q}
-                data-key={filters.q ?? ''}
+                data-rmx-key={filters.q ?? ''}
                 mix={input()}
               />
             </form>

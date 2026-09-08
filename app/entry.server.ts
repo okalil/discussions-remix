@@ -2,11 +2,11 @@ import { createRouter } from '@discussions/router';
 import { asyncContext } from 'remix/middleware/async-context';
 import { formData } from 'remix/middleware/form-data';
 import { logger } from 'remix/middleware/logger';
+import { render } from 'remix/middleware/render';
 import { staticFiles } from 'remix/middleware/static';
 import type { RouterContext } from 'remix/router';
 
 import { auth } from './middleware/auth.ts';
-import { render } from './middleware/render.ts';
 import { services } from './middleware/services.ts';
 import { session } from './middleware/session.ts';
 import { routes } from './routes.ts';

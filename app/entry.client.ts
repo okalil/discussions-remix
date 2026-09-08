@@ -6,16 +6,11 @@ run({
     return mod[exportName];
   },
   async resolveFrame(src, options) {
-    const headers = new Headers({ accept: 'text/html' });
-    if (options?.target) headers.set('x-remix-target', options.target);
-
-    const response = await fetch(src, {
+    return fetch(src, {
       method: options?.method,
       body: options?.formData,
-      credentials: 'same-origin',
-      headers,
+      headers: { Accept: 'text/html' },
       signal: options?.signal,
     });
-    return response;
   },
 });

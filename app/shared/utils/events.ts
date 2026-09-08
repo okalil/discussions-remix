@@ -1,6 +1,10 @@
-type EventMapOf<Target> = Target extends { __eventMap?: infer EventMap }
+import type { TypedEventTarget } from 'remix/ui';
+
+type EventMapOf<Target> = Target extends { readonly __eventMap: infer EventMap }
   ? EventMap
-  : Record<string, Event>;
+  : Target extends TypedEventTarget<infer EventMap>
+    ? EventMap
+    : Record<string, Event>;
 
 type ListenersFor<Target extends EventTarget> = {
   [Type in Extract<keyof EventMapOf<Target>, string>]?: (
@@ -13,9 +17,9 @@ type ListenersFor<Target extends EventTarget> = {
 /**
  * Attach listeners cleaned up when `signal` aborts.
  *
- * Unlike `remix/ui`'s helper, this does not pass `{ signal }` into
- * `addEventListener` options. Some server runtimes brand-check that option and
- * throw when Remix's SSR AbortSignal stub is used.
+ * Does not pass `{ signal }` into `addEventListener` options. Some server
+ * runtimes brand-check that option and throw when Remix's SSR AbortSignal stub
+ * is used.
  */
 export function addEventListeners<Target extends EventTarget>(
   target: Target,
