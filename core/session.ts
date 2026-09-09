@@ -3,13 +3,14 @@ import { sql } from 'remix/data-table';
 import type { Database } from './integrations/db.ts';
 import { queryOne } from './integrations/db/query.ts';
 import { schema } from './integrations/db/schema.ts';
+import type { CreateSessionInput, Session } from './session.types.ts';
 
 const expirationTime = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 export class SessionService {
   constructor(private db: Database) {}
 
-  async createSession(userId: number) {
+  async createSession({ userId }: CreateSessionInput) {
     return this.db.create(
       schema.sessions,
       {
@@ -21,7 +22,7 @@ export class SessionService {
     );
   }
 
-  async getSession(sessionId: string) {
+  async getSession(id: string): Promise<Session | null> {
     const now = new Date().toISOString();
     const row = await queryOne<SessionRow>(
       this.db,
@@ -34,14 +35,14 @@ export class SessionService {
           u.email AS "userEmail",
           u.name AS "userName",
           u.avatar AS "userAvatar",
-          u.email_verified AS "userEmailVerified"
+          u.email_verified AS "emailVerified"
         FROM sessions s
         INNER JOIN users u ON u.id = s.user_id
-        WHERE s.id = ${sessionId} AND s.expires > ${now}
+        WHERE s.id = ${id} AND s.expires > ${now}
         LIMIT 1
       `,
     );
-    if (!row) return undefined;
+    if (!row) return null;
 
     return {
       id: row.sessionId,
@@ -52,13 +53,13 @@ export class SessionService {
         email: row.userEmail,
         name: row.userName,
         avatar: row.userAvatar,
-        emailVerified: Boolean(row.userEmailVerified),
+        emailVerified: row.emailVerified,
       },
     };
   }
 
-  async deleteSession(sessionId: string) {
-    await this.db.delete(schema.sessions, sessionId);
+  async deleteSession(id: string) {
+    await this.db.delete(schema.sessions, id);
   }
 }
 
@@ -70,5 +71,5 @@ type SessionRow = {
   userEmail: string;
   userName: string;
   userAvatar: string | null;
-  userEmailVerified: boolean | number;
+  emailVerified: boolean;
 };

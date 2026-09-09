@@ -34,9 +34,10 @@ export default createController(routes.auth.register, {
         );
       }
 
-      const { value } = validation;
-
-      if (await context.userService.getUserByEmail(value.email)) {
+      const result = await context.accountService.createCredentialAccount(
+        validation.value,
+      );
+      if (!result.ok) {
         return context.render(
           <RegisterLayout>
             <RegisterForm
@@ -50,9 +51,9 @@ export default createController(routes.auth.register, {
         );
       }
 
-      const user = await context.accountService.createCredentialAccount(value);
-
-      const userSession = await context.sessionService.createSession(user.id);
+      const userSession = await context.sessionService.createSession({
+        userId: result.user.id,
+      });
       const session = completeAuth(context);
       session.set('auth', userSession.id);
 

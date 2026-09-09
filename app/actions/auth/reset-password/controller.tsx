@@ -37,17 +37,19 @@ export default createController(routes.auth.resetPassword, {
         );
       }
 
-      const reset = await context.accountService.resetPassword(
+      const result = await context.accountService.resetPassword(
         validation.value,
       );
-      if (!reset) {
+      if (!result.ok) {
         return context.render(
           <ResetPasswordLayout>
             <ResetPasswordForm
               draft={toDraft(context.formData, {
                 omit: ['password', 'passwordConfirmation'],
               })}
-              errors={{ root: 'Invalid credentials' }}
+              errors={{
+                root: 'Invalid or expired token',
+              }}
             />
           </ResetPasswordLayout>,
           { status: 400 },

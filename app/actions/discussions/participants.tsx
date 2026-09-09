@@ -1,10 +1,10 @@
 import { css, type Handle } from 'remix/ui';
 
-import type { PublicUserDto } from '../../../core/user.types.ts';
+import type { PublicUser } from '../../../core/user.types.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 
 type ParticipantsProps = {
-  participants: PublicUserDto[];
+  participants: PublicUser[];
 };
 
 export function Participants(handle: Handle<ParticipantsProps>) {

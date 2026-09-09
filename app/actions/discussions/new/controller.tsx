@@ -15,7 +15,7 @@ export default createController(routes.discussions.new, {
   middleware: [requireAuth()],
   actions: {
     async index({ render, categoryService }) {
-      const categories = await categoryService.getCategories();
+      const categories = await categoryService.listCategories();
       return render(
         <NewDiscussionLayout>
           <NewDiscussionForm categories={categories} />
@@ -31,7 +31,7 @@ export default createController(routes.discussions.new, {
     }) {
       const validation = parseSafe(newDiscussionSchema, formData);
       if (!validation.success) {
-        const categories = await categoryService.getCategories();
+        const categories = await categoryService.listCategories();
         return render(
           <NewDiscussionLayout>
             <NewDiscussionForm
@@ -46,7 +46,7 @@ export default createController(routes.discussions.new, {
 
       const discussion = await discussionService.createDiscussion({
         ...validation.value,
-        authorId: auth.identity.id,
+        actorId: auth.identity.id,
       });
 
       return redirect(routes.discussions.show.href({ id: discussion.id }));

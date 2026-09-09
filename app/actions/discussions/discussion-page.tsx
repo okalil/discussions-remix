@@ -1,7 +1,8 @@
 import { css, Frame, type Handle } from 'remix/ui';
 
-import type { DiscussionDetailDto } from '../../../core/discussion.types.ts';
-import type { PublicUserDto } from '../../../core/user.types.ts';
+import type { CommentSort } from '../../../core/comment.types.ts';
+import type { Discussion } from '../../../core/discussion.types.ts';
+import type { PublicUser } from '../../../core/user.types.ts';
 import { routes } from '../../routes.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 import { Layout } from '../../shared/layout.tsx';
@@ -11,9 +12,9 @@ import { Participants } from './participants.tsx';
 import { VoteDiscussion } from './vote-discussion.tsx';
 
 type DiscussionPageProps = {
-  discussion: DiscussionDetailDto;
-  participants: PublicUserDto[];
-  sort: string;
+  discussion: Discussion;
+  participants: PublicUser[];
+  sort: CommentSort;
   authenticated: boolean;
 };
 

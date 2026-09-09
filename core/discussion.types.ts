@@ -1,56 +1,68 @@
-import type { CategoryDto } from './category.types.ts';
-import type { PublicUserDto } from './user.types.ts';
+import type { Category } from './category.types.ts';
+import type { PublicUser } from './user.types.ts';
 
-export interface GetDiscussionsDto {
+export type ListDiscussionsInput = {
   category?: string;
   page: number;
   limit: number;
   q?: string;
-  currentUserId?: number;
-}
+  viewerId?: number;
+};
 
-export interface CreateDiscussionDto {
+export type GetDiscussionOptions = {
+  viewerId?: number;
+};
+
+export type CreateDiscussionInput = {
   title: string;
   content: string;
   categoryId: number;
-  authorId: number;
-}
+  actorId: number;
+};
 
-export type DiscussionPageDto = {
-  discussions: DiscussionSummaryDto[];
+export type VoteDiscussionInput = {
+  discussionId: number;
+  actorId: number;
+  voted: boolean;
+};
+
+export type DiscussionPage = {
+  discussions: DiscussionSummary[];
   total: number;
   limit: number;
 };
 
-export type DiscussionSummaryDto = {
+export type DiscussionSummary = {
   id: number;
   title: string;
   createdAt: string;
-  author: PublicUserDto;
+  author: PublicUser;
   commentsCount: number;
   votesCount: number;
   voted: boolean;
 };
 
-export type DiscussionDetailDto = {
+export type Discussion = {
   id: number;
   title: string;
   content: string;
   createdAt: string;
-  author: PublicUserDto;
-  category: Pick<CategoryDto, 'emoji' | 'title' | 'slug'>;
+  author: PublicUser;
+  category: Pick<Category, 'emoji' | 'title' | 'slug'>;
   votesCount: number;
   commentsCount: number;
   participantsCount: number;
   voted: boolean;
 };
 
-export type DiscussionPreviewDto = {
+type DiscussionReplyPreview = {
+  content: string;
+  author: PublicUser;
+};
+
+export type DiscussionPreview = {
   id: number;
   title: string;
   content: string;
-  reply?: {
-    content: string;
-    author: PublicUserDto;
-  };
+  reply?: DiscussionReplyPreview;
 };

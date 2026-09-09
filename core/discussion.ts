@@ -1,16 +1,18 @@
 import { sql } from 'remix/data-table';
 
 import type {
-  CreateDiscussionDto,
-  DiscussionDetailDto,
-  DiscussionPageDto,
-  DiscussionPreviewDto,
-  GetDiscussionsDto,
+  CreateDiscussionInput,
+  Discussion,
+  DiscussionPage,
+  DiscussionPreview,
+  GetDiscussionOptions,
+  ListDiscussionsInput,
+  VoteDiscussionInput,
 } from './discussion.types.ts';
 import type { Database } from './integrations/db.ts';
 import { count, query, queryOne } from './integrations/db/query.ts';
 import { schema } from './integrations/db/schema.ts';
-import type { PublicUserDto } from './user.types.ts';
+import type { PublicUser } from './user.types.ts';
 
 export class DiscussionService {
   constructor(private db: Database) {}
@@ -19,27 +21,27 @@ export class DiscussionService {
     title,
     content,
     categoryId,
-    authorId,
-  }: CreateDiscussionDto) {
+    actorId,
+  }: CreateDiscussionInput) {
     return this.db.create(
       schema.discussions,
       {
         title,
         content,
         category_id: categoryId,
-        author_id: authorId,
+        author_id: actorId,
       },
       { returnRow: true },
     );
   }
 
-  async getDiscussions({
-    currentUserId,
+  async listDiscussions({
+    viewerId,
     page,
     limit,
     category,
     q,
-  }: GetDiscussionsDto): Promise<DiscussionPageDto> {
+  }: ListDiscussionsInput): Promise<DiscussionPage> {
     const offset = (page - 1) * limit;
     const categoryFilter = category ? sql`AND c.slug = ${category}` : sql``;
     const searchFilter = q
@@ -77,7 +79,7 @@ export class DiscussionService {
           (SELECT COUNT(*) FROM discussion_votes dv WHERE dv.discussion_id = p.id) AS "votesCount",
           EXISTS (
             SELECT 1 FROM discussion_votes dv
-            WHERE dv.discussion_id = p.id AND dv.user_id = ${currentUserId ?? 0}
+            WHERE dv.discussion_id = p.id AND dv.user_id = ${viewerId ?? 0}
           ) AS voted
         FROM paged p
         INNER JOIN users u ON u.id = p.author_id
@@ -106,8 +108,8 @@ export class DiscussionService {
 
   async getDiscussion(
     id: number,
-    currentUserId?: number,
-  ): Promise<DiscussionDetailDto | null> {
+    { viewerId }: GetDiscussionOptions = {},
+  ): Promise<Discussion | null> {
     const row = await queryOne<DiscussionDetailRow>(
       this.db,
       sql`
@@ -126,7 +128,7 @@ export class DiscussionService {
           (SELECT COUNT(*) FROM discussion_votes dv WHERE dv.discussion_id = d.id) AS "votesCount",
           EXISTS (
             SELECT 1 FROM discussion_votes dv
-            WHERE dv.discussion_id = d.id AND dv.user_id = ${currentUserId ?? 0}
+            WHERE dv.discussion_id = d.id AND dv.user_id = ${viewerId ?? 0}
           ) AS voted,
           (
             SELECT COUNT(*) FROM (
@@ -166,7 +168,7 @@ export class DiscussionService {
     };
   }
 
-  async getDiscussionPreview(id: number): Promise<DiscussionPreviewDto | null> {
+  async getDiscussionPreview(id: number): Promise<DiscussionPreview | null> {
     const row = await queryOne<DiscussionPreviewRow>(
       this.db,
       sql`
@@ -210,22 +212,23 @@ export class DiscussionService {
     };
   }
 
-  async voteDiscussion(id: number, userId: number) {
-    await this.db.exec(sql`
-      INSERT INTO discussion_votes (user_id, discussion_id)
-      VALUES (${userId}, ${id})
-      ON CONFLICT (user_id, discussion_id) DO NOTHING
-    `);
-  }
+  async voteDiscussion({ discussionId, actorId, voted }: VoteDiscussionInput) {
+    if (voted) {
+      await this.db.exec(sql`
+        INSERT INTO discussion_votes (user_id, discussion_id)
+        VALUES (${actorId}, ${discussionId})
+        ON CONFLICT (user_id, discussion_id) DO NOTHING
+      `);
+      return;
+    }
 
-  async unvoteDiscussion(id: number, userId: number) {
     await this.db.deleteMany(schema.discussionVotes, {
-      where: { discussion_id: id, user_id: userId },
+      where: { discussion_id: discussionId, user_id: actorId },
     });
   }
 
-  async getParticipants(discussionId: number): Promise<PublicUserDto[]> {
-    return query<PublicUserDto>(
+  async listParticipants(discussionId: number): Promise<PublicUser[]> {
+    return query<PublicUser>(
       this.db,
       sql`
         SELECT u.id, u.name, u.avatar

@@ -1,6 +1,7 @@
 import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 import type { FileStorage } from './integrations/storage.ts';
+import type { UpdateUserInput } from './user.types.ts';
 
 export class UserService {
   constructor(
@@ -8,17 +9,14 @@ export class UserService {
     private storage: FileStorage,
   ) {}
 
-  async getUserByEmail(email: string) {
-    return this.db.findOne(schema.users, { where: { email } });
+  async updateUser(id: number, { name, avatar }: UpdateUserInput) {
+    const key = avatar ? await this.uploadUserAvatar(id, avatar) : undefined;
+    const changes = stripUndefined({ name, avatar: key });
+    await this.db.update(schema.users, id, changes);
   }
 
-  async updateUser(userId: number, name: string, avatar?: string) {
-    const changes = stripUndefined({ name, avatar });
-    await this.db.update(schema.users, userId, changes);
-  }
-
-  async uploadUserAvatar(userId: number, file: File) {
-    const key = `avatars/${userId}_${Date.now()}`;
+  private async uploadUserAvatar(id: number, file: File) {
+    const key = `avatars/${id}_${Date.now()}`;
     await this.storage.set(key, file);
     return key;
   }

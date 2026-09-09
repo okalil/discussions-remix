@@ -1,7 +1,7 @@
 import { clientEntry, css, on } from 'remix/ui';
 import * as menu from 'remix/ui/menu/primitives';
 
-import type { CommentSummaryDto } from '../../../core/comment.types.ts';
+import type { Comment } from '../../../core/comment.types.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 import { Button } from '../../shared/button.tsx';
 import { DotsIcon } from '../../shared/icons/dots-icon.tsx';
@@ -10,7 +10,7 @@ import { EditCommentForm } from './edit-comment-form.tsx';
 import { VoteComment } from './vote-comment.tsx';
 
 type CommentRowProps = {
-  comment: CommentSummaryDto;
+  comment: Comment;
   authenticated: boolean;
 };
 

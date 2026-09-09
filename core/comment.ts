@@ -1,6 +1,13 @@
 import { sql } from 'remix/data-table';
 
-import type { CommentSummaryDto } from './comment.types.ts';
+import type {
+  Comment,
+  CreateCommentInput,
+  DeleteCommentInput,
+  ListCommentsInput,
+  VoteCommentInput,
+  UpdateCommentInput,
+} from './comment.types.ts';
 import type { Database } from './integrations/db.ts';
 import { count, query } from './integrations/db/query.ts';
 import { schema } from './integrations/db/schema.ts';
@@ -8,12 +15,12 @@ import { schema } from './integrations/db/schema.ts';
 export class CommentService {
   constructor(private db: Database) {}
 
-  async getComments(
-    discussionId: number,
-    userId = 0,
+  async listComments({
+    discussionId,
+    viewerId,
     sort = 'oldest',
-  ): Promise<CommentSummaryDto[]> {
-    const voterId = userId ?? 0;
+  }: ListCommentsInput): Promise<Comment[]> {
+    const voterId = viewerId ?? 0;
     const orderBy =
       sort === 'newest'
         ? sql`c.created_at DESC`
@@ -65,43 +72,40 @@ export class CommentService {
     }));
   }
 
-  async createComment(discussionId: number, content: string, userId: number) {
-    return this.db.create(
-      schema.comments,
-      {
-        content,
-        author_id: userId,
-        discussion_id: discussionId,
-      },
-      { returnRow: true },
-    );
-  }
-
-  async updateComment(id: number, content: string, userId: number) {
-    await this.db.updateMany(
-      schema.comments,
-      { content },
-      { where: { id, author_id: userId } },
-    );
-  }
-
-  async deleteComment(id: number, userId: number) {
-    await this.db.deleteMany(schema.comments, {
-      where: { id, author_id: userId },
+  async createComment({ discussionId, content, actorId }: CreateCommentInput) {
+    await this.db.create(schema.comments, {
+      content,
+      author_id: actorId,
+      discussion_id: discussionId,
     });
   }
 
-  async voteComment(id: number, userId: number) {
-    await this.db.exec(sql`
-      INSERT INTO comment_votes (user_id, comment_id)
-      VALUES (${userId}, ${id})
-      ON CONFLICT (user_id, comment_id) DO NOTHING
-    `);
+  async updateComment(id: number, { content, actorId }: UpdateCommentInput) {
+    await this.db.updateMany(
+      schema.comments,
+      { content },
+      { where: { id, author_id: actorId } },
+    );
   }
 
-  async unvoteComment(id: number, userId: number) {
+  async deleteComment(id: number, { actorId }: DeleteCommentInput) {
+    await this.db.deleteMany(schema.comments, {
+      where: { id, author_id: actorId },
+    });
+  }
+
+  async voteComment({ commentId, actorId, voted }: VoteCommentInput) {
+    if (voted) {
+      await this.db.exec(sql`
+        INSERT INTO comment_votes (user_id, comment_id)
+        VALUES (${actorId}, ${commentId})
+        ON CONFLICT (user_id, comment_id) DO NOTHING
+      `);
+      return;
+    }
+
     await this.db.deleteMany(schema.commentVotes, {
-      where: { comment_id: id, user_id: userId },
+      where: { comment_id: commentId, user_id: actorId },
     });
   }
 }

@@ -6,7 +6,7 @@ import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 import { clientEntry, css } from 'remix/ui';
 
-import type { CategoryDto } from '../../../../core/category.types.ts';
+import type { Category } from '../../../../core/category.types.ts';
 import { Button } from '../../../shared/button.tsx';
 import { ErrorMessage } from '../../../shared/error-message.tsx';
 import { SelectField } from '../../../shared/forms/select-field.tsx';
@@ -14,7 +14,7 @@ import { TextAreaField } from '../../../shared/forms/text-area-field.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
 
 export type NewDiscussionFormProps = {
-  categories: CategoryDto[];
+  categories: Category[];
   draft?: FormDraft;
   errors?: FormErrors;
 };

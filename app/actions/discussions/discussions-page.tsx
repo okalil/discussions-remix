@@ -1,7 +1,7 @@
 import { css, type Handle } from 'remix/ui';
 
-import type { CategoryDto } from '../../../core/category.types.ts';
-import type { DiscussionSummaryDto } from '../../../core/discussion.types.ts';
+import type { Category } from '../../../core/category.types.ts';
+import type { DiscussionSummary } from '../../../core/discussion.types.ts';
 import { routes } from '../../routes.ts';
 import { button } from '../../shared/button.tsx';
 import { input } from '../../shared/forms/input.tsx';
@@ -11,8 +11,8 @@ import { Pagination } from '../../shared/pagination.tsx';
 import { DiscussionRow } from './discussion-row.tsx';
 
 type DiscussionsPageProps = {
-  categories: CategoryDto[];
-  discussions: DiscussionSummaryDto[];
+  categories: Category[];
+  discussions: DiscussionSummary[];
   total: number;
   limit: number;
   page: number;

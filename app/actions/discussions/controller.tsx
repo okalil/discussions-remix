@@ -1,9 +1,11 @@
 import { createController } from '@discussions/router';
+import * as s from 'remix/data-schema';
 import { parse } from 'remix/data-schema';
 
+import type { CommentSort } from '../../../core/comment.types.ts';
 import { routes } from '../../routes.ts';
 import { DiscussionPage } from './discussion-page.tsx';
-import { DiscussionPreview } from './discussion-preview.tsx';
+import { DiscussionPreviewCard } from './discussion-preview-card.tsx';
 import { DiscussionsPage } from './discussions-page.tsx';
 import { voteDiscussionSchema } from './vote-discussion.tsx';
 
@@ -23,14 +25,14 @@ export default createController(routes.discussions, {
         category: params.category,
       };
 
-      const currentUserId = auth.ok ? auth.identity.id : undefined;
+      const viewerId = auth.ok ? auth.identity.id : undefined;
 
-      const categories = await categoryService.getCategories();
-      const paginator = await discussionService.getDiscussions({
+      const categories = await categoryService.listCategories();
+      const paginator = await discussionService.listDiscussions({
         ...filters,
         page,
         limit: 20,
-        currentUserId,
+        viewerId,
       });
 
       return render(
@@ -47,19 +49,18 @@ export default createController(routes.discussions, {
     },
     async show({ render, url, params, auth, discussionService }) {
       const discussionId = Number(params.id);
-      const currentUserId = auth.ok ? auth.identity.id : undefined;
-      const sort = url.searchParams.get('sort') || 'oldest';
+      const viewerId = auth.ok ? auth.identity.id : undefined;
+      const sort = parse(commentSortSchema, url.searchParams.get('sort'));
 
-      const discussion = await discussionService.getDiscussion(
-        discussionId,
-        currentUserId,
-      );
+      const discussion = await discussionService.getDiscussion(discussionId, {
+        viewerId,
+      });
       if (!discussion) {
         return new Response('Not found', { status: 404 });
       }
 
       const participants =
-        await discussionService.getParticipants(discussionId);
+        await discussionService.listParticipants(discussionId);
 
       return render(
         <DiscussionPage
@@ -76,22 +77,25 @@ export default createController(routes.discussions, {
         await discussionService.getDiscussionPreview(discussionId);
       if (!discussion) return new Response('Not found', { status: 404 });
 
-      return render(<DiscussionPreview discussion={discussion} />);
+      return render(<DiscussionPreviewCard discussion={discussion} />);
     },
     async vote({ params, formData, auth, discussionService }) {
       if (!auth.ok) return Response.json(auth.error, { status: 401 });
 
       const data = parse(voteDiscussionSchema, formData);
 
-      const discussionId = Number(params.id);
-      const currentUserId = auth.identity.id;
-      if (data.voted) {
-        await discussionService.voteDiscussion(discussionId, currentUserId);
-      } else {
-        await discussionService.unvoteDiscussion(discussionId, currentUserId);
-      }
+      await discussionService.voteDiscussion({
+        discussionId: Number(params.id),
+        actorId: auth.identity.id,
+        voted: data.voted,
+      });
 
       return new Response(null, { status: 204 });
     },
   },
 });
+
+const commentSortSchema = s.union([
+  s.enum_(['oldest', 'newest', 'top'] as const),
+  s.any().transform((): CommentSort => 'oldest'),
+]);

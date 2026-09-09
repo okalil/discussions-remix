@@ -34,15 +34,10 @@ export default createController(routes.auth.forgotPassword, {
         );
       }
 
-      const user = await context.userService.getUserByEmail(
-        validation.value.email,
-      );
-      if (user?.email) {
-        await context.accountService.deliverResetPasswordLink({
-          email: user.email,
-          path: routes.auth.resetPassword.index.href(),
-        });
-      }
+      await context.accountService.requestPasswordReset({
+        email: validation.value.email,
+        path: routes.auth.resetPassword.index.href(),
+      });
 
       context.session.flash(
         'success',

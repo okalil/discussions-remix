@@ -49,7 +49,9 @@ export default createController(routes.auth.login, {
         );
       }
 
-      const userSession = await context.sessionService.createSession(user.id);
+      const userSession = await context.sessionService.createSession({
+        userId: user.id,
+      });
       const session = completeAuth(context);
       session.set('auth', userSession.id);
 

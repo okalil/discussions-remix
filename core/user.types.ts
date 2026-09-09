@@ -3,11 +3,16 @@ export type User = {
   name: string;
   email: string;
   emailVerified: boolean;
-  avatar?: string;
+  avatar: string | null;
 };
 
-export type PublicUserDto = {
+export type PublicUser = {
   id: number;
   name: string;
   avatar: string | null;
+};
+
+export type UpdateUserInput = {
+  name: string;
+  avatar?: File | null;
 };

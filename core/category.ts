@@ -1,4 +1,4 @@
-import type { CategoryDto } from './category.types.ts';
+import type { Category } from './category.types.ts';
 import type { Database } from './integrations/db.ts';
 import { schema } from './integrations/db/schema.ts';
 
@@ -32,7 +32,7 @@ const defaultCategories = [
 export class CategoryService {
   constructor(private db: Database) {}
 
-  async getCategories(): Promise<CategoryDto[]> {
+  async listCategories(): Promise<Category[]> {
     const categories = await this.db.findMany(schema.categories);
     if (categories.length) return categories;
 

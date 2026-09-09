@@ -1,14 +1,16 @@
 import { css, type Handle } from 'remix/ui';
 
-import type { DiscussionPreviewDto } from '../../../core/discussion.types.ts';
+import type { DiscussionPreview } from '../../../core/discussion.types.ts';
 import { routes } from '../../routes.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 
-type DiscussionPreviewProps = {
-  discussion: DiscussionPreviewDto;
+type DiscussionPreviewCardProps = {
+  discussion: DiscussionPreview;
 };
 
-export function DiscussionPreview(handle: Handle<DiscussionPreviewProps>) {
+export function DiscussionPreviewCard(
+  handle: Handle<DiscussionPreviewCardProps>,
+) {
   return () => {
     const { discussion } = handle.props;
     return (

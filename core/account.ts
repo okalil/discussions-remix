@@ -3,11 +3,14 @@ import crypto from 'node:crypto';
 import { sql } from 'remix/data-table';
 
 import type {
-  CreateCredentialsAccountDto,
-  CredentialsDto,
-  DeliverResetPasswordLinkDto,
-  LinkProviderAccountDto,
-  ResetPasswordDto,
+  CreateCredentialAccountInput,
+  CreateCredentialAccountResult,
+  CredentialsInput,
+  LinkProviderAccountInput,
+  LinkProviderAccountResult,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
+  ResetPasswordResult,
 } from './account.types.ts';
 import type { Database } from './integrations/db.ts';
 import { queryOne } from './integrations/db/query.ts';
@@ -24,7 +27,7 @@ export class AccountService {
 
   /* CREDENTIAL ACCOUNT */
 
-  async getUserByCredentials({ email, password }: CredentialsDto) {
+  async getUserByCredentials({ email, password }: CredentialsInput) {
     const row = await queryOne<UserIdAndPasswordRow>(
       this.db,
       sql`
@@ -44,10 +47,13 @@ export class AccountService {
     name,
     email,
     password,
-  }: CreateCredentialsAccountDto) {
+  }: CreateCredentialAccountInput): Promise<CreateCredentialAccountResult> {
+    const existing = await this.db.findOne(schema.users, { where: { email } });
+    if (existing) return { ok: false, error: 'email_taken' };
+
     const hashedPassword = await this.hashPassword(password);
 
-    return this.db.transaction(async (db) => {
+    const user = await this.db.transaction(async (db) => {
       const user = await db.create(
         schema.users,
         { email, name },
@@ -60,37 +66,45 @@ export class AccountService {
       });
       return user;
     });
+    return { ok: true, user };
   }
 
-  async deliverResetPasswordLink({ email, path }: DeliverResetPasswordLinkDto) {
-    const token = await this.createVerificationToken(email);
+  async requestPasswordReset({ email, path }: RequestPasswordResetInput) {
+    const user = await this.db.findOne(schema.users, { where: { email } });
+    if (!user) return;
+
+    const token = await this.createVerificationToken(user.email);
     const link = new URL(path, this.mailer.config.site);
     link.searchParams.set('token', token);
 
     await this.mailer.send({
-      to: email,
+      to: user.email,
       subject: 'Discussions, Password Reset',
       template: ResetPasswordLink,
       props: {
-        email,
+        email: user.email,
         link: link.href,
       },
     });
   }
 
-  async resetPassword({ email, password, token }: ResetPasswordDto) {
+  async resetPassword({
+    email,
+    password,
+    token,
+  }: ResetPasswordInput): Promise<ResetPasswordResult> {
     const verificationToken = await this.getVerificationToken(email);
 
-    if (
-      !verificationToken ||
-      new Date(verificationToken.expires) < new Date()
-    ) {
-      return false;
+    if (!verificationToken) {
+      return { ok: false, error: 'missing_token' };
+    }
+    if (new Date(verificationToken.expires) < new Date()) {
+      return { ok: false, error: 'expired_token' };
     }
 
     const isValid = await this.verifyPassword(token, verificationToken.token);
     if (!isValid) {
-      return false;
+      return { ok: false, error: 'invalid_token' };
     }
 
     const hashedPassword = await this.hashPassword(password);
@@ -105,7 +119,7 @@ export class AccountService {
       props: { email },
     });
 
-    return true;
+    return { ok: true };
   }
 
   private async updatePassword(email: string, password: string) {
@@ -167,7 +181,7 @@ export class AccountService {
     email,
     name,
     avatar,
-  }: LinkProviderAccountDto) {
+  }: LinkProviderAccountInput): Promise<LinkProviderAccountResult> {
     let user = await this.db.findOne(schema.users, {
       where: { email },
     });
@@ -177,15 +191,15 @@ export class AccountService {
         provider,
       },
     });
-    if (account && user) return user;
+    if (account && user) return { ok: true, user };
 
     // If there is already a signed-up user with the same email and that user is not verified,
     // prevent linking to avoid hijacking an unverified account.
     if (user && !user.email_verified) {
-      throw new Error('Email already in use by an unverified account');
+      return { ok: false, error: 'unverified_email' };
     }
 
-    return this.db.transaction(async (db) => {
+    user = await this.db.transaction(async (db) => {
       if (!user) {
         user = await db.create(
           schema.users,
@@ -208,6 +222,8 @@ export class AccountService {
 
       return user;
     });
+
+    return { ok: true, user };
   }
 }
 

@@ -1,10 +1,10 @@
 import { css, type Handle } from 'remix/ui';
 
-import type { CommentSummaryDto } from '../../../core/comment.types.ts';
+import type { Comment } from '../../../core/comment.types.ts';
 import { CommentRow } from './comment-row.tsx';
 
 type CommentsProps = {
-  comments: CommentSummaryDto[];
+  comments: Comment[];
   authenticated: boolean;
 };
 

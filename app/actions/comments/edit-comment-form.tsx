@@ -4,13 +4,13 @@ import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
 import { css, on, type Handle } from 'remix/ui';
 
-import type { CommentSummaryDto } from '../../../core/comment.types.ts';
+import type { Comment } from '../../../core/comment.types.ts';
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { TextAreaField } from '../../shared/forms/text-area-field.tsx';
 
 type EditCommentFormProps = {
-  comment: CommentSummaryDto;
+  comment: Comment;
 };
 
 export function EditCommentForm(handle: Handle<EditCommentFormProps>) {
