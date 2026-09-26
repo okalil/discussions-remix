@@ -21,24 +21,21 @@ export default createController(routes.profile, {
     },
     async action({ render, formData, auth, session, userService }) {
       const user = auth.identity;
-      const validation = parseSafe(updateProfileSchema, formData);
-      if (!validation.success) {
+      const parsed = parseSafe(updateProfileSchema, formData);
+      if (!parsed.success) {
         return render(
           <ProfileLayout>
             <ProfileForm
               user={user}
               draft={toDraft(formData)}
-              errors={toErrors(validation.issues)}
+              errors={toErrors(parsed.issues)}
             />
           </ProfileLayout>,
           { status: 422 },
         );
       }
 
-      await userService.updateUser(user.id, {
-        name: validation.value.name,
-        avatar: validation.value.avatar,
-      });
+      await userService.updateUser(user.id, parsed.value);
 
       session.flash('success', 'Successfully updated!');
       return redirect(routes.profile.index.href());

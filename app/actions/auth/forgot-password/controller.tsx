@@ -20,14 +20,13 @@ export default createController(routes.auth.forgotPassword, {
       );
     },
     async action(context) {
-      const validation = parseSafe(forgotPasswordSchema, context.formData);
-
-      if (!validation.success) {
+      const parsed = parseSafe(forgotPasswordSchema, context.formData);
+      if (!parsed.success) {
         return context.render(
           <ForgotPasswordLayout>
             <ForgotPasswordForm
               draft={toDraft(context.formData)}
-              errors={toErrors(validation.issues)}
+              errors={toErrors(parsed.issues)}
             />
           </ForgotPasswordLayout>,
           { status: 422 },
@@ -35,8 +34,8 @@ export default createController(routes.auth.forgotPassword, {
       }
 
       await context.accountService.requestPasswordReset({
-        email: validation.value.email,
-        path: routes.auth.resetPassword.index.href(),
+        email: parsed.value.email,
+        resetPasswordPath: routes.auth.resetPassword.index.href(),
       });
 
       context.session.flash(

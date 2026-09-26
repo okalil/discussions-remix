@@ -25,7 +25,7 @@ export type ResetPasswordResult =
 
 export type RequestPasswordResetInput = {
   email: string;
-  path: string;
+  resetPasswordPath: string;
 };
 
 export type LinkProviderAccountInput = {

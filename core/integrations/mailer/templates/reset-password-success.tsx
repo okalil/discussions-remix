@@ -19,7 +19,7 @@ interface Props extends MailerTemplateProps {
   email: string;
 }
 
-export function ResetPasswordSuccess({ baseUrl, email }: Props) {
+export function ResetPasswordSuccess({ origin, email }: Props) {
   return (
     <Html>
       <Head />
@@ -28,7 +28,7 @@ export function ResetPasswordSuccess({ baseUrl, email }: Props) {
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 max-w-[600px] rounded border border-solid border-neutral-200 px-10 py-5">
             <Section className="mt-8">
-              <Img src={`${baseUrl}/logo.png`} height="32" alt="Discussions" />
+              <Img src={`${origin}/logo.png`} height="32" alt="Discussions" />
             </Section>
             <Heading className="mx-0 my-7 p-0 text-xl font-medium text-black">
               Password Successfully Reset
@@ -56,7 +56,7 @@ export function ResetPasswordSuccess({ baseUrl, email }: Props) {
 }
 
 ResetPasswordSuccess.PreviewProps = {
-  baseUrl: 'http://localhost:5173',
+  origin: 'http://localhost:5173',
   email: 'john@due.com',
 } as Props;
 

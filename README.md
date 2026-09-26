@@ -24,7 +24,7 @@ A shared `remix/data-schema` form schema is the contract between the form UI and
 
 **Errors**: the `errors` getter covers failures only the server can determine (e.g. invalid credentials). Client validation errors live in Form state and are merged with server errors.
 
-See `app/auth/login/login-form.tsx` and `app/auth/login/controller.tsx`.
+See `app/actions/auth/login/login-form.tsx` and `app/actions/auth/login/controller.tsx`.
 
 ```tsx
 // login-form.tsx
@@ -75,19 +75,19 @@ export const LoginForm = clientEntry<LoginFormProps>(
 
 ```tsx
 // login/controller.tsx (action)
-const validation = parseSafe(loginSchema, context.formData);
-if (!validation.success) {
+const parsed = parseSafe(loginSchema, context.formData);
+if (!parsed.success) {
   return context.render(
     <LoginLayout>
       <LoginForm
         draft={toDraft(context.formData, { omit: ['password'] })}
-        errors={toErrors(validation.issues)}
+        errors={toErrors(parsed.issues)}
       />
     </LoginLayout>,
     { status: 422 },
   );
 }
-// …use validation.value, then redirect
+// …use parsed.value, then redirect
 ```
 
 ## Commands

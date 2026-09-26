@@ -23,7 +23,7 @@ export function services(): Middleware<ServicesContextTransform> {
 
     try {
       const mailer = createResendMailer(env.RESEND_API_KEY, {
-        site: new URL(context.request.url).origin,
+        origin: context.url.origin,
         production: import.meta.env.PROD,
       });
       const storage = createR2FileStorage(env.R2);

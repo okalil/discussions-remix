@@ -18,16 +18,15 @@ export default createController(routes.auth.register, {
       );
     },
     async action(context) {
-      const validation = parseSafe(registerSchema, context.formData);
-
-      if (!validation.success) {
+      const parsed = parseSafe(registerSchema, context.formData);
+      if (!parsed.success) {
         return context.render(
           <RegisterLayout>
             <RegisterForm
               draft={toDraft(context.formData, {
                 omit: ['password', 'passwordConfirmation'],
               })}
-              errors={toErrors(validation.issues)}
+              errors={toErrors(parsed.issues)}
             />
           </RegisterLayout>,
           { status: 422 },
@@ -35,7 +34,7 @@ export default createController(routes.auth.register, {
       }
 
       const result = await context.accountService.createCredentialAccount(
-        validation.value,
+        parsed.value,
       );
       if (!result.ok) {
         return context.render(

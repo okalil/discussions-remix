@@ -21,25 +21,22 @@ export default createController(routes.auth.resetPassword, {
       );
     },
     async action(context) {
-      const validation = parseSafe(resetPasswordSchema, context.formData);
-
-      if (!validation.success) {
+      const parsed = parseSafe(resetPasswordSchema, context.formData);
+      if (!parsed.success) {
         return context.render(
           <ResetPasswordLayout>
             <ResetPasswordForm
               draft={toDraft(context.formData, {
                 omit: ['password', 'passwordConfirmation'],
               })}
-              errors={toErrors(validation.issues)}
+              errors={toErrors(parsed.issues)}
             />
           </ResetPasswordLayout>,
           { status: 422 },
         );
       }
 
-      const result = await context.accountService.resetPassword(
-        validation.value,
-      );
+      const result = await context.accountService.resetPassword(parsed.value);
       if (!result.ok) {
         return context.render(
           <ResetPasswordLayout>

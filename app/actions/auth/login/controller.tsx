@@ -19,20 +19,20 @@ export default createController(routes.auth.login, {
       );
     },
     async action(context) {
-      const validation = parseSafe(loginSchema, context.formData);
-      if (!validation.success) {
+      const parsed = parseSafe(loginSchema, context.formData);
+      if (!parsed.success) {
         return context.render(
           <LoginLayout>
             <LoginForm
               draft={toDraft(context.formData, { omit: ['password'] })}
-              errors={toErrors(validation.issues)}
+              errors={toErrors(parsed.issues)}
             />
           </LoginLayout>,
           { status: 422 },
         );
       }
 
-      const { email, password, remember } = validation.value;
+      const { email, password, remember } = parsed.value;
       const user = await context.accountService.getUserByCredentials({
         email,
         password,

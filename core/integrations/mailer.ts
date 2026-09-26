@@ -2,20 +2,20 @@ import { createElement, type ComponentType, type ReactElement } from 'react';
 import { render } from 'react-email';
 
 export interface MailerConfig {
-  site: string;
+  origin: string;
   production: boolean;
   from?: string;
 }
 
 export type MailerTemplateProps = {
-  baseUrl: string;
+  origin: string;
 };
 
 export interface MailerMessage<P extends MailerTemplateProps> {
   to: string;
   subject: string;
   template: ComponentType<P>;
-  props: Omit<P, 'baseUrl'>;
+  props: Omit<P, 'origin'>;
 }
 
 /**
@@ -46,10 +46,10 @@ export class Mailer {
 
   constructor(
     transport: MailerTransport,
-    { site, production, from = 'me@mail.com' }: MailerConfig,
+    { origin, production, from = 'me@mail.com' }: MailerConfig,
   ) {
     this.#transport = transport;
-    this.config = { site, production, from };
+    this.config = { origin, production, from };
   }
 
   async send<P extends MailerTemplateProps>({
@@ -60,7 +60,7 @@ export class Mailer {
   }: MailerMessage<P>): Promise<void> {
     const element = createElement(template, {
       ...props,
-      baseUrl: this.config.site,
+      origin: this.config.origin,
     } as P);
 
     if (!this.config.production) {

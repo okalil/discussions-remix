@@ -18,10 +18,19 @@ import type { MailerTemplateProps } from '../../mailer.ts';
 
 interface Props extends MailerTemplateProps {
   email: string;
-  link: string;
+  resetPasswordPath: string;
+  token: string;
 }
 
-export function ResetPasswordLink({ baseUrl, email, link }: Props) {
+export function ResetPasswordLink({
+  origin,
+  email,
+  resetPasswordPath,
+  token,
+}: Props) {
+  const link = new URL(resetPasswordPath, origin);
+  link.searchParams.set('token', token);
+
   return (
     <Html>
       <Head />
@@ -30,7 +39,7 @@ export function ResetPasswordLink({ baseUrl, email, link }: Props) {
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 max-w-[600px] rounded border border-solid border-neutral-200 px-10 py-5">
             <Section className="mt-8">
-              <Img src={`${baseUrl}/logo.png`} height="32" alt="Discussions" />
+              <Img src={`${origin}/logo.png`} height="32" alt="Discussions" />
             </Section>
             <Heading className="mx-0 my-7 p-0 text-xl font-medium text-black">
               Reset password link
@@ -45,7 +54,7 @@ export function ResetPasswordLink({ baseUrl, email, link }: Props) {
             <Section className="my-8 mt-8">
               <Button
                 className="rounded-lg bg-black px-6 py-3 text-center text-[12px] font-semibold text-white"
-                href={link}
+                href={link.href}
               >
                 Reset Password
               </Button>
@@ -54,7 +63,7 @@ export function ResetPasswordLink({ baseUrl, email, link }: Props) {
               or copy and paste this URL into your browser:
             </Text>
             <Text className="text-sm font-medium text-purple-600 break-all">
-              {link.replace(/^https?:\/\//, '')}
+              {link.href.replace(/^https?:\/\//, '')}
             </Text>
 
             <Hr className="mx-0 my-6 w-full border border-neutral-200" />
@@ -73,9 +82,10 @@ export function ResetPasswordLink({ baseUrl, email, link }: Props) {
 }
 
 ResetPasswordLink.PreviewProps = {
-  baseUrl: 'http://localhost:44100',
+  origin: 'http://localhost:44100',
   email: 'john@due.com',
-  link: 'https://localhost:44100/auth/reset-password?token=1e7ab5ef3e239582fa4f0f4fc31ed6b2d77bf46e32f28d7b343644d1946889ae',
+  resetPasswordPath: '/auth/reset-password',
+  token: '1e7ab5ef3e239582fa4f0f4fc31ed6b2d77bf46e32f28d7b343644d1946889ae',
 } as Props;
 
 export default ResetPasswordLink;

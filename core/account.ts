@@ -69,13 +69,14 @@ export class AccountService {
     return { ok: true, user };
   }
 
-  async requestPasswordReset({ email, path }: RequestPasswordResetInput) {
+  async requestPasswordReset({
+    email,
+    resetPasswordPath,
+  }: RequestPasswordResetInput) {
     const user = await this.db.findOne(schema.users, { where: { email } });
     if (!user) return;
 
     const token = await this.createVerificationToken(user.email);
-    const link = new URL(path, this.mailer.config.site);
-    link.searchParams.set('token', token);
 
     await this.mailer.send({
       to: user.email,
@@ -83,7 +84,8 @@ export class AccountService {
       template: ResetPasswordLink,
       props: {
         email: user.email,
-        link: link.href,
+        resetPasswordPath,
+        token,
       },
     });
   }

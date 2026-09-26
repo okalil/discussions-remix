@@ -29,15 +29,15 @@ export default createController(routes.discussions.new, {
       categoryService,
       discussionService,
     }) {
-      const validation = parseSafe(newDiscussionSchema, formData);
-      if (!validation.success) {
+      const parsed = parseSafe(newDiscussionSchema, formData);
+      if (!parsed.success) {
         const categories = await categoryService.listCategories();
         return render(
           <NewDiscussionLayout>
             <NewDiscussionForm
               categories={categories}
               draft={toDraft(formData)}
-              errors={toErrors(validation.issues)}
+              errors={toErrors(parsed.issues)}
             />
           </NewDiscussionLayout>,
           { status: 422 },
@@ -45,7 +45,7 @@ export default createController(routes.discussions.new, {
       }
 
       const discussion = await discussionService.createDiscussion({
-        ...validation.value,
+        ...parsed.value,
         actorId: auth.identity.id,
       });
 
