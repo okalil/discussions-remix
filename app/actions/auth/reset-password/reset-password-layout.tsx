@@ -1,4 +1,4 @@
-import { type Handle, type RemixNode } from 'remix/ui';
+import { type Handle, type RemixNode } from 'remix/component';
 
 import { Document } from '../../../shared/document.tsx';
 import { AuthLayout } from '../auth-layout.tsx';

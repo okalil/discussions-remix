@@ -1,5 +1,5 @@
-import { css, type Handle } from 'remix/ui';
-import { jsx, type RemixElement } from 'remix/ui/jsx-runtime';
+import { css, type Handle } from 'remix/component';
+import { jsx, type RemixElement } from 'remix/component/jsx-runtime';
 
 type FieldWrapperProps = {
   label: string;

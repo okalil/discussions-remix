@@ -1,4 +1,4 @@
-import { clientEntry, css, on } from 'remix/ui';
+import { clientEntry, css, on } from 'remix/component';
 
 type FlashToastProps = {
   message: string;

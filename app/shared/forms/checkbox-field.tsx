@@ -1,5 +1,5 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, on, type Handle } from 'remix/ui';
+import { css, on, type Handle } from 'remix/component';
 
 import { checkbox } from './checkbox.tsx';
 

@@ -1,4 +1,4 @@
-import { attrs, css } from 'remix/ui';
+import { attrs, css } from 'remix/component';
 
 export function checkbox() {
   return [

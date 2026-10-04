@@ -1,4 +1,4 @@
-import { css, type Handle } from 'remix/ui';
+import { css, type Handle } from 'remix/component';
 
 import type { Category } from '../../../core/category.types.ts';
 import type { DiscussionSummary } from '../../../core/discussion.types.ts';

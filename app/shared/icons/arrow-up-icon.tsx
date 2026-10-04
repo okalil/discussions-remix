@@ -1,5 +1,5 @@
-import type { Handle } from 'remix/ui';
-import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
+import type { Handle } from 'remix/component';
+import type { Props as ElementProps } from 'remix/component/jsx-runtime';
 
 type ArrowUpIconProps = ElementProps<'svg'> & {
   size?: number;

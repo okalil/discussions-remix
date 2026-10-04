@@ -9,10 +9,11 @@
     "@discussions/form": "workspace:*",
     "@discussions/router": "workspace:*",
     "@neondatabase/serverless": "^1.1.0",
+    "@remix-run/ui": "0.12.1",
     "bcryptjs": "^3.0.3",
     "react": "^19.2.7",
     "react-email": "^6.9.0",
-    "remix": "3.0.0-rc.1",
+    "remix": "3.0.0",
     "resend": "^6.17.2",
     "tsx": "latest"
   },

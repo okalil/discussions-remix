@@ -1,4 +1,4 @@
-import { attrs, createMixin, on, ref } from 'remix/ui';
+import { attrs, createMixin, on, ref } from 'remix/component';
 
 import { isFormValidationError, type Form } from '../form.ts';
 import type { FormSubmitHandler, FormSubmitResult } from '../types.ts';

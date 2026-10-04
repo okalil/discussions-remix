@@ -1,7 +1,7 @@
 import { mergeAssets } from '@pitlane/dev/runtime';
+import { css, type Handle, type RemixNode } from 'remix/component';
 import { getContext } from 'remix/middleware/async-context';
 import type { Session } from 'remix/session';
-import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import clientAssets from '../entry.client.ts?assets=client';
 import serverAssets from '../entry.server.ts?assets=ssr';

@@ -1,9 +1,9 @@
 import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
+import { clientEntry, css } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { email } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { clientEntry, css } from 'remix/ui';
 
 import { routes } from '../../../routes.ts';
 import { Button } from '../../../shared/button.tsx';

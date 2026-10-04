@@ -1,4 +1,4 @@
-import { clientEntry, css } from 'remix/ui';
+import { clientEntry, css } from 'remix/component';
 
 export const NavigationProgress = clientEntry(
   import.meta.url,

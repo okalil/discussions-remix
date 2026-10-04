@@ -1,5 +1,5 @@
+import { css, type Handle, type RemixNode } from 'remix/component';
 import { getContext } from 'remix/middleware/async-context';
-import { css, type Handle, type RemixNode } from 'remix/ui';
 
 import { routes } from '../routes.ts';
 import { Avatar } from '../shared/avatar.tsx';

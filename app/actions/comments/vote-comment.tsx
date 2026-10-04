@@ -1,7 +1,7 @@
 import { Form } from '@discussions/form';
+import { css, on, type Handle } from 'remix/component';
 import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
-import { css, on, type Handle } from 'remix/ui';
 
 import { routes } from '../../routes.ts';
 import { ArrowUpIcon } from '../../shared/icons/arrow-up-icon.tsx';

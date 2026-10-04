@@ -1,6 +1,6 @@
+import { TypedEventTarget } from 'remix/component';
 import * as s from 'remix/data-schema';
 import type { FormDataSource } from 'remix/data-schema/form-data';
-import { TypedEventTarget } from 'remix/ui';
 
 import { Field } from './field.ts';
 import type {

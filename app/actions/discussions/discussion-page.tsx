@@ -1,4 +1,4 @@
-import { css, Frame, type Handle } from 'remix/ui';
+import { css, Frame, type Handle } from 'remix/component';
 
 import type { CommentSort } from '../../../core/comment.types.ts';
 import type { Discussion } from '../../../core/discussion.types.ts';

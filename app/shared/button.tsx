@@ -1,5 +1,5 @@
-import { css, type Handle, type RemixNode } from 'remix/ui';
-import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
+import { css, type Handle, type RemixNode } from 'remix/component';
+import type { Props as ElementProps } from 'remix/component/jsx-runtime';
 
 import { SpinnerIcon } from './icons/spinner-icon.tsx';
 

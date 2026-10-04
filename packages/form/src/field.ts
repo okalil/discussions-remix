@@ -1,4 +1,4 @@
-import { TypedEventTarget } from 'remix/ui';
+import { TypedEventTarget } from 'remix/component';
 
 import type { Form } from './form.ts';
 import type { FormDataEntryOf, FormFieldName } from './types.ts';

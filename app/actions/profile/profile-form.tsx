@@ -1,9 +1,9 @@
 import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
+import { clientEntry, css } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
-import { clientEntry, css } from 'remix/ui';
 
 import type { User } from '../../../core/user.types.ts';
 import { Avatar } from '../../shared/avatar.tsx';

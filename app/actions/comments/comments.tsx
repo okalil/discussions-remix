@@ -1,4 +1,4 @@
-import { css, type Handle } from 'remix/ui';
+import { css, type Handle } from 'remix/component';
 
 import type { Comment } from '../../../core/comment.types.ts';
 import { CommentRow } from './comment-row.tsx';

@@ -1,4 +1,4 @@
-import { clientEntry, css, Frame, on } from 'remix/ui';
+import { clientEntry, css, Frame, on } from 'remix/component';
 
 type DiscussionLinkProps = {
   href: string;

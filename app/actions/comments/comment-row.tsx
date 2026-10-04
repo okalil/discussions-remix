@@ -1,5 +1,5 @@
-import { clientEntry, css, on } from 'remix/ui';
-import * as menu from 'remix/ui/menu/primitives';
+import * as menu from '@remix-run/ui/menu';
+import { clientEntry, css, on } from 'remix/component';
 
 import type { Comment } from '../../../core/comment.types.ts';
 import { Avatar } from '../../shared/avatar.tsx';

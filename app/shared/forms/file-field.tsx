@@ -1,6 +1,6 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, on, type Handle } from 'remix/ui';
-import type { Props as ElementProps } from 'remix/ui/jsx-runtime';
+import { css, on, type Handle } from 'remix/component';
+import type { Props as ElementProps } from 'remix/component/jsx-runtime';
 
 type FileFieldProps = Pick<ElementProps<'input'>, 'accept' | 'multiple'> & {
   field: FieldHandle;

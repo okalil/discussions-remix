@@ -1,5 +1,5 @@
 import { Form } from '@discussions/form';
-import { on, type Handle } from 'remix/ui';
+import { on, type Handle } from 'remix/component';
 
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
