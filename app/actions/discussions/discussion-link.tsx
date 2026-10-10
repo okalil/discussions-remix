@@ -1,4 +1,7 @@
-import { clientEntry, css, Frame, on } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry, Frame, on } from 'remix/component';
+
+import { t } from '../../theme.ts';
 
 type DiscussionLinkProps = {
   href: string;
@@ -74,32 +77,31 @@ const styles = {
     display: 'inline',
   }),
   title: css({
-    fontSize: '1.125rem',
-    fontWeight: 500,
-    color: '#111827',
+    fontSize: t.type.titleMedium.size,
+    fontWeight: t.type.labelLarge.weight,
+    color: t.color.onSurface,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
     },
     '&:visited': {
-      color: '#4b5563',
+      color: t.color.onSurfaceVariant,
     },
   }),
   panel: css({
     position: 'absolute',
-    bottom: '100%',
+    bottom: t.size.full,
     left: 0,
     zIndex: 20,
-    width: '300px',
-    marginBottom: '0.25rem',
-    backgroundColor: '#fff',
-    borderRadius: '0.375rem',
-    boxShadow:
-      '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+    width: t.size.preview,
+    marginBottom: t.spacing(1),
+    backgroundColor: t.color.surfaceContainerLowest,
+    borderRadius: t.shape.small,
+    boxShadow: t.elevation.level2,
   }),
   loading: css({
-    padding: '0.75rem',
-    fontSize: '0.875rem',
-    color: '#6b7280',
+    padding: t.spacing(3),
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
 };

@@ -1,7 +1,9 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 
 import type { PublicUser } from '../../../core/user.types.ts';
 import { Avatar } from '../../shared/avatar.tsx';
+import { t } from '../../theme.ts';
 
 type ParticipantsProps = {
   participants: PublicUser[];
@@ -14,7 +16,8 @@ export function Participants(handle: Handle<ParticipantsProps>) {
         <Avatar
           key={participant.id}
           src={participant.avatar}
-          alt={`${participant.name}'s avatar`}
+          alt=""
+          title={participant.name}
           fallback={participant.name.at(0)}
           size={24}
         />
@@ -27,6 +30,6 @@ const styles = {
   root: css({
     display: 'flex',
     flexWrap: 'wrap',
-    gap: '0.25rem',
+    gap: t.spacing(1),
   }),
 };

@@ -1,4 +1,5 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 
 import type { Comment } from '../../../core/comment.types.ts';
 import { CommentRow } from './comment-row.tsx';

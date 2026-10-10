@@ -1,9 +1,11 @@
-import { css, type Handle, type RemixNode } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle, type RemixNode } from 'remix/component';
 import { ImportMap } from 'remix/component/server';
 import { getContext } from 'remix/middleware/async-context';
 import type { Session } from 'remix/session';
 
 import { scriptEntry, stylesheets } from '../assets.ts';
+import { t, Theme } from '../theme.ts';
 import { FlashToast } from './flash-toast.tsx';
 import { NavigationProgress } from './navigation-progress.tsx';
 
@@ -20,7 +22,7 @@ export function Document(handle: Handle<DocumentProps>) {
   const toast = getFlashToast(session);
 
   return () => (
-    <html lang="en" mix={css({ height: '100%' })}>
+    <html lang="en" mix={css({ height: t.size.screen, overflow: 'hidden' })}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,6 +30,7 @@ export function Document(handle: Handle<DocumentProps>) {
         <title>{handle.props.title ?? DEFAULT_TITLE}</title>
         {handle.props.meta}
 
+        <Theme />
         <link rel="stylesheet" href="/styles/setup.css" />
         <ImportMap value={scriptEntry.importMap} />
         {stylesheets.map((href) => (
@@ -38,7 +41,7 @@ export function Document(handle: Handle<DocumentProps>) {
         ))}
         <script type="module" src={scriptEntry.href} />
       </head>
-      <body mix={css({ height: '100%' })}>
+      <body mix={css({ height: t.size.screen, overflow: 'auto' })}>
         <NavigationProgress />
         {toast && <FlashToast {...toast} />}
 

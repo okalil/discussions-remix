@@ -1,4 +1,7 @@
-import { clientEntry, css } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry } from 'remix/component';
+
+import { t } from '../theme.ts';
 
 export const NavigationProgress = clientEntry(
   import.meta.url,
@@ -107,18 +110,20 @@ function getSourceForm(source: EventTarget | null | undefined) {
 
 const styles = {
   root: css({
-    height: '0.25rem',
     position: 'fixed',
     zIndex: 30,
     top: 0,
     left: 0,
     right: 0,
+    height: t.spacing(1),
+    overflow: 'hidden',
+    pointerEvents: 'none',
   }),
   bar: css({
-    backgroundColor: '#6366f1',
-    height: '100%',
-    transitionProperty: 'all',
-    transitionDuration: '150ms',
-    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: t.color.primary,
+    height: t.spacing(1),
+    transitionProperty: 'width',
+    transitionDuration: t.duration.short3,
+    transitionTimingFunction: t.easing.standard,
   }),
 };

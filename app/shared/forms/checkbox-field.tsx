@@ -1,6 +1,8 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, on, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { on, type Handle } from 'remix/component';
 
+import { t } from '../../theme.ts';
 import { checkbox } from './checkbox.tsx';
 
 type CheckboxFieldProps = {
@@ -38,11 +40,11 @@ const styles = {
   root: css({
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: t.spacing(2),
   }),
   label: css({
     cursor: 'pointer',
-    fontSize: '0.875rem',
-    color: '#374151',
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
 };

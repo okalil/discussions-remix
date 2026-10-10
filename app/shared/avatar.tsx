@@ -1,20 +1,28 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 import type { Props as ElementProps } from 'remix/component/jsx-runtime';
+
+import { t } from '../theme.ts';
 
 type AvatarProps = {
   src?: string | null;
   alt: string;
   size: number;
   fallback?: string;
+  title?: string;
   mix?: ElementProps<'div'>['mix'];
 };
 
 export function Avatar(handle: Handle<AvatarProps>) {
   return () => {
-    const { size, src, alt, fallback, mix } = handle.props;
+    const { size, src, alt, fallback, title, mix } = handle.props;
 
     return (
-      <div mix={[styles.root, mix]} style={{ width: size, height: size }}>
+      <div
+        title={title}
+        mix={[styles.root, mix]}
+        style={{ width: size, height: size }}
+      >
         {src && <img mix={styles.image} src={parseSource(src)} alt={alt} />}
         {fallback != undefined && (
           <span mix={styles.fallback} style={{ fontSize: size / 2 }}>
@@ -40,16 +48,16 @@ const styles = {
     display: 'flex',
     flexShrink: 0,
     overflow: 'hidden',
-    borderRadius: '9999px',
-    border: '1px solid #e5e7eb',
+    borderRadius: t.shape.full,
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
   }),
   image: css({
     position: 'relative',
     zIndex: 1,
     aspectRatio: '1 / 1',
     objectFit: 'cover',
-    width: '100%',
-    height: '100%',
+    width: t.size.full,
+    height: t.size.full,
   }),
   fallback: css({
     position: 'absolute',
@@ -57,8 +65,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: '9999px',
-    backgroundColor: '#f3f4f6',
-    color: '#6b7280',
+    borderRadius: t.shape.full,
+    backgroundColor: t.color.surfaceContainer,
+    color: t.color.onSurfaceVariant,
   }),
 };

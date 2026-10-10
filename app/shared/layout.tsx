@@ -1,9 +1,11 @@
-import { css, type Handle, type RemixNode } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle, type RemixNode } from 'remix/component';
 import { getContext } from 'remix/middleware/async-context';
 
 import { routes } from '../routes.ts';
 import { Avatar } from '../shared/avatar.tsx';
 import { button, Button } from '../shared/button.tsx';
+import { t } from '../theme.ts';
 import { Document, type DocumentProps } from './document.tsx';
 
 export interface LayoutProps extends DocumentProps {
@@ -21,21 +23,21 @@ export function Layout(handle: Handle<LayoutProps>) {
       <div mix={styles.root}>
         <header mix={styles.header}>
           <div mix={styles.headerInner}>
-            <h1 mix={styles.brand}>
-              <a href={routes.discussions.index.href()}>Discussions</a>
-            </h1>
+            <a href={routes.discussions.index.href()} mix={styles.brand}>
+              Discussions
+            </a>
 
             {!user && (
               <div mix={styles.actions}>
                 <a
                   href={routes.auth.login.index.href()}
-                  mix={[button({ variant: 'default' }), styles.headerButton]}
+                  mix={button({ variant: 'text' })}
                 >
                   Login
                 </a>
                 <a
                   href={routes.auth.register.index.href()}
-                  mix={[button({ variant: 'default' }), styles.headerButton]}
+                  mix={button({ variant: 'primary' })}
                 >
                   Sign Up
                 </a>
@@ -44,16 +46,21 @@ export function Layout(handle: Handle<LayoutProps>) {
 
             {user && (
               <div mix={styles.actions}>
-                <a href={routes.profile.index.href()}>
-                  <Avatar
-                    src={user.avatar}
-                    alt={user.name ?? ''}
-                    size={32}
-                    fallback={user.name?.charAt(0)}
-                  />
+                <a href={routes.profile.index.href()} mix={styles.profile}>
+                  <span aria-hidden="true">
+                    <Avatar
+                      src={user.avatar}
+                      alt=""
+                      size={32}
+                      fallback={user.name?.charAt(0)}
+                    />
+                  </span>
+                  {user.name && (
+                    <span mix={styles.profileName}>{user.name}</span>
+                  )}
                 </a>
                 <form method="post" action={routes.auth.logout.href()}>
-                  <Button type="submit" variant="danger" aria-label="Log Out">
+                  <Button type="submit" variant="text">
                     Log Out
                   </Button>
                 </form>
@@ -70,40 +77,54 @@ export function Layout(handle: Handle<LayoutProps>) {
 
 const styles = {
   root: css({
-    height: '100%',
+    minHeight: t.size.screen,
+    backgroundColor: t.color.surfaceContainerLow,
   }),
   header: css({
-    backgroundColor: '#111827',
-    color: '#f9fafb',
+    backgroundColor: t.color.surface,
+    color: t.color.onSurface,
+    borderBottom: `${t.size.px} solid ${t.color.outline}`,
   }),
   headerInner: css({
     display: 'flex',
     alignItems: 'center',
-    maxWidth: '64rem',
-    margin: '0 auto',
-    padding: '0.5rem 0.75rem',
-    height: '3.5rem',
+    maxWidth: t.size.page,
+    margin: [0, 'auto'],
+    padding: [0, t.spacing(4)],
+    height: t.spacing(14),
   }),
   brand: css({
-    margin: 0,
-    fontWeight: 500,
-    fontSize: '1.25rem',
-    '& a': {
-      color: 'inherit',
-      textDecoration: 'none',
-    },
+    fontSize: t.type.titleMedium.size,
+    fontWeight: t.type.titleMedium.weight,
+    lineHeight: t.type.titleMedium.lineHeight,
+    color: t.color.onSurface,
+    textDecoration: 'none',
   }),
   actions: css({
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
+    gap: t.spacing(1),
     marginLeft: 'auto',
   }),
-  headerButton: css({
-    color: '#f9fafb',
-    borderColor: '#4b5563',
-    '&:hover:not(:disabled)': {
-      backgroundColor: '#1f2937',
+  profile: css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: t.spacing(2),
+    minWidth: 0,
+    padding: [t.spacing(1), t.spacing(2)],
+    borderRadius: t.shape.small,
+    color: t.color.onSurface,
+    textDecoration: 'none',
+    fontSize: t.type.bodyMedium.size,
+    fontWeight: t.type.labelLarge.weight,
+    '&:hover': {
+      backgroundColor: t.color.surfaceContainerLow,
     },
+  }),
+  profileName: css({
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: t.spacing(40),
   }),
 };

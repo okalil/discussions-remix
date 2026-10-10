@@ -1,72 +1,137 @@
-import { css, type Handle, type RemixNode } from 'remix/component';
+import { css, tva, type TVAProps } from 'pitlane/theme';
+import { type Handle, type RemixNode } from 'remix/component';
 import type { Props as ElementProps } from 'remix/component/jsx-runtime';
 
+import { t } from '../theme.ts';
 import { SpinnerIcon } from './icons/spinner-icon.tsx';
 
-type ButtonProps = ElementProps<'button'> & {
-  variant: ButtonMixinProps['variant'];
-  pending?: boolean;
-  children?: RemixNode;
-};
+type ButtonProps = ElementProps<'button'> &
+  TVAProps<typeof button> & {
+    variant: NonNullable<TVAProps<typeof button>['variant']>;
+    pending?: boolean;
+    children?: RemixNode;
+  };
 
 export function Button(handle: Handle<ButtonProps>) {
   return () => {
-    const { variant, pending, disabled, children, mix, ...props } =
+    const { variant, size, block, pending, disabled, children, mix, ...props } =
       handle.props;
     const isDisabled = disabled ?? pending;
 
     return (
-      <button mix={[button({ variant }), mix]} disabled={isDisabled} {...props}>
-        {pending ? <SpinnerIcon size={16} mix={styles.spinner} /> : children}
+      <button
+        mix={[button({ variant, size, block }), mix]}
+        disabled={isDisabled}
+        {...props}
+      >
+        <span mix={[styles.label, pending ? styles.pendingLabel : undefined]}>
+          {children}
+        </span>
+        {pending && (
+          <SpinnerIcon
+            size={size === 'md' ? 24 : 20}
+            aria-hidden="true"
+            mix={styles.spinner}
+          />
+        )}
       </button>
     );
   };
 }
 
-type ButtonMixinProps = {
-  variant: 'primary' | 'default' | 'danger';
-};
-export function button({ variant }: ButtonMixinProps) {
-  return [styles.base, variant && styles[variant]];
-}
-
-const styles = {
-  base: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '0.5rem 1rem',
-    borderRadius: '0.375rem',
-    fontWeight: 600,
-    fontSize: '0.875rem',
+// M3 button scale: extra-small 32dp, small 40dp (default), medium 56dp.
+export const button = tva({
+  base: {
+    display: 'inline-grid',
+    placeItems: 'center',
+    borderRadius: t.shape.small,
+    fontWeight: t.type.labelLarge.weight,
+    fontSize: t.type.labelLarge.size,
+    whiteSpace: 'nowrap',
     cursor: 'pointer',
+    '& > *': {
+      gridArea: '1 / 1',
+    },
     '&:disabled': {
       opacity: 0.8,
       cursor: 'not-allowed',
     },
-  }),
-  primary: css({
-    backgroundColor: '#111827',
-    color: '#f9fafb',
-    border: 'none',
-    '&:hover:not(:disabled)': {
-      backgroundColor: '#1f2937',
+  },
+  variants: {
+    variant: {
+      primary: {
+        backgroundColor: t.color.primary,
+        color: t.color.onPrimary,
+        border: 'none',
+        '&:hover:not(:disabled)': {
+          backgroundColor: t.state.primary,
+        },
+      },
+      default: {
+        backgroundColor: 'transparent',
+        border: `${t.size.px} solid ${t.color.outlineVariant}`,
+        '&:hover:not(:disabled)': {
+          backgroundColor: t.color.surfaceContainer,
+        },
+      },
+      text: {
+        backgroundColor: 'transparent',
+        color: t.color.primary,
+        border: 'none',
+        '&:hover:not(:disabled)': {
+          backgroundColor: t.color.primaryContainer,
+        },
+      },
+      danger: {
+        color: t.color.onErrorContainer,
+        backgroundColor: t.color.errorContainer,
+        border: 'none',
+        '&:hover:not(:disabled)': {
+          backgroundColor: t.state.errorContainer,
+        },
+      },
+      github: {
+        backgroundColor: t.brand.github,
+        color: t.brand.onGithub,
+        border: 'none',
+        '&:hover:not(:disabled)': {
+          backgroundColor: t.state.github,
+        },
+      },
     },
-  }),
-  default: css({
-    backgroundColor: 'transparent',
-    border: '1px solid #e5e7eb',
-    '&:hover:not(:disabled)': {
-      backgroundColor: '#f9fafb',
+    size: {
+      xs: {
+        height: t.spacing(8),
+        padding: [0, t.spacing(3)],
+      },
+      sm: {
+        height: t.spacing(10),
+        padding: [0, t.spacing(4)],
+      },
+      md: {
+        height: t.spacing(14),
+        padding: [0, t.spacing(6)],
+      },
     },
-  }),
-  danger: css({
-    color: '#b91c1c',
-    backgroundColor: '#fee2e2',
-    border: 'none',
-    '&:hover:not(:disabled)': {
-      backgroundColor: '#fecaca',
+    block: {
+      true: {
+        width: t.size.full,
+      },
     },
+  },
+  defaultVariants: {
+    size: 'sm',
+  },
+});
+
+const styles = {
+  label: css({
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: t.spacing(2),
+  }),
+  pendingLabel: css({
+    visibility: 'hidden',
   }),
   spinner: css({
     '@keyframes spin': {

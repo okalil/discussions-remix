@@ -1,8 +1,10 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 
 import type { DiscussionPreview } from '../../../core/discussion.types.ts';
 import { routes } from '../../routes.ts';
 import { Avatar } from '../../shared/avatar.tsx';
+import { t } from '../../theme.ts';
 
 type DiscussionPreviewCardProps = {
   discussion: DiscussionPreview;
@@ -57,56 +59,56 @@ export function DiscussionPreviewCard(
 
 const styles = {
   root: css({
-    fontSize: '0.875rem',
+    fontSize: t.type.bodyMedium.size,
   }),
   section: css({
-    padding: '0.75rem',
+    padding: t.spacing(3),
   }),
   heading: css({
-    marginBottom: '0.25rem',
+    marginBottom: t.spacing(1),
   }),
   titleWrap: css({
     margin: 0,
   }),
   title: css({
-    fontWeight: 600,
-    color: '#111827',
+    fontWeight: t.type.titleMedium.weight,
+    color: t.color.onSurface,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
     },
   }),
   id: css({
-    color: '#4b5563',
+    color: t.color.onSurfaceVariant,
   }),
   body: css({
     margin: 0,
-    color: '#4b5563',
+    color: t.color.onSurfaceVariant,
   }),
   reply: css({
-    borderTop: '1px solid #e5e7eb',
-    padding: '0.75rem',
+    borderTop: `${t.size.px} solid ${t.color.outlineVariant}`,
+    padding: t.spacing(3),
   }),
   replyHeader: css({
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '0.5rem',
+    marginBottom: t.spacing(2),
   }),
   replyAvatar: css({
-    marginRight: '0.5rem',
+    marginRight: t.spacing(2),
   }),
   replyMeta: css({
     margin: 0,
-    fontSize: '0.75rem',
-    color: '#6b7280',
+    fontSize: t.type.bodySmall.size,
+    color: t.color.onSurfaceVariant,
   }),
   replyAuthor: css({
-    color: '#111827',
-    fontWeight: 500,
+    color: t.color.onSurface,
+    fontWeight: t.type.labelLarge.weight,
   }),
   replyBody: css({
     margin: 0,
-    fontSize: '0.75rem',
-    color: '#374151',
+    fontSize: t.type.bodySmall.size,
+    color: t.color.onSurfaceVariant,
   }),
 };

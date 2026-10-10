@@ -1,5 +1,8 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 import { jsx, type RemixElement } from 'remix/component/jsx-runtime';
+
+import { t } from '../../theme.ts';
 
 type FieldWrapperProps = {
   label: string;
@@ -38,14 +41,14 @@ export function FieldWrapper(handle: Handle<FieldWrapperProps>) {
 
 const styles = {
   label: css({
-    marginBottom: '0.25rem',
+    marginBottom: t.spacing(1),
     display: 'block',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    color: '#374151',
+    fontSize: t.type.labelLarge.size,
+    fontWeight: t.type.labelLarge.weight,
+    color: t.color.onSurfaceVariant,
   }),
   error: css({
-    fontSize: '0.875rem',
-    color: '#dc2626',
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.error,
   }),
 };

@@ -1,9 +1,11 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 
 import type { DiscussionSummary } from '../../../core/discussion.types.ts';
 import { routes } from '../../routes.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 import { ChatIcon } from '../../shared/icons/chat-icon.tsx';
+import { t } from '../../theme.ts';
 import { DiscussionLink } from './discussion-link.tsx';
 import { VoteDiscussion } from './vote-discussion.tsx';
 
@@ -65,34 +67,34 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
 const styles = {
   row: css({
     display: 'grid',
-    gridTemplateColumns: '60px 1fr auto 60px',
-    gap: '1.25rem',
+    gridTemplateColumns: `${t.spacing(12)} 1fr auto ${t.spacing(15)}`,
+    gap: t.spacing(5),
     alignItems: 'center',
-    padding: '0.5rem 1rem',
-    borderBottom: '1px solid #e5e7eb',
+    padding: [t.spacing(2), t.spacing(4)],
+    borderBottom: `${t.size.px} solid ${t.color.outlineVariant}`,
     '&:hover': {
-      backgroundColor: '#f9fafb',
+      backgroundColor: t.color.surfaceContainer,
     },
   }),
   content: css({
     minWidth: 0,
   }),
   meta: css({
-    margin: '0.125rem 0 0',
-    fontSize: '0.875rem',
-    color: '#4b5563',
+    margin: [t.spacing(0.5), 0, 0],
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
   comments: css({
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: t.spacing(2),
     marginLeft: 'auto',
-    padding: '0.25rem 0.5rem',
-    color: '#4b5563',
+    padding: [t.spacing(1), t.spacing(2)],
+    color: t.color.onSurfaceVariant,
     textDecoration: 'none',
-    borderRadius: '0.75rem',
+    borderRadius: t.shape.small,
     '&:hover': {
-      color: '#2563eb',
+      color: t.color.primary,
     },
   }),
 };

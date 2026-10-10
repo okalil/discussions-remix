@@ -1,4 +1,7 @@
-import { css, type Handle, type RemixNode } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle, type RemixNode } from 'remix/component';
+
+import { t } from '../../theme.ts';
 
 type AuthLayoutProps = {
   title: string;
@@ -21,24 +24,23 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '100%',
-    backgroundColor: '#f3f4f6',
+    minHeight: t.size.screen,
+    backgroundColor: t.color.surfaceContainer,
   }),
   card: css({
-    width: '100%',
-    maxWidth: '28rem',
-    padding: '2rem',
+    width: t.size.full,
+    maxWidth: t.spacing(112),
+    padding: t.spacing(8),
     display: 'grid',
-    gap: '1.5rem',
-    backgroundColor: '#fff',
-    borderRadius: '0.25rem',
-    boxShadow:
-      '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    gap: t.spacing(6),
+    backgroundColor: t.color.surfaceContainerLowest,
+    borderRadius: t.shape.medium,
+    boxShadow: t.elevation.level1,
   }),
   title: css({
     margin: 0,
-    fontSize: '1.5rem',
-    fontWeight: 700,
+    fontSize: t.type.headlineSmall.size,
+    fontWeight: t.type.titleMedium.weight,
     textAlign: 'center',
   }),
 };

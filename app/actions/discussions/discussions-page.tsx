@@ -1,4 +1,5 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 
 import type { Category } from '../../../core/category.types.ts';
 import type { DiscussionSummary } from '../../../core/discussion.types.ts';
@@ -8,6 +9,7 @@ import { input } from '../../shared/forms/input.tsx';
 import { DiscussionIcon } from '../../shared/icons/discussion-icon.tsx';
 import { Layout } from '../../shared/layout.tsx';
 import { Pagination } from '../../shared/pagination.tsx';
+import { t } from '../../theme.ts';
 import { DiscussionRow } from './discussion-row.tsx';
 
 type DiscussionsPageProps = {
@@ -39,35 +41,52 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
     const category = filters.category
       ? categories.find((it) => it.slug === filters.category)
       : null;
+    const countLabel = total === 1 ? '1 discussion' : `${total} discussions`;
 
     return (
       <Layout title={`Discussions | ${category?.title ?? 'All discussions'}`}>
         <div mix={styles.root}>
-          <div mix={styles.toolbar}>
-            <form mix={styles.searchForm}>
-              <input
-                type="search"
-                name="q"
-                placeholder="Search all discussions"
-                defaultValue={filters.q}
-                data-rmx-key={filters.q ?? ''}
-                mix={input()}
-              />
-            </form>
+          <header mix={styles.header}>
+            <div mix={styles.intro}>
+              <h1 mix={styles.title}>
+                {category && (
+                  <span mix={styles.titleEmoji}>{category.emoji}</span>
+                )}
+                {category?.title ?? 'Discussions'}
+              </h1>
+              <p mix={styles.lede}>
+                {category?.description ??
+                  'Every discussion, across all categories.'}
+              </p>
+            </div>
 
             {authenticated && (
               <a
                 href={routes.discussions.new.index.href()}
-                mix={button({ variant: 'primary' })}
+                mix={[button({ variant: 'primary' }), styles.newDiscussion]}
               >
                 New Discussion
               </a>
             )}
-          </div>
+          </header>
+
+          <form mix={styles.searchForm} autoComplete="off">
+            <input
+              type="search"
+              name="q"
+              autoComplete="off"
+              placeholder={
+                category ? 'Search this category' : 'Search all discussions'
+              }
+              defaultValue={filters.q}
+              data-rmx-key={filters.q ?? ''}
+              mix={input()}
+            />
+          </form>
 
           <div mix={styles.grid}>
             <section mix={styles.sidebar}>
-              <h2 mix={styles.sidebarTitle}>Categories</h2>
+              <h2 mix={styles.sectionTitle}>Categories</h2>
               <nav>
                 <a
                   href={routes.discussions.index.href()}
@@ -96,31 +115,33 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
             </section>
 
             <div>
-              <div mix={styles.heading}>
-                {category ? (
-                  <>
-                    <h2 mix={styles.categoryTitle}>
-                      <span mix={styles.categoryEmoji}>{category.emoji}</span>{' '}
-                      {category.title} ({total})
-                    </h2>
-                    <p mix={styles.categoryDescription}>
-                      {category.description}
-                    </p>
-                  </>
-                ) : (
-                  <h2 mix={styles.listTitle}>Discussions ({total})</h2>
-                )}
-              </div>
-
-              <ul mix={styles.list}>
-                {discussions.map((it) => (
-                  <DiscussionRow
-                    key={it.id}
-                    discussion={it}
-                    authenticated={handle.props.authenticated}
-                  />
-                ))}
-              </ul>
+              {discussions.length ? (
+                <>
+                  <h2 mix={styles.sectionTitle}>{countLabel}</h2>
+                  <ul mix={styles.list}>
+                    {discussions.map((it) => (
+                      <DiscussionRow
+                        key={it.id}
+                        discussion={it}
+                        authenticated={handle.props.authenticated}
+                      />
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <div mix={styles.empty}>
+                  <h2 mix={styles.sectionTitle}>
+                    {filters.q ? 'No matches' : 'No discussions yet'}
+                  </h2>
+                  <p mix={styles.emptyText}>
+                    {filters.q
+                      ? 'Try a different search.'
+                      : category
+                        ? 'Nothing has been posted in this category.'
+                        : 'Start one and it will show up here.'}
+                  </p>
+                </div>
+              )}
 
               {!!totalPages && (
                 <Pagination
@@ -144,88 +165,97 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
 
 const styles = {
   root: css({
-    padding: '1.5rem 0.75rem',
-    maxWidth: '64rem',
-    margin: '0 auto',
+    padding: [t.spacing(6), t.spacing(3)],
+    maxWidth: t.size.page,
+    margin: [0, 'auto'],
   }),
-  toolbar: css({
+  header: css({
     display: 'flex',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
     alignItems: 'center',
-    gap: '1.25rem',
-    height: '2.5rem',
-    marginBottom: '1rem',
+    gap: t.spacing(4),
+    marginBottom: t.spacing(6),
+  }),
+  intro: css({
+    flex: '1 1 auto',
+  }),
+  title: css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: t.spacing(2),
+    margin: 0,
+    fontSize: t.type.headlineSmall.size,
+    fontWeight: t.type.titleMedium.weight,
+  }),
+  titleEmoji: css({
+    fontSize: t.type.headlineSmall.size,
+  }),
+  lede: css({
+    margin: [t.spacing(1), 0, 0],
+    color: t.color.onSurfaceVariant,
+    fontSize: t.type.bodyMedium.size,
+  }),
+  newDiscussion: css({
+    marginLeft: 'auto',
   }),
   searchForm: css({
-    flex: 1,
+    marginBottom: t.spacing(6),
   }),
   grid: css({
     display: 'grid',
-    gap: '1rem',
+    gap: t.spacing(4),
     '@media (min-width: 768px)': {
-      gridTemplateColumns: '16rem 1fr',
+      gridTemplateColumns: `${t.spacing(64)} 1fr`,
     },
   }),
   sidebar: css({
-    padding: '0 0.5rem',
+    padding: [0, t.spacing(2)],
     '@media (max-width: 767px)': {
       gridRowStart: 2,
     },
   }),
-  sidebarTitle: css({
-    margin: '0 0 1rem',
-    fontWeight: 600,
-    fontSize: '1rem',
+  sectionTitle: css({
+    margin: [0, 0, t.spacing(4)],
+    fontSize: t.type.titleMedium.size,
+    fontWeight: t.type.titleMedium.weight,
+    color: t.color.onSurface,
   }),
   navLink: css({
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.375rem 0.5rem',
-    color: '#1f2937',
+    gap: t.spacing(2),
+    minHeight: t.spacing(9),
+    padding: [t.spacing(1.5), t.spacing(2)],
+    color: t.color.onSurface,
     textDecoration: 'none',
-    borderRadius: '0.375rem',
+    borderRadius: t.shape.small,
     '&:hover': {
-      backgroundColor: '#f3f4f6',
+      backgroundColor: t.color.surfaceContainer,
     },
   }),
   navLinkActive: css({
-    backgroundColor: '#f3f4f6',
+    backgroundColor: t.color.surfaceContainerHigh,
+    '&:hover': {
+      backgroundColor: t.color.surfaceContainerHigh,
+    },
     '& span': {
-      fontWeight: 600,
+      fontWeight: t.type.titleMedium.weight,
     },
   }),
   navLabel: css({
-    fontSize: '0.875rem',
+    fontSize: t.type.bodyMedium.size,
   }),
-  heading: css({
-    marginBottom: '0.5rem',
+  empty: css({
+    display: 'grid',
+    gap: t.spacing(1),
   }),
-  categoryTitle: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
+  emptyText: css({
     margin: 0,
-    fontWeight: 600,
-    fontSize: '1rem',
-  }),
-  categoryEmoji: css({
-    fontSize: '1.125rem',
-  }),
-  categoryDescription: css({
-    margin: 0,
-    paddingBottom: '0.5rem',
-    borderBottom: '1px solid #e5e7eb',
-    color: '#4b5563',
-    fontSize: '0.875rem',
-  }),
-  listTitle: css({
-    margin: 0,
-    fontWeight: 600,
-    fontSize: '1rem',
+    color: t.color.onSurfaceVariant,
+    fontSize: t.type.bodyMedium.size,
   }),
   list: css({
-    margin: '0 0 1rem',
+    margin: [0, 0, t.spacing(4)],
     padding: 0,
     listStyle: 'none',
   }),

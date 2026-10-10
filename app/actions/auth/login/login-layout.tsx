@@ -1,9 +1,11 @@
-import { css, type Handle, type RemixNode } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle, type RemixNode } from 'remix/component';
 
 import { routes } from '../../../routes.ts';
 import { Button } from '../../../shared/button.tsx';
 import { Document } from '../../../shared/document.tsx';
 import { GithubIcon } from '../../../shared/icons/github-icon.tsx';
+import { t } from '../../../theme.ts';
 import { AuthLayout } from '../auth-layout.tsx';
 
 type LoginLayoutProps = {
@@ -20,7 +22,7 @@ export function LoginLayout(handle: Handle<LoginLayoutProps>) {
             action={routes.auth.social.start.href({ provider: 'github' })}
             data-rmx-document
           >
-            <Button type="submit" variant="primary" mix={styles.githubButton}>
+            <Button type="submit" variant="github" block>
               <GithubIcon size={20} />
               Continue with Github
             </Button>
@@ -39,23 +41,18 @@ export function LoginLayout(handle: Handle<LoginLayoutProps>) {
 }
 
 const styles = {
-  githubButton: css({
-    gap: '0.5rem',
-    height: '3rem',
-    width: '100%',
-  }),
   divider: css({
     position: 'relative',
-    margin: '1.5rem 0',
+    margin: [t.spacing(6), 0],
   }),
   dividerLabel: css({
     position: 'absolute',
     top: 0,
-    left: '50%',
+    left: t.size.half,
     transform: 'translate(-50%, -50%)',
-    padding: '0 1rem',
-    backgroundColor: '#fff',
-    color: '#374151',
-    fontSize: '0.875rem',
+    padding: [0, t.spacing(4)],
+    backgroundColor: t.color.surfaceContainerLowest,
+    color: t.color.onSurfaceVariant,
+    fontSize: t.type.bodyMedium.size,
   }),
 };

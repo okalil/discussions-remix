@@ -1,17 +1,20 @@
-import { css } from 'remix/component';
+import { css } from 'pitlane/theme';
+
+import { t } from '../../theme.ts';
 
 export function input() {
   return css({
-    width: '100%',
-    padding: '0.5rem 0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.375rem',
-    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    fontSize: '0.875rem',
+    width: t.size.full,
+    padding: [t.spacing(2), t.spacing(3)],
+    border: `${t.size.px} solid ${t.color.outline}`,
+    borderRadius: t.shape.extraSmall,
+    backgroundColor: t.color.surfaceContainerLowest,
+    color: t.color.onSurface,
+    fontSize: t.type.bodyMedium.size,
     '&:focus': {
       outline: 'none',
-      borderColor: '#6366f1',
-      boxShadow: '0 0 0 1px #6366f1, 0 1px 2px 0 rgb(0 0 0 / 0.05)',
+      borderColor: t.color.primary,
+      boxShadow: t.elevation.focus,
     },
   });
 }

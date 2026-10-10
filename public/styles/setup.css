@@ -11,7 +11,7 @@
     box-sizing: border-box;
     border-width: 0;
     border-style: solid;
-    border-color: #e5e7eb;
+    border-color: var(--color-outline-variant);
   }
 
   /* Remove default margin */
@@ -39,8 +39,9 @@
   }
 
   body {
-    /* Increase line-height */
     line-height: 1.5;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
     /* Improve text rendering */
     -webkit-font-smoothing: antialiased;
   }

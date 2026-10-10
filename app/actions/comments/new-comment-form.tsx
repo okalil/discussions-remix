@@ -1,5 +1,6 @@
 import { Form, form } from '@discussions/form';
-import { clientEntry, css } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -7,6 +8,7 @@ import * as f from 'remix/data-schema/form-data';
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { TextAreaField } from '../../shared/forms/text-area-field.tsx';
+import { t } from '../../theme.ts';
 
 type NewCommentFormProps = {
   discussionId: number;
@@ -64,11 +66,9 @@ export const newCommentSchema = f.object({
 const styles = {
   form: css({
     display: 'grid',
-    gap: '0.75rem',
+    gap: t.spacing(3),
   }),
   submit: css({
-    height: '2.5rem',
-    width: '6rem',
     marginLeft: 'auto',
   }),
 };

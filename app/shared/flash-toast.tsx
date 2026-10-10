@@ -1,4 +1,7 @@
-import { clientEntry, css, on } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry, on } from 'remix/component';
+
+import { t } from '../theme.ts';
 
 type FlashToastProps = {
   message: string;
@@ -92,17 +95,15 @@ export const FlashToast = clientEntry<FlashToastProps>(
 const styles = {
   root: css({
     position: 'fixed',
-    top: 24,
-    right: 24,
-    width: 356,
+    top: t.spacing(6),
+    right: t.spacing(6),
+    width: t.size.toast,
     zIndex: 999999999,
     boxSizing: 'border-box',
     pointerEvents: 'none',
-    fontFamily:
-      'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji',
     '@media (max-width: 600px)': {
-      left: 16,
-      right: 16,
+      left: t.spacing(4),
+      right: t.spacing(4),
       width: 'auto',
     },
   }),
@@ -110,13 +111,13 @@ const styles = {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
-    width: '100%',
-    padding: 16,
-    borderRadius: 8,
-    border: '1px solid',
-    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-    fontSize: 13,
+    gap: t.spacing(1.5),
+    width: t.size.full,
+    padding: t.spacing(4),
+    borderRadius: t.shape.small,
+    border: `${t.size.px} solid`,
+    boxShadow: t.elevation.level3,
+    fontSize: t.type.bodyMedium.size,
     boxSizing: 'border-box',
     overflowWrap: 'anywhere',
     outline: 'none',
@@ -130,18 +131,17 @@ const styles = {
     },
 
     '&[data-type="success"]': {
-      background: 'hsl(143, 85%, 96%)',
-      borderColor: 'hsl(145, 92%, 87%)',
-      color: 'hsl(140, 100%, 27%)',
+      background: t.color.successContainer,
+      borderColor: t.color.success,
+      color: t.color.onSuccessContainer,
     },
     '&[data-type="error"]': {
-      background: 'hsl(359, 100%, 97%)',
-      borderColor: 'hsl(359, 100%, 94%)',
-      color: 'hsl(360, 100%, 45%)',
+      background: t.color.errorContainer,
+      borderColor: t.color.error,
+      color: t.color.onErrorContainer,
     },
     '&:focus-visible': {
-      boxShadow:
-        '0px 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(0, 0, 0, 0.2)',
+      boxShadow: t.elevation.focus,
     },
     '@media (prefers-reduced-motion)': {
       transition: 'none',
@@ -152,14 +152,14 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'flex-start',
     flexShrink: 0,
-    width: 16,
-    height: 16,
-    marginLeft: -3,
-    marginRight: 4,
+    width: t.spacing(4),
+    height: t.spacing(4),
+    marginLeft: t.spacing(-0.75),
+    marginRight: t.spacing(1),
   }),
   title: css({
-    fontWeight: 500,
-    lineHeight: 1.5,
+    fontWeight: t.type.labelLarge.weight,
+    lineHeight: t.type.bodyMedium.lineHeight,
     color: 'inherit',
   }),
   close: css({
@@ -169,11 +169,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 20,
-    height: 20,
+    width: t.spacing(5),
+    height: t.spacing(5),
     padding: 0,
-    borderRadius: '50%',
-    border: '1px solid',
+    borderRadius: t.size.half,
+    border: `${t.size.px} solid`,
     cursor: 'pointer',
     zIndex: 1,
     transform: 'translate(35%, -35%)',
@@ -182,8 +182,7 @@ const styles = {
     borderColor: 'inherit',
     color: 'inherit',
     '&:focus-visible': {
-      boxShadow:
-        '0px 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(0, 0, 0, 0.2)',
+      boxShadow: t.elevation.focus,
     },
   }),
 };

@@ -1,6 +1,7 @@
 import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
-import { clientEntry, css } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { email, minLength } from 'remix/data-schema/checks';
 import * as coerce from 'remix/data-schema/coerce';
@@ -11,6 +12,8 @@ import { Button } from '../../../shared/button.tsx';
 import { ErrorMessage } from '../../../shared/error-message.tsx';
 import { CheckboxField } from '../../../shared/forms/checkbox-field.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
+import { textLink } from '../../../shared/text-link.tsx';
+import { t } from '../../../theme.ts';
 
 export type LoginFormProps = {
   draft?: FormDraft;
@@ -32,16 +35,18 @@ export const LoginForm = clientEntry<LoginFormProps>(
     return () => {
       const { errors, pending } = loginForm.state;
       return (
-        <form mix={[styles.form, form(loginForm)]}>
+        <form mix={[styles.form, form(loginForm)]} autoComplete="off">
           <TextField
             field={loginForm.field('email')}
             label="Email"
             type="email"
+            placeholder="you@example.com"
           />
           <TextField
             field={loginForm.field('password')}
             label="Password"
             type="password"
+            placeholder="At least 8 characters"
           />
 
           <div mix={styles.row}>
@@ -50,24 +55,19 @@ export const LoginForm = clientEntry<LoginFormProps>(
               label="Remember me"
             />
 
-            <a href={routes.auth.forgotPassword.index.href()} mix={styles.link}>
+            <a href={routes.auth.forgotPassword.index.href()} mix={textLink}>
               Forgot Password?
             </a>
           </div>
 
           {errors.root && <ErrorMessage error={errors.root} />}
 
-          <Button
-            type="submit"
-            variant="primary"
-            pending={pending}
-            mix={styles.submit}
-          >
+          <Button type="submit" variant="primary" pending={pending}>
             Log in
           </Button>
           <p mix={styles.footer}>
             Don't have an account?{' '}
-            <a href={routes.auth.register.index.href()} mix={styles.link}>
+            <a href={routes.auth.register.index.href()} mix={textLink}>
               Register now
             </a>
           </p>
@@ -86,20 +86,7 @@ export const loginSchema = f.object({
 const styles = {
   form: css({
     display: 'grid',
-    gap: '1rem',
-  }),
-  submit: css({
-    height: '3rem',
-  }),
-  link: css({
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    color: '#4f46e5',
-    textDecoration: 'none',
-    '&:hover': {
-      color: '#6366f1',
-      textDecoration: 'underline',
-    },
+    gap: t.spacing(4),
   }),
   row: css({
     display: 'flex',
@@ -107,9 +94,8 @@ const styles = {
     justifyContent: 'space-between',
   }),
   footer: css({
-    margin: 0,
     textAlign: 'center',
-    fontSize: '0.875rem',
-    color: '#4b5563',
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
 };

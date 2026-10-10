@@ -1,5 +1,8 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
 import type { Props as ElementProps } from 'remix/component/jsx-runtime';
+
+import { t } from '../theme.ts';
 
 type ErrorMessageProps = ElementProps<'div'> & {
   error: string | Error;
@@ -20,13 +23,13 @@ export function ErrorMessage(handle: Handle<ErrorMessageProps>) {
 
 const styles = {
   root: css({
-    padding: '1rem',
-    fontSize: '0.875rem',
-    color: '#991b1b',
-    borderRadius: '0.5rem',
-    backgroundColor: '#fef2f2',
+    padding: t.spacing(4),
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onErrorContainer,
+    borderRadius: t.shape.medium,
+    backgroundColor: t.color.errorContainer,
   }),
   label: css({
-    fontWeight: 500,
+    fontWeight: t.type.labelLarge.weight,
   }),
 };

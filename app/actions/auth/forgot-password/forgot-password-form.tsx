@@ -1,6 +1,7 @@
 import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
-import { clientEntry, css } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { email } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -8,6 +9,8 @@ import * as f from 'remix/data-schema/form-data';
 import { routes } from '../../../routes.ts';
 import { Button } from '../../../shared/button.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
+import { textLink } from '../../../shared/text-link.tsx';
+import { t } from '../../../theme.ts';
 
 export type ForgotPasswordFormProps = {
   draft?: FormDraft;
@@ -30,26 +33,22 @@ export const ForgotPasswordForm = clientEntry<ForgotPasswordFormProps>(
       const { pending } = forgotPasswordForm.state;
 
       return (
-        <form mix={[styles.form, form(forgotPasswordForm)]}>
+        <form mix={[styles.form, form(forgotPasswordForm)]} autoComplete="off">
           <TextField
             field={forgotPasswordForm.field('email')}
             label="Email"
             type="email"
+            placeholder="you@example.com"
             aria-required
           />
 
-          <Button
-            type="submit"
-            variant="primary"
-            pending={pending}
-            mix={styles.submit}
-          >
+          <Button type="submit" variant="primary" pending={pending}>
             Submit
           </Button>
 
           <p mix={styles.footer}>
             Remember your password?{' '}
-            <a href={routes.auth.login.index.href()} mix={styles.link}>
+            <a href={routes.auth.login.index.href()} mix={textLink}>
               Login
             </a>
           </p>
@@ -66,24 +65,11 @@ export const forgotPasswordSchema = f.object({
 const styles = {
   form: css({
     display: 'grid',
-    gap: '1rem',
-  }),
-  submit: css({
-    height: '3rem',
+    gap: t.spacing(4),
   }),
   footer: css({
-    margin: 0,
     textAlign: 'center',
-    fontSize: '0.875rem',
-    color: '#4b5563',
-  }),
-  link: css({
-    color: '#4f46e5',
-    fontWeight: 500,
-    textDecoration: 'none',
-    '&:hover': {
-      color: '#6366f1',
-      textDecoration: 'underline',
-    },
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
 };

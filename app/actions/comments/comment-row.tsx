@@ -1,10 +1,12 @@
 import * as menu from '@remix-run/ui/menu';
-import { clientEntry, css, on } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry, on } from 'remix/component';
 
 import type { Comment } from '../../../core/comment.types.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 import { Button } from '../../shared/button.tsx';
 import { DotsIcon } from '../../shared/icons/dots-icon.tsx';
+import { t } from '../../theme.ts';
 import { DeleteComment } from './delete-comment.tsx';
 import { EditCommentForm } from './edit-comment-form.tsx';
 import { VoteComment } from './vote-comment.tsx';
@@ -198,89 +200,89 @@ export const CommentRow = clientEntry<CommentRowProps>(
 
 const styles = {
   row: css({
-    padding: '0.5rem 1rem',
-    marginBottom: '1.25rem',
-    border: '1px solid #e5e7eb',
-    borderRadius: '0.5rem',
+    padding: [t.spacing(2), t.spacing(4)],
+    marginBottom: t.spacing(5),
+    backgroundColor: t.color.surfaceContainerLowest,
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
+    borderRadius: t.shape.medium,
     '&:target': {
-      borderColor: '#3b82f6',
+      borderColor: t.color.primary,
     },
   }),
   editRow: css({
-    marginBottom: '1rem',
+    marginBottom: t.spacing(4),
   }),
   header: css({
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: '0.75rem',
-    fontSize: '0.875rem',
+    marginBottom: t.spacing(3),
+    fontSize: t.type.bodyMedium.size,
   }),
   authorRow: css({
     display: 'flex',
     alignItems: 'center',
   }),
   avatar: css({
-    marginRight: '0.5rem',
+    marginRight: t.spacing(2),
   }),
   meta: css({
     margin: 0,
-    color: '#6b7280',
+    color: t.color.onSurfaceVariant,
   }),
   authorName: css({
-    color: '#111827',
-    fontWeight: 500,
+    color: t.color.onSurface,
+    fontWeight: t.type.labelLarge.weight,
   }),
   authorBadge: css({
-    marginLeft: '0.5rem',
-    padding: '1px 0.5rem',
-    fontSize: '0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.75rem',
+    marginLeft: t.spacing(2),
+    padding: [t.size.px, t.spacing(2)],
+    fontSize: t.type.bodySmall.size,
+    border: `${t.size.px} solid ${t.color.outline}`,
+    borderRadius: t.shape.small,
   }),
   body: css({
-    margin: '0 0 0.75rem',
-    color: '#374151',
+    margin: [0, 0, t.spacing(3)],
     whiteSpace: 'pre-wrap',
   }),
   menuTrigger: css({
     display: 'grid',
     placeItems: 'center',
-    padding: '0.5rem',
+    padding: t.spacing(2),
     border: 'none',
-    borderRadius: '0.375rem',
+    borderRadius: t.shape.small,
     backgroundColor: 'transparent',
-    color: '#374151',
+    color: t.color.onSurfaceVariant,
     cursor: 'pointer',
     '&:hover': {
-      backgroundColor: '#f3f4f6',
+      backgroundColor: t.color.surfaceContainer,
     },
   }),
   menuContent: css({
-    backgroundColor: '#fff',
-    borderRadius: '0.5rem',
-    padding: '0.5rem',
-    border: '1px solid #e5e7eb',
+    backgroundColor: t.color.surfaceContainerLowest,
+    borderRadius: t.shape.medium,
+    padding: t.spacing(2),
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
   }),
   menuList: css({
     display: 'grid',
-    gap: '0.5rem',
-    fontSize: '0.875rem',
+    gap: t.spacing(2),
+    fontSize: t.type.bodyMedium.size,
     outline: 'none',
   }),
   menuItem: css({
-    padding: '0.25rem 0.5rem',
+    padding: [t.spacing(1), t.spacing(2)],
     textAlign: 'left',
-    borderRadius: '0.25rem',
+    borderRadius: t.shape.extraSmall,
     cursor: 'pointer',
     outline: 'none',
     '&:hover, &[data-highlighted]': {
-      backgroundColor: '#f3f4f6',
+      backgroundColor: t.color.surfaceContainer,
     },
   }),
   menuItemDanger: css({
-    color: '#ef4444',
+    color: t.color.error,
     '&:hover, &[data-highlighted]': {
-      backgroundColor: '#fef2f2',
+      backgroundColor: t.color.errorContainer,
     },
   }),
   modalBackdrop: css({
@@ -289,32 +291,31 @@ const styles = {
     zIndex: 50,
     display: 'grid',
     placeItems: 'center',
-    padding: '1rem',
-    backgroundColor: 'rgb(0 0 0 / 0.4)',
+    padding: t.spacing(4),
+    backgroundColor: t.color.scrim,
   }),
   modal: css({
-    width: '100%',
-    maxWidth: '24rem',
-    padding: '1.25rem',
-    backgroundColor: '#fff',
-    borderRadius: '0.5rem',
-    boxShadow:
-      '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+    width: t.size.full,
+    maxWidth: t.spacing(96),
+    padding: t.spacing(5),
+    backgroundColor: t.color.surfaceContainerLowest,
+    borderRadius: t.shape.medium,
+    boxShadow: t.elevation.level3,
   }),
   modalTitle: css({
-    margin: '0 0 0.5rem',
-    fontSize: '1.125rem',
-    fontWeight: 600,
-    color: '#111827',
+    margin: [0, 0, t.spacing(2)],
+    fontSize: t.type.titleLarge.size,
+    fontWeight: t.type.titleMedium.weight,
+    color: t.color.onSurface,
   }),
   modalDescription: css({
-    margin: '0 0 1.25rem',
-    fontSize: '0.875rem',
-    color: '#4b5563',
+    margin: [0, 0, t.spacing(5)],
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
   modalActions: css({
     display: 'flex',
     justifyContent: 'flex-end',
-    gap: '0.5rem',
+    gap: t.spacing(2),
   }),
 };

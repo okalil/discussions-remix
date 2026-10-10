@@ -1,6 +1,7 @@
 import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
-import { clientEntry, css } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { email, maxLength, minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -9,6 +10,8 @@ import { routes } from '../../../routes.ts';
 import { Button } from '../../../shared/button.tsx';
 import { ErrorMessage } from '../../../shared/error-message.tsx';
 import { TextField } from '../../../shared/forms/text-field.tsx';
+import { textLink } from '../../../shared/text-link.tsx';
+import { t } from '../../../theme.ts';
 
 export type RegisterFormProps = {
   draft?: FormDraft;
@@ -30,46 +33,45 @@ export const RegisterForm = clientEntry<RegisterFormProps>(
     return () => {
       const { errors, pending } = registerForm.state;
       return (
-        <form mix={[styles.form, form(registerForm)]}>
+        <form mix={[styles.form, form(registerForm)]} autoComplete="off">
           <TextField
             field={registerForm.field('name')}
             label="Name"
             type="text"
+            placeholder="What should we call you?"
             aria-required
           />
           <TextField
             field={registerForm.field('email')}
             label="Email"
             type="email"
+            placeholder="you@example.com"
             aria-required
           />
           <TextField
             field={registerForm.field('password')}
             label="Password"
             type="password"
+            placeholder="At least 8 characters"
             aria-required
           />
           <TextField
             field={registerForm.field('passwordConfirmation')}
             label="Confirm password"
             type="password"
+            placeholder="Type it once more"
             aria-required
           />
 
           {errors.root && <ErrorMessage error={errors.root} />}
 
-          <Button
-            type="submit"
-            variant="primary"
-            pending={pending}
-            mix={styles.submit}
-          >
+          <Button type="submit" variant="primary" pending={pending}>
             Register
           </Button>
 
           <p mix={styles.footer}>
             Already have an account?{' '}
-            <a href={routes.auth.login.index.href()} mix={styles.link}>
+            <a href={routes.auth.login.index.href()} mix={textLink}>
               Sign in now
             </a>
           </p>
@@ -94,24 +96,11 @@ export const registerSchema = f
 const styles = {
   form: css({
     display: 'grid',
-    gap: '1rem',
-  }),
-  submit: css({
-    height: '3rem',
+    gap: t.spacing(4),
   }),
   footer: css({
-    margin: 0,
     textAlign: 'center',
-    fontSize: '0.875rem',
-    color: '#4b5563',
-  }),
-  link: css({
-    color: '#4f46e5',
-    fontWeight: 500,
-    textDecoration: 'none',
-    '&:hover': {
-      color: '#6366f1',
-      textDecoration: 'underline',
-    },
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
 };

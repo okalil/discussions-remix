@@ -1,4 +1,7 @@
-import { css, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { type Handle } from 'remix/component';
+
+import { t } from '../theme.ts';
 
 type PaginationProps = {
   page: number;
@@ -75,42 +78,42 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '0.5rem',
+    gap: t.spacing(2),
   }),
   nav: css({
-    padding: '0.25rem 0.75rem',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    color: '#374151',
-    backgroundColor: '#f3f4f6',
-    border: '1px solid #e5e7eb',
-    borderRadius: '0.375rem',
+    padding: [t.spacing(1), t.spacing(3)],
+    fontSize: t.type.bodyMedium.size,
+    fontWeight: t.type.labelLarge.weight,
+    color: t.color.onSurfaceVariant,
+    backgroundColor: t.color.surfaceContainer,
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
+    borderRadius: t.shape.small,
     textDecoration: 'none',
     '&:hover': {
-      backgroundColor: '#e5e7eb',
+      backgroundColor: t.color.surfaceContainerHigh,
     },
   }),
   page: css({
-    padding: '0.25rem 0.75rem',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    color: '#374151',
-    backgroundColor: '#f3f4f6',
-    borderRadius: '0.375rem',
+    padding: [t.spacing(1), t.spacing(3)],
+    fontSize: t.type.bodyMedium.size,
+    fontWeight: t.type.labelLarge.weight,
+    color: t.color.onSurfaceVariant,
+    backgroundColor: t.color.surfaceContainer,
+    borderRadius: t.shape.small,
     textDecoration: 'none',
     '&:hover': {
-      backgroundColor: '#3b82f6',
-      color: '#fff',
+      backgroundColor: t.color.primary,
+      color: t.color.onPrimary,
     },
   }),
   pageActive: css({
-    backgroundColor: '#3b82f6',
-    color: '#fff',
+    backgroundColor: t.color.primary,
+    color: t.color.onPrimary,
   }),
   ellipsis: css({
-    padding: '0.25rem 0.75rem',
-    fontSize: '0.875rem',
-    color: '#6b7280',
+    padding: [t.spacing(1), t.spacing(3)],
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
   }),
   disabled: css({
     opacity: 0.5,

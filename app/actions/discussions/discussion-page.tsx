@@ -1,4 +1,5 @@
-import { css, Frame, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { Frame, type Handle } from 'remix/component';
 
 import type { CommentSort } from '../../../core/comment.types.ts';
 import type { Discussion } from '../../../core/discussion.types.ts';
@@ -6,6 +7,7 @@ import type { PublicUser } from '../../../core/user.types.ts';
 import { routes } from '../../routes.ts';
 import { Avatar } from '../../shared/avatar.tsx';
 import { Layout } from '../../shared/layout.tsx';
+import { t } from '../../theme.ts';
 import { CommentsFallback } from '../comments/comments-fallback.tsx';
 import { NewCommentForm } from '../comments/new-comment-form.tsx';
 import { Participants } from './participants.tsx';
@@ -38,9 +40,23 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
       <Layout title={discussion.title}>
         <div mix={styles.root}>
           <main>
-            <h1 mix={styles.title}>
-              {discussion.title} <span mix={styles.id}>#{discussion.id}</span>
-            </h1>
+            <header mix={styles.header}>
+              <h1 mix={styles.title}>
+                {discussion.title} <span mix={styles.id}>#{discussion.id}</span>
+              </h1>
+              <p mix={styles.lede}>
+                <span mix={styles.emphasis}>{discussion.author.name}</span>{' '}
+                started this conversation in{' '}
+                <a
+                  href={routes.discussions.index.href({
+                    category: discussion.category.slug,
+                  })}
+                  mix={styles.ledeCategory}
+                >
+                  {discussion.category.title}
+                </a>
+              </p>
+            </header>
 
             <div mix={styles.grid}>
               <div>
@@ -74,7 +90,7 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
 
                 <section mix={styles.commentsSection}>
                   <div mix={styles.commentsHeader}>
-                    <h2 mix={styles.commentsTitle}>{commentsHeading}</h2>
+                    <h2 mix={styles.sectionTitle}>{commentsHeading}</h2>
                     <nav mix={styles.sortNav} aria-label="Sort comments">
                       <a
                         href="?sort=oldest"
@@ -116,12 +132,11 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
                       />
                     }
                   />
-                  <hr mix={styles.divider} />
                 </section>
 
                 {authenticated ? (
                   <section>
-                    <h3 mix={styles.addCommentHeading}>Add a comment</h3>
+                    <h2 mix={styles.addCommentHeading}>Add a comment</h2>
                     <NewCommentForm discussionId={discussion.id} />
                   </section>
                 ) : (
@@ -175,100 +190,118 @@ export function DiscussionPage(handle: Handle<DiscussionPageProps>) {
 
 const styles = {
   root: css({
-    maxWidth: '64rem',
-    margin: '0 auto',
-    padding: '1.5rem 0.75rem',
+    maxWidth: t.size.page,
+    margin: [0, 'auto'],
+    padding: [t.spacing(6), t.spacing(3)],
+  }),
+  header: css({
+    marginBottom: t.spacing(6),
   }),
   title: css({
-    margin: '0 0 1rem',
-    fontSize: '1.5rem',
-    fontWeight: 500,
+    margin: 0,
+    fontSize: t.type.headlineSmall.size,
+    fontWeight: t.type.titleMedium.weight,
   }),
   id: css({
-    marginLeft: '0.25rem',
-    color: '#6b7280',
-    fontWeight: 400,
+    marginLeft: t.spacing(1),
+    color: t.color.onSurfaceVariant,
+    fontWeight: t.type.bodyLarge.weight,
   }),
   grid: css({
     display: 'grid',
-    gap: '1.5rem',
+    gap: t.spacing(6),
     position: 'relative',
     '@media (min-width: 1024px)': {
-      gridTemplateColumns: '1fr 16rem',
+      gridTemplateColumns: `1fr ${t.spacing(64)}`,
     },
   }),
-  card: css({
-    padding: '0.5rem 0.75rem 0.75rem',
-    marginBottom: '1.5rem',
-    border: '1px solid #e5e7eb',
-    borderRadius: '0.5rem',
+  lede: css({
+    margin: [t.spacing(2), 0, 0],
+    color: t.color.onSurfaceVariant,
+    fontSize: t.type.bodyMedium.size,
+  }),
+  emphasis: css({
+    color: t.color.onSurface,
+    fontWeight: t.type.labelLarge.weight,
+  }),
+  ledeCategory: css({
+    color: t.color.onSurface,
+    fontWeight: t.type.labelLarge.weight,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   }),
   authorRow: css({
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '1rem',
-    fontSize: '0.875rem',
+    marginBottom: t.spacing(4),
+    fontSize: t.type.bodyMedium.size,
   }),
   avatar: css({
-    marginRight: '0.5rem',
+    marginRight: t.spacing(2),
   }),
   meta: css({
     margin: 0,
-    color: '#6b7280',
+    color: t.color.onSurfaceVariant,
   }),
   authorName: css({
-    color: '#111827',
-    fontWeight: 500,
+    color: t.color.onSurface,
+    fontWeight: t.type.labelLarge.weight,
+  }),
+  card: css({
+    padding: t.spacing(5),
+    marginBottom: t.spacing(6),
+    backgroundColor: t.color.surface,
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
+    borderRadius: t.shape.medium,
   }),
   body: css({
-    marginBottom: '0.5rem',
+    marginBottom: t.spacing(4),
     whiteSpace: 'pre-wrap',
   }),
   commentsSection: css({
-    marginBottom: '1.5rem',
+    marginBottom: t.spacing(6),
   }),
   commentsHeader: css({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '1rem',
+    marginBottom: t.spacing(4),
   }),
-  commentsTitle: css({
+  sectionTitle: css({
     margin: 0,
-    fontSize: '1rem',
-    fontWeight: 500,
+    fontSize: t.type.titleMedium.size,
+    fontWeight: t.type.titleMedium.weight,
   }),
   sortNav: css({
     display: 'flex',
-    gap: '0.5rem',
+    gap: t.spacing(2),
   }),
   sortLink: css({
-    padding: '0.25rem 0.75rem',
-    fontSize: '0.875rem',
-    color: '#4b5563',
+    padding: [t.spacing(1), t.spacing(3)],
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurfaceVariant,
     textDecoration: 'none',
-    borderRadius: '0.375rem',
+    borderRadius: t.shape.small,
     '&:hover': {
-      backgroundColor: '#f9fafb',
+      backgroundColor: t.color.surfaceContainer,
     },
   }),
   sortLinkActive: css({
-    backgroundColor: '#f3f4f6',
-    color: '#111827',
-  }),
-  divider: css({
-    border: 0,
-    borderTop: '1px solid #d1d5db',
+    backgroundColor: t.color.surfaceContainerHigh,
+    color: t.color.onSurface,
   }),
   addCommentHeading: css({
-    margin: '0 0 1rem',
-    fontSize: '1.125rem',
-    fontWeight: 500,
+    margin: [0, 0, t.spacing(4)],
+    fontSize: t.type.titleMedium.size,
+    fontWeight: t.type.titleMedium.weight,
   }),
   signInPrompt: css({
-    padding: '0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.375rem',
+    padding: t.spacing(3),
+    backgroundColor: t.color.surface,
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
+    borderRadius: t.shape.medium,
   }),
   link: css({
     color: 'inherit',
@@ -276,23 +309,23 @@ const styles = {
   }),
   asideSticky: css({
     position: 'sticky',
-    top: '1.5rem',
+    top: t.spacing(6),
   }),
   asideSection: css({
-    paddingBottom: '1rem',
-    marginBottom: '1rem',
-    borderBottom: '1px solid #e5e7eb',
+    paddingBottom: t.spacing(4),
+    marginBottom: t.spacing(4),
+    borderBottom: `${t.size.px} solid ${t.color.outlineVariant}`,
   }),
   asideHeading: css({
-    margin: '0 0 0.5rem',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    color: '#4b5563',
+    margin: [0, 0, t.spacing(2)],
+    fontSize: t.type.labelMedium.size,
+    fontWeight: t.type.labelMedium.weight,
+    color: t.color.onSurface,
   }),
   categoryLink: css({
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: t.spacing(2),
     width: 'max-content',
     color: 'inherit',
     textDecoration: 'none',
@@ -304,14 +337,14 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '2rem',
-    height: '2rem',
-    fontSize: '1rem',
-    backgroundColor: '#e5e7eb',
-    borderRadius: '0.375rem',
+    width: t.spacing(8),
+    height: t.spacing(8),
+    fontSize: t.type.titleMedium.size,
+    backgroundColor: t.color.surfaceContainer,
+    borderRadius: t.shape.small,
   }),
   categoryTitle: css({
-    fontSize: '0.75rem',
-    fontWeight: 600,
+    fontSize: t.type.bodyMedium.size,
+    fontWeight: t.type.titleMedium.weight,
   }),
 };

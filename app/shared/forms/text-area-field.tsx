@@ -1,5 +1,6 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, on, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { on, type Handle } from 'remix/component';
 import type { Props as ElementProps } from 'remix/component/jsx-runtime';
 
 import { FieldWrapper } from './field-wrapper.tsx';
@@ -19,6 +20,7 @@ export function TextAreaField(handle: Handle<TextAreaFieldProps>) {
         <textarea
           {...props}
           name={field.name}
+          autoComplete="off"
           children={
             defaultValue as unknown as ElementProps<'textarea'>['children']
           }

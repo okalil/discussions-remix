@@ -1,5 +1,6 @@
 import type { FieldHandle } from '@discussions/form';
-import { css, on, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { on, type Handle } from 'remix/component';
 import type { Props as ElementProps } from 'remix/component/jsx-runtime';
 
 type FileFieldProps = Pick<ElementProps<'input'>, 'accept' | 'multiple'> & {

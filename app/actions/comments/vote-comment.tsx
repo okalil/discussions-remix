@@ -1,10 +1,12 @@
 import { Form } from '@discussions/form';
-import { css, on, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { on, type Handle } from 'remix/component';
 import * as coerce from 'remix/data-schema/coerce';
 import * as f from 'remix/data-schema/form-data';
 
 import { routes } from '../../routes.ts';
 import { ArrowUpIcon } from '../../shared/icons/arrow-up-icon.tsx';
+import { t } from '../../theme.ts';
 
 type VoteCommentProps = {
   id: number;
@@ -52,7 +54,7 @@ export function VoteComment(handle: Handle<VoteCommentProps>) {
           }),
         ]}
       >
-        <ArrowUpIcon size={16} />
+        <ArrowUpIcon size={14} />
         {votesCount}
       </button>
     );
@@ -67,27 +69,31 @@ const styles = {
   button: css({
     display: 'flex',
     alignItems: 'center',
-    gap: '0.25rem',
-    padding: '0.125rem 0.5rem',
-    fontSize: '0.875rem',
-    color: '#374151',
+    justifyContent: 'center',
+    gap: t.spacing(1),
+    width: t.spacing(12),
+    height: t.spacing(6.5),
+    padding: [0, t.spacing(1.5)],
+    fontSize: t.type.bodySmall.size,
+    lineHeight: t.type.bodySmall.lineHeight,
+    color: t.color.onSurfaceVariant,
     backgroundColor: 'transparent',
-    border: '1px solid #e5e7eb',
-    borderRadius: '0.75rem',
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
+    borderRadius: t.shape.small,
     cursor: 'pointer',
     '&:hover:not(:disabled)': {
-      backgroundColor: '#eff6ff',
+      backgroundColor: t.color.primaryContainer,
     },
     '&:disabled': {
       opacity: 0.6,
       cursor: 'not-allowed',
     },
     '&[data-highlighted="true"]': {
-      borderColor: '#2563eb',
-      color: '#2563eb',
-      backgroundColor: '#eff6ff',
+      borderColor: t.color.primary,
+      color: t.color.primary,
+      backgroundColor: t.color.primaryContainer,
       '&:hover:not(:disabled)': {
-        backgroundColor: '#dbeafe',
+        backgroundColor: t.state.primaryContainer,
       },
     },
   }),

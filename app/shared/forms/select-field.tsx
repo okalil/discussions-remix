@@ -1,9 +1,11 @@
 import type { FieldHandle } from '@discussions/form';
 import * as popover from '@remix-run/ui/popover';
 import * as select from '@remix-run/ui/select';
-import { css, on, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { on, type Handle } from 'remix/component';
 import type { Props as ElementProps } from 'remix/component/jsx-runtime';
 
+import { t } from '../../theme.ts';
 import { FieldWrapper } from './field-wrapper.tsx';
 
 type SelectOption = {
@@ -25,6 +27,7 @@ type SelectFieldProps = Omit<
 > & {
   field: FieldHandle;
   label: string;
+  placeholder?: string;
 };
 
 function SelectLabel(handle: Handle) {
@@ -90,14 +93,14 @@ function SelectControl(handle: Handle<SelectControlProps>) {
 
 export function SelectField(handle: Handle<SelectFieldProps>) {
   return () => {
-    const { field, label, mix, ...props } = handle.props;
+    const { field, label, mix, placeholder, ...props } = handle.props;
 
     return (
       <FieldWrapper label={label} error={field.error}>
         <SelectControl
           {...props}
           name={field.name}
-          defaultLabel={label}
+          defaultLabel={placeholder ?? label}
           defaultValue={String(field.value ?? '')}
           mix={[
             mix,
@@ -113,26 +116,25 @@ export function SelectField(handle: Handle<SelectFieldProps>) {
 
 const styles = {
   width: css({
-    width: 'min(320px, 100%)',
+    width: t.size.field,
   }),
   trigger: css({
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.5rem 0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.375rem',
-    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    backgroundColor: '#fff',
-    color: '#111827',
-    fontSize: '0.875rem',
-    lineHeight: '1.25rem',
+    gap: t.spacing(2),
+    padding: [t.spacing(2), t.spacing(3)],
+    border: `${t.size.px} solid ${t.color.outline}`,
+    borderRadius: t.shape.extraSmall,
+    backgroundColor: t.color.surfaceContainerLowest,
+    color: t.color.onSurface,
+    fontSize: t.type.bodyMedium.size,
+    lineHeight: t.type.bodyMedium.lineHeight,
     textAlign: 'left',
     cursor: 'pointer',
     '&:focus': {
       outline: 'none',
-      borderColor: '#6366f1',
-      boxShadow: '0 0 0 1px #6366f1, 0 1px 2px 0 rgb(0 0 0 / 0.05)',
+      borderColor: t.color.primary,
+      boxShadow: t.elevation.focus,
     },
     '&:disabled': {
       opacity: 0.55,
@@ -147,47 +149,46 @@ const styles = {
     whiteSpace: 'nowrap',
   }),
   chevron: css({
-    width: '0.45rem',
-    height: '0.45rem',
+    width: t.spacing(2),
+    height: t.spacing(2),
     flex: 'none',
-    borderRight: '1.5px solid #6b7280',
-    borderBottom: '1.5px solid #6b7280',
+    borderRight: `1.5px solid ${t.color.onSurfaceVariant}`,
+    borderBottom: `1.5px solid ${t.color.onSurfaceVariant}`,
     transform: 'translateY(-1px) rotate(45deg)',
   }),
   surface: css({
     position: 'fixed',
     inset: 'auto',
     margin: 0,
-    padding: '0.25rem',
-    border: '1px solid #e5e7eb',
-    borderRadius: '0.5rem',
-    backgroundColor: '#fff',
-    boxShadow:
-      '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+    padding: t.spacing(1),
+    border: `${t.size.px} solid ${t.color.outlineVariant}`,
+    borderRadius: t.shape.small,
+    backgroundColor: t.color.surfaceContainerLowest,
+    boxShadow: t.elevation.level2,
     '&::backdrop': {
       background: 'transparent',
     },
   }),
   list: css({
     display: 'grid',
-    maxHeight: '16rem',
+    maxHeight: t.spacing(64),
     overflow: 'auto',
     outline: 'none',
   }),
   option: css({
-    padding: '0.375rem 0.5rem',
-    borderRadius: '0.25rem',
-    fontSize: '0.875rem',
-    color: '#111827',
+    padding: [t.spacing(1.5), t.spacing(2)],
+    borderRadius: t.shape.extraSmall,
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.onSurface,
     cursor: 'pointer',
     '&[data-highlighted="true"], &:hover': {
-      backgroundColor: '#f3f4f6',
+      backgroundColor: t.color.surfaceContainer,
     },
     '&[aria-selected="true"]': {
-      fontWeight: 500,
+      fontWeight: t.type.labelLarge.weight,
     },
     '&[aria-disabled="true"]': {
-      color: '#9ca3af',
+      color: t.color.outline,
       cursor: 'not-allowed',
     },
   }),

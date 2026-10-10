@@ -1,6 +1,7 @@
 import { Form, form } from '@discussions/form';
 import type { FormDraft, FormErrors } from '@discussions/form';
-import { clientEntry, css } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { clientEntry } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -11,6 +12,7 @@ import { Button } from '../../shared/button.tsx';
 import { ErrorMessage } from '../../shared/error-message.tsx';
 import { FileField } from '../../shared/forms/file-field.tsx';
 import { TextField } from '../../shared/forms/text-field.tsx';
+import { t } from '../../theme.ts';
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
@@ -60,18 +62,26 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
           encType="multipart/form-data"
           mix={[styles.form, form(profileForm, { history: 'replace' })]}
         >
-          <label mix={styles.avatarField}>
-            <Avatar
-              src={userAvatar}
-              alt={user.name}
-              size={64}
-              fallback={user.name.at(0)}
-            />
-            <FileField field={avatarField} accept="image/*" />
+          <div mix={styles.photoSection}>
+            <label mix={styles.photo}>
+              <span aria-hidden="true">
+                <Avatar
+                  src={userAvatar}
+                  alt=""
+                  size={80}
+                  fallback={user.name.at(0)}
+                />
+              </span>
+              <span mix={styles.photoCopy}>
+                <span mix={styles.photoAction}>Change photo</span>
+                <span mix={styles.photoHint}>Images up to 5MB.</span>
+              </span>
+              <FileField field={avatarField} accept="image/*" />
+            </label>
             {errors.avatar && (
               <span mix={styles.avatarError}>{errors.avatar}</span>
             )}
-          </label>
+          </div>
 
           <TextField
             field={profileForm.field('name')}
@@ -80,16 +90,18 @@ export const ProfileForm = clientEntry<ProfileFormProps>(
             aria-required
           />
 
+          <div>
+            <span mix={styles.label}>Email</span>
+            <p mix={styles.email}>{user.email}</p>
+          </div>
+
           {errors.root && <ErrorMessage error={errors.root} />}
 
-          <Button
-            type="submit"
-            variant="primary"
-            pending={pending}
-            mix={styles.submit}
-          >
-            Save
-          </Button>
+          <div mix={styles.actions}>
+            <Button type="submit" variant="primary" pending={pending}>
+              Save changes
+            </Button>
+          </div>
         </form>
       );
     };
@@ -115,24 +127,58 @@ export const updateProfileSchema = f.object({
 const styles = {
   form: css({
     display: 'grid',
-    gap: '0.75rem',
+    gap: t.spacing(5),
   }),
-  avatarField: css({
+  photoSection: css({
     display: 'grid',
-    placeItems: 'center',
-    marginBottom: '0.25rem',
+    gap: t.spacing(2),
+    paddingBottom: t.spacing(5),
+    borderBottom: `${t.size.px} solid ${t.color.outlineVariant}`,
+  }),
+  photo: css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: t.spacing(4),
+    width: 'fit-content',
     cursor: 'pointer',
+    '&:hover > span > span:first-child': {
+      textDecoration: 'underline',
+    },
+  }),
+  photoCopy: css({
+    display: 'grid',
+    gap: t.spacing(0.5),
+  }),
+  photoAction: css({
+    fontSize: t.type.labelLarge.size,
+    fontWeight: t.type.labelLarge.weight,
+    color: t.color.primary,
+  }),
+  photoHint: css({
+    fontSize: t.type.bodySmall.size,
+    color: t.color.onSurfaceVariant,
   }),
   avatarError: css({
-    marginTop: '0.5rem',
-    fontSize: '0.875rem',
-    textAlign: 'center',
-    color: '#dc2626',
+    fontSize: t.type.bodyMedium.size,
+    color: t.color.error,
   }),
-  submit: css({
-    height: '3rem',
-    width: '10rem',
-    marginLeft: 'auto',
-    marginTop: '0.5rem',
+  label: css({
+    display: 'block',
+    marginBottom: t.spacing(1),
+    fontSize: t.type.labelLarge.size,
+    fontWeight: t.type.labelLarge.weight,
+    color: t.color.onSurfaceVariant,
+  }),
+  email: css({
+    margin: 0,
+    padding: [t.spacing(2), t.spacing(3)],
+    borderRadius: t.shape.extraSmall,
+    backgroundColor: t.color.surfaceContainer,
+    color: t.color.onSurfaceVariant,
+    fontSize: t.type.bodyMedium.size,
+  }),
+  actions: css({
+    display: 'flex',
+    justifyContent: 'flex-end',
   }),
 };

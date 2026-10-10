@@ -1,5 +1,6 @@
 import { Form, form } from '@discussions/form';
-import { css, on, type Handle } from 'remix/component';
+import { css } from 'pitlane/theme';
+import { on, type Handle } from 'remix/component';
 import * as s from 'remix/data-schema';
 import { minLength } from 'remix/data-schema/checks';
 import * as f from 'remix/data-schema/form-data';
@@ -8,6 +9,7 @@ import type { Comment } from '../../../core/comment.types.ts';
 import { routes } from '../../routes.ts';
 import { Button } from '../../shared/button.tsx';
 import { TextAreaField } from '../../shared/forms/text-area-field.tsx';
+import { t } from '../../theme.ts';
 
 type EditCommentFormProps = {
   comment: Comment;
@@ -54,12 +56,7 @@ export function EditCommentForm(handle: Handle<EditCommentFormProps>) {
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            pending={pending}
-            mix={styles.submit}
-          >
+          <Button type="submit" variant="primary" pending={pending}>
             Update comment
           </Button>
         </div>
@@ -75,22 +72,16 @@ export const editCommentSchema = f.object({
 const styles = {
   form: css({
     display: 'grid',
-    gap: '0.75rem',
-    padding: '0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.375rem',
+    gap: t.spacing(3),
+    padding: t.spacing(3),
+    border: `${t.size.px} solid ${t.color.outline}`,
+    borderRadius: t.shape.extraSmall,
   }),
   actions: css({
     display: 'flex',
-    gap: '0.5rem',
+    gap: t.spacing(2),
   }),
   cancel: css({
-    height: '2.5rem',
-    width: '6rem',
     marginLeft: 'auto',
-  }),
-  submit: css({
-    height: '2.5rem',
-    width: '12rem',
   }),
 };

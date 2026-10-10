@@ -18,6 +18,7 @@ export function TextField(handle: Handle<TextFieldProps>) {
         <input
           {...props}
           name={field.name}
+          autoComplete={props.type === 'password' ? 'new-password' : 'off'}
           defaultValue={String(field.value ?? '')}
           mix={[
             mix,
