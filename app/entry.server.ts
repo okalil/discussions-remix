@@ -6,6 +6,7 @@ import { render } from 'remix/middleware/render';
 import { staticFiles } from 'remix/middleware/static';
 import type { RouterContext } from 'remix/router';
 
+import { assets } from './assets.ts';
 import { auth } from './middleware/auth.ts';
 import { services } from './middleware/services.ts';
 import { session } from './middleware/session.ts';
@@ -25,7 +26,7 @@ const router = createRouter({
     formData(),
     session(),
     auth(),
-    render(),
+    render({ assets }),
     asyncContext(),
   ],
 });

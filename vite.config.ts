@@ -1,7 +1,7 @@
 import { cloudflare } from '@cloudflare/vite-plugin';
-import { remix } from '@pitlane/dev';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { remix } from 'pitlane/vite-plugin-remix';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { defineConfig } from 'vite-plus';
 

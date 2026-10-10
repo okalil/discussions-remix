@@ -1,12 +1,11 @@
-import { mergeAssets } from '@pitlane/dev/runtime';
 import { css, type Handle, type RemixNode } from 'remix/component';
+import { ImportMap } from 'remix/component/server';
 import { getContext } from 'remix/middleware/async-context';
 import type { Session } from 'remix/session';
 
-import clientAssets from '../entry.client.ts?assets=client';
-import serverAssets from '../entry.server.ts?assets=ssr';
-import { FlashToast } from '../shared/flash-toast.tsx';
-import { NavigationProgress } from '../shared/navigation-progress.tsx';
+import { scriptEntry, stylesheets } from '../assets.ts';
+import { FlashToast } from './flash-toast.tsx';
+import { NavigationProgress } from './navigation-progress.tsx';
 
 export interface DocumentProps {
   children?: RemixNode;
@@ -20,8 +19,6 @@ export function Document(handle: Handle<DocumentProps>) {
   const { session } = getContext();
   const toast = getFlashToast(session);
 
-  const assets = mergeAssets(clientAssets, serverAssets);
-
   return () => (
     <html lang="en" mix={css({ height: '100%' })}>
       <head>
@@ -32,13 +29,14 @@ export function Document(handle: Handle<DocumentProps>) {
         {handle.props.meta}
 
         <link rel="stylesheet" href="/styles/setup.css" />
-        {assets.css.map((attrs) => (
-          <link key={attrs.href} {...attrs} rel="stylesheet" />
+        <ImportMap value={scriptEntry.importMap} />
+        {stylesheets.map((href) => (
+          <link key={href} rel="stylesheet" href={href} />
         ))}
-        {assets.js.map((attrs) => (
-          <link key={attrs.href} {...attrs} rel="modulepreload" />
+        {scriptEntry.preloads.map((href) => (
+          <link key={href} rel="modulepreload" href={href} />
         ))}
-        <script async src={clientAssets.entry} type="module" />
+        <script type="module" src={scriptEntry.href} />
       </head>
       <body mix={css({ height: '100%' })}>
         <NavigationProgress />

@@ -5,4 +5,7 @@ allowBuilds:
   workerd: true
 minimumReleaseAge: 0
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vite: npm:@voidzero-dev/vite-plus-core@1.1.0
+peerDependencyRules:
+  allowedVersions:
+    vite: '1'

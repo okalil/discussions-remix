@@ -11,6 +11,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@remix-run/ui": "0.12.1",
     "bcryptjs": "^3.0.3",
+    "pitlane": "1.0.0-alpha.2",
     "react": "^19.2.7",
     "react-email": "^6.9.0",
     "remix": "3.0.0",
@@ -19,15 +20,14 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.48.0",
-    "@pitlane/dev": "^0.1.1",
     "@types/node": "latest",
     "@types/pg": "^8.23.1",
     "@types/react": "^19.2.17",
     "pg": "^8.23.0",
     "typescript": "latest",
-    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.1.0",
     "vite-plugin-devtools-json": "^1.1.0",
-    "vite-plus": "^0.2.6",
+    "vite-plus": "1.1.0",
     "wrangler": "^4.115.0"
   },
   "engines": {

@@ -1,8 +1,9 @@
+import { revalidate } from 'pitlane/vite-plugin-remix/hmr';
 import { run } from 'remix/component';
 
-run({
+const app = run({
   async loadModule(moduleUrl, exportName) {
-    const mod = await import(moduleUrl);
+    const mod = await import(/* @vite-ignore */ moduleUrl);
     return mod[exportName];
   },
   async resolveFrame(src, options) {
@@ -14,3 +15,7 @@ run({
     });
   },
 });
+
+if (import.meta.hot) {
+  import.meta.hot.on('server:update', () => revalidate(app));
+}
