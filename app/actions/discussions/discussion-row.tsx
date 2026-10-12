@@ -20,12 +20,14 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
 
     return (
       <li mix={styles.row}>
-        <VoteDiscussion
-          id={discussion.id}
-          voted={discussion.voted}
-          votesCount={discussion.votesCount}
-          disabled={!authenticated}
-        />
+        <div mix={styles.vote}>
+          <VoteDiscussion
+            id={discussion.id}
+            voted={discussion.voted}
+            votesCount={discussion.votesCount}
+            disabled={!authenticated}
+          />
+        </div>
 
         <div mix={styles.content}>
           <DiscussionLink
@@ -48,7 +50,8 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
           src={discussion.author.avatar}
           alt={`${discussion.author.name}'s avatar`}
           fallback={discussion.author.name.at(0)}
-          size={36}
+          size={28}
+          mix={styles.avatar}
         />
 
         <a
@@ -67,17 +70,44 @@ export function DiscussionRow(handle: Handle<DiscussionRowProps>) {
 const styles = {
   row: css({
     display: 'grid',
-    gridTemplateColumns: `${t.spacing(12)} 1fr auto ${t.spacing(15)}`,
-    gap: t.spacing(5),
+    gridTemplateColumns: `${t.spacing(12)} auto ${t.spacing(15)} minmax(0, 1fr)`,
+    columnGap: t.spacing(5),
+    rowGap: t.spacing(2),
     alignItems: 'center',
     padding: [t.spacing(2), t.spacing(4)],
     borderBottom: `${t.size.px} solid ${t.color.outlineVariant}`,
     '&:hover': {
       backgroundColor: t.color.surfaceContainer,
     },
+    '@media (min-width: 768px)': {
+      gridTemplateColumns: `${t.spacing(12)} 1fr auto ${t.spacing(15)}`,
+      rowGap: t.spacing(5),
+    },
+  }),
+  vote: css({
+    gridColumn: '1',
+    gridRow: '1 / span 2',
+    '@media (min-width: 768px)': {
+      gridColumn: 'auto',
+      gridRow: 'auto',
+    },
   }),
   content: css({
     minWidth: 0,
+    gridColumn: '2 / -1',
+    gridRow: '1',
+    '@media (min-width: 768px)': {
+      gridColumn: 'auto',
+      gridRow: 'auto',
+    },
+  }),
+  avatar: css({
+    gridColumn: '2',
+    gridRow: '2',
+    '@media (min-width: 768px)': {
+      gridColumn: 'auto',
+      gridRow: 'auto',
+    },
   }),
   meta: css({
     margin: [t.spacing(0.5), 0, 0],
@@ -88,6 +118,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: t.spacing(2),
+    gridColumn: '3',
+    gridRow: '2',
     marginLeft: 'auto',
     padding: [t.spacing(1), t.spacing(2)],
     color: t.color.onSurfaceVariant,
@@ -95,6 +127,10 @@ const styles = {
     borderRadius: t.shape.small,
     '&:hover': {
       color: t.color.primary,
+    },
+    '@media (min-width: 768px)': {
+      gridColumn: 'auto',
+      gridRow: 'auto',
     },
   }),
 };

@@ -44,7 +44,7 @@ export function EditCommentForm(handle: Handle<EditCommentFormProps>) {
         <div mix={styles.actions}>
           <Button
             type="button"
-            variant="danger"
+            variant="default"
             mix={[
               styles.cancel,
               on('click', (e) => {
@@ -74,6 +74,7 @@ const styles = {
     display: 'grid',
     gap: t.spacing(3),
     padding: t.spacing(3),
+    backgroundColor: t.color.surfaceContainerLowest,
     border: `${t.size.px} solid ${t.color.outline}`,
     borderRadius: t.shape.extraSmall,
   }),

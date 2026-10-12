@@ -47,12 +47,12 @@ export class Field<
   }
 
   onChange() {
-    this.dispatchEvent(new Event('change'));
     this.#form.dispatchEvent(new Event('fieldchange'));
+    this.dispatchEvent(new Event('change'));
   }
 
   onBlur() {
-    this.dispatchEvent(new Event('blur'));
     this.#form.dispatchEvent(new Event('fieldblur'));
+    this.dispatchEvent(new Event('blur'));
   }
 }

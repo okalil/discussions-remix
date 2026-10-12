@@ -87,7 +87,7 @@ export function DiscussionsPage(handle: Handle<DiscussionsPageProps>) {
           <div mix={styles.grid}>
             <section mix={styles.sidebar}>
               <h2 mix={styles.sectionTitle}>Categories</h2>
-              <nav>
+              <nav mix={styles.nav}>
                 <a
                   href={routes.discussions.index.href()}
                   mix={[
@@ -209,9 +209,17 @@ const styles = {
     },
   }),
   sidebar: css({
-    padding: [0, t.spacing(2)],
-    '@media (max-width: 767px)': {
-      gridRowStart: 2,
+    order: 1,
+    '@media (min-width: 768px)': {
+      order: 0,
+      padding: [0, t.spacing(2)],
+    },
+  }),
+  nav: css({
+    // Cancel the link padding so labels line up with the page title.
+    marginInline: t.spacing(-2),
+    '@media (min-width: 768px)': {
+      marginInline: 0,
     },
   }),
   sectionTitle: css({
